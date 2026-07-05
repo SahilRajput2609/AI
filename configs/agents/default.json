@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "description": "Default agent configurations for the AI Agency platform",
+  "agents": {
+    "owner": {
+      "name": "Owner",
+      "description": "Top-level agent that owns task intake, approval, and final review",
+      "maxConcurrentTasks": 3,
+      "defaultModel": "gpt-4o"
+    },
+    "planner": {
+      "name": "Planner",
+      "description": "Decomposes tasks into execution plans with subtasks",
+      "maxConcurrentTasks": 2,
+      "defaultModel": "gpt-4o"
+    },
+    "orchestrator": {
+      "name": "Orchestrator",
+      "description": "Coordinates task assignment across agent network",
+      "maxConcurrentTasks": 5,
+      "defaultModel": "gpt-4o"
+    },
+    "frontend": {
+      "name": "Frontend Developer",
+      "description": "Builds UI components, pages, and frontend logic",
+      "maxConcurrentTasks": 2,
+      "defaultModel": "gpt-4o"
+    },
+    "backend": {
+      "name": "Backend Developer",
+      "description": "Implements server logic, APIs, and database interactions",
+      "maxConcurrentTasks": 2,
+      "defaultModel": "gpt-4o"
+    },
+    "api": {
+      "name": "API Developer",
+      "description": "Designs and implements REST/GraphQL API endpoints",
+      "maxConcurrentTasks": 2,
+      "defaultModel": "gpt-4o"
+    },
+    "database": {
+      "name": "Database Engineer",
+      "description": "Manages schema design, migrations, and data modeling",
+      "maxConcurrentTasks": 2,
+      "defaultModel": "gpt-4o"
+    },
+    "debugger": {
+      "name": "Debugger",
+      "description": "Diagnoses and resolves bugs and runtime issues",
+      "maxConcurrentTasks": 3,
+      "defaultModel": "gpt-4o"
+    },
+    "devops": {
+      "name": "DevOps Engineer",
+      "description": "Manages CI/CD, deployments, and infrastructure",
+      "maxConcurrentTasks": 2,
+      "defaultModel": "gpt-4o"
+    },
+    "documentation": {
+      "name": "Documentation Writer",
+      "description": "Creates and maintains project documentation",
+      "maxConcurrentTasks": 2,
+      "defaultModel": "gpt-4o"
+    },
+    "qa": {
+      "name": "QA Engineer",
+      "description": "Writes and runs tests, validates quality",
+      "maxConcurrentTasks": 2,
+      "defaultModel": "gpt-4o"
+    },
+    "reviewer": {
+      "name": "Reviewer",
+      "description": "Reviews code for style, security, and correctness",
+      "maxConcurrentTasks": 2,
+      "defaultModel": "gpt-4o"
+    }
+  }
+}

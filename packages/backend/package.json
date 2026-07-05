@@ -1,0 +1,21 @@
+{
+  "name": "@ai-company/backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@ai-company/shared": "*",
+    "@ai-company/database": "*",
+    "axios": "^1.7.2",
+    "dotenv": "^17.4.2"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

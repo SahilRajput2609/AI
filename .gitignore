@@ -1,0 +1,12 @@
+node_modules
+.next
+dist
+build
+.env
+.env.local
+logs
+*.log
+.cache
+coverage
+.DS_Store
+.vscode/settings.json

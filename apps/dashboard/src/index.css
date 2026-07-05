@@ -1,0 +1,311 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility will-change-transform {
+  will-change: transform;
+}
+
+@utility will-change-opacity {
+  will-change: opacity;
+}
+
+/* Design Tokens */
+@theme {
+  /* Colors */
+  --color-bg: #000000;
+  --color-surface: rgba(10, 10, 10, 0.8);
+  --color-card: rgba(16, 16, 16, 0.6);
+  --color-card-hover: rgba(26, 26, 26, 0.75);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-primary: #cca374;
+  --color-primary-hover: #e2cca8;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-accent-primary: #cca374;
+  --color-accent-purple: #a78bfa;
+  --color-accent-success: #34d399;
+  --color-accent-warning: #fbbf24;
+  --color-accent-error: #f87171;
+  --color-text: #f5f5f7;
+  --color-secondary-text: #a1a1aa;
+  --color-muted: #52525b;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --shadow-inner: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  /* Animations */
+  --animate-fade-in: fade-in 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-fade-in-page: fade-in-page 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-slide-up: slide-up 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-scale-in: scale-in 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+  --animate-gradient-shift: gradient-shift 8s ease infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-attachment: fixed;
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .will-change-opacity {
+    will-change: opacity;
+  }
+
+  .bg-gradient-to-br {
+    background: linear-gradient(to bottom right, var(--color-surface), var(--color-bg));
+  }
+
+  .animate-gradient-shift {
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  .animate-pulse-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 250ms ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 300ms ease-out;
+  }
+
+  .transition-all {
+    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  .pointer-events-none {
+    pointer-events: none;
+  }
+
+  /* Text color utilities */
+  .text-primary { color: var(--color-primary); }
+  .text-primary-hover { color: var(--color-primary-hover); }
+  .text-secondary { color: var(--color-secondary-text); }
+  .text-muted { color: var(--color-muted); }
+
+  /* Background color utilities */
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-primary-hover { background-color: var(--color-primary-hover); }
+  .bg-secondary { background-color: var(--color-card); }
+  .bg-surface { background-color: var(--color-surface); }
+  .bg-surface-card { background-color: var(--color-card); }
+  .bg-surface-glass { background-color: rgba(10, 10, 10, 0.75); }
+  .bg-surface-input { background-color: rgba(255, 255, 255, 0.03); }
+  .bg-surface-card-hover { background-color: var(--color-card-hover); }
+
+  /* Border utilities */
+  .border-surface-input {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .border-surface-input-hover {
+    border-color: rgba(59, 130, 246, 0.5);
+  }
+
+  /* Radius utilities */
+  .rounded-sm { border-radius: var(--radius-sm); }
+  .rounded-md { border-radius: var(--radius-md); }
+  .rounded-lg { border-radius: var(--radius-lg); }
+
+  /* Shadow utilities */
+  .shadow-sm { box-shadow: var(--shadow-sm); }
+  .shadow-md { box-shadow: var(--shadow-md); }
+  .shadow-lg { box-shadow: var(--shadow-lg); }
+
+  /* Glassmorphism Classes */
+  .glass-card {
+    background: var(--color-card);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-card-interactive {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card-interactive:hover {
+    background: var(--color-card-hover);
+    border-color: rgba(204, 163, 116, 0.4);
+    box-shadow: 0 12px 40px 0 rgba(204, 163, 116, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .glass-input {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+  }
+
+  .glass-input:focus {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(204, 163, 116, 0.5);
+    box-shadow: 0 0 15px rgba(204, 163, 116, 0.15);
+  }
+
+  .glass-button-primary {
+    background: #cca374;
+    color: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(204, 163, 116, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-button-primary:hover {
+    background: #e2cca8;
+    box-shadow: 0 6px 20px rgba(204, 163, 116, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .glass-button-secondary {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-button-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+  }
+
+  /* Animated connection lines */
+  .flow-line {
+    stroke-dasharray: 8 8;
+    animation: line-flow 1.5s linear infinite;
+  }
+}
+
+/* Keyframes */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-page {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(100px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-out-right {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(100px); }
+}
+
+@keyframes dash-offset {
+  to { stroke-dashoffset: -24; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.4); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes line-flow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}

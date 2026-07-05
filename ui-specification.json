@@ -1,0 +1,1107 @@
+{
+  "specification": "AI-Company Premium Dashboard",
+  "version": "2.0",
+  "theme": {
+    "mode": "dark",
+    "style": "modern minimal glassmorphism",
+    "borderRadius": "12px",
+    "animationDuration": "250ms",
+    "animationEasing": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "responsive": true,
+    "backdropBlur": "24px"
+  },
+  "colors": {
+    "surface": {
+      "background": "#0B0F17",
+      "card": "#131A24",
+      "cardHover": "#182230",
+      "cardBorder": "rgba(255,255,255,0.06)",
+      "glass": "rgba(19, 26, 36, 0.75)",
+      "glassBorder": "rgba(255,255,255,0.08)",
+      "inputBg": "#1A2332",
+      "sidebarBg": "#0E121C",
+      "terminalBg": "#080C14"
+    },
+    "accent": {
+      "primary": "#3B82F6",
+      "primaryHover": "#2563EB",
+      "primaryGlow": "rgba(59,130,246,0.2)",
+      "primarySubtle": "rgba(59,130,246,0.1)",
+      "purple": "#8B5CF6",
+      "purpleGlow": "rgba(139,92,246,0.2)",
+      "purpleSubtle": "rgba(139,92,246,0.1)",
+      "success": "#22C55E",
+      "successGlow": "rgba(34,197,94,0.2)",
+      "successSubtle": "rgba(34,197,94,0.1)",
+      "warning": "#F59E0B",
+      "warningGlow": "rgba(245,158,11,0.2)",
+      "warningSubtle": "rgba(245,158,11,0.1)",
+      "error": "#EF4444",
+      "errorGlow": "rgba(239,68,68,0.2)",
+      "errorSubtle": "rgba(239,68,68,0.1)"
+    },
+    "text": {
+      "primary": "#F1F5F9",
+      "secondary": "#94A3B8",
+      "muted": "#475569",
+      "inverse": "#0B0F17",
+      "onPrimary": "#FFFFFF",
+      "link": "#60A5FA"
+    },
+    "chart": {
+      "blue": "#3B82F6",
+      "purple": "#8B5CF6",
+      "green": "#22C55E",
+      "orange": "#F59E0B",
+      "pink": "#EC4899",
+      "cyan": "#06B6D4"
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "heading": "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      "body": "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      "mono": "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace"
+    },
+    "fontWeight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "scale": {
+      "display": { "size": 32, "lineHeight": 1.2, "weight": 700, "letterSpacing": "-0.02em" },
+      "h1":      { "size": 24, "lineHeight": 1.3, "weight": 600, "letterSpacing": "-0.015em" },
+      "h2":      { "size": 20, "lineHeight": 1.4, "weight": 600, "letterSpacing": "-0.01em" },
+      "h3":      { "size": 16, "lineHeight": 1.5, "weight": 600, "letterSpacing": "0" },
+      "subtitle":{ "size": 15, "lineHeight": 1.5, "weight": 500, "letterSpacing": "0" },
+      "body":    { "size": 14, "lineHeight": 1.6, "weight": 400, "letterSpacing": "0" },
+      "small":   { "size": 12, "lineHeight": 1.5, "weight": 400, "letterSpacing": "0" },
+      "tiny":    { "size": 11, "lineHeight": 1.4, "weight": 500, "letterSpacing": "0.02em" },
+      "code":    { "size": 13, "lineHeight": 1.6, "weight": 400, "letterSpacing": "0" }
+    }
+  },
+  "spacing": { "xs": 4, "sm": 8, "md": 12, "lg": 16, "xl": 24, "2xl": 32, "3xl": 48 },
+  "shadows": {
+    "sm": "0 1px 2px rgba(0,0,0,0.3)",
+    "md": "0 4px 12px rgba(0,0,0,0.4)",
+    "lg": "0 8px 24px rgba(0,0,0,0.5)",
+    "xl": "0 16px 48px rgba(0,0,0,0.6)",
+    "glow": "0 0 20px rgba(59,130,246,0.15)",
+    "inner": "inset 0 1px 0 rgba(255,255,255,0.04)"
+  },
+  "layout": {
+    "default": {
+      "structure": "sidebar | main | activity",
+      "sidebarWidth": 264,
+      "activityPanelWidth": 320,
+      "terminalHeight": 200,
+      "headerHeight": 56,
+      "sidebarCollapsedWidth": 64
+    },
+    "zIndex": {
+      "base": 1,
+      "sticky": 10,
+      "sidebar": 20,
+      "header": 30,
+      "modal": 40,
+      "notification": 50,
+      "tooltip": 60
+    }
+  },
+
+  "screens": [
+    {
+      "id": "workspace",
+      "name": "Main Workspace",
+      "description": "Primary dashboard with sidebar navigation, agent cards in a flow diagram, chat panel, terminal, and floating notifications.",
+      "layout": "sidebar (264px) | center (1fr) | activity (320px) ; bottom terminal (200px)",
+      "sidebar": {
+        "background": "#0E121C",
+        "border": "1px solid rgba(255,255,255,0.04)",
+        "padding": "16px 12px",
+        "sections": [
+          {
+            "id": "projectSwitcher",
+            "type": "dropdown",
+            "elements": [
+              { "type": "icon", "name": "Folder", "color": "primary", "size": 18 },
+              { "type": "text", "content": "ai-company/web-app", "style": "body medium" },
+              { "type": "icon", "name": "ChevronDown", "color": "muted", "size": 14 }
+            ],
+            "background": "#1A2332",
+            "borderRadius": 10,
+            "padding": "10px 12px",
+            "marginBottom": 20
+          },
+          {
+            "id": "mainNavigation",
+            "type": "navList",
+            "items": [
+              { "icon": "LayoutGrid", "label": "Workspace", "badge": null, "active": true },
+              { "icon": "Kanban", "label": "Task Board", "badge": 8 },
+              { "icon": "FileText", "label": "Files", "badge": null },
+              { "icon": "Clock", "label": "Timeline", "badge": null },
+              { "icon": "Settings", "label": "Settings", "badge": null }
+            ],
+            "itemHeight": 40,
+            "borderRadius": 8,
+            "activeBackground": "rgba(59,130,246,0.15)",
+            "activeTextColor": "primary",
+            "iconSize": 18,
+            "gap": 2
+          },
+          {
+            "id": "agentsSection",
+            "type": "section",
+            "label": "AI Agents",
+            "labelStyle": "tiny uppercase tracking-wider muted",
+            "marginTop": 24,
+            "marginBottom": 12,
+            "items": [
+              { "role": "Owner",        "status": "online",  "icon": "Crown",        "color": "warning",  "subtext": "You" },
+              { "role": "Planner",      "status": "idle",    "icon": "ClipboardList","color": "purple",   "subtext": "3 subtasks" },
+              { "role": "Orchestrator", "status": "running", "icon": "GitBranch",    "color": "primary",  "subtext": "Step 4/8" },
+              { "role": "Coder",        "status": "running", "icon": "Code",         "color": "primary",  "subtext": "Writing auth.ts" },
+              { "role": "Reviewer",     "status": "online",  "icon": "Search",       "color": "success",  "subtext": "1 pending" }
+            ],
+            "itemHeight": 44,
+            "avatarSize": 28,
+            "dotSize": 8,
+            "dotOnline": "success",
+            "dotIdle": "muted",
+            "dotRunning": "primary"
+          },
+          {
+            "id": "usageMetrics",
+            "type": "compactBars",
+            "marginTop": 24,
+            "items": [
+              {
+                "label": "Memory",
+                "usage": 62,
+                "max": 100,
+                "color": "primary",
+                "unit": "GB",
+                "value": "6.2 / 10"
+              },
+              {
+                "label": "CPU",
+                "usage": 34,
+                "max": 100,
+                "color": "purple",
+                "unit": "%",
+                "value": "34"
+              },
+              {
+                "label": "Tokens",
+                "type": "counter",
+                "value": "1,284",
+                "unit": "used",
+                "color": "cyan"
+              }
+            ],
+            "barHeight": 4,
+            "borderRadius": 2,
+            "labelStyle": "small muted"
+          }
+        ]
+      },
+      "header": {
+        "height": 56,
+        "background": "rgba(14,18,28,0.8)",
+        "backdropBlur": "20px",
+        "borderBottom": "1px solid rgba(255,255,255,0.04)",
+        "padding": "0 20px",
+        "elements": [
+          {
+            "id": "breadcrumb",
+            "style": "small muted",
+            "segments": ["ai-company", "web-app", "src"],
+            "separator": "/"
+          },
+          {
+            "id": "spacer",
+            "type": "flex",
+            "flex": 1
+          },
+          {
+            "id": "modelSelector",
+            "type": "badgeDropdown",
+            "label": "GPT-4o",
+            "provider": "OpenAI",
+            "background": "#1E293B",
+            "borderRadius": 8,
+            "padding": "6px 12px",
+            "gap": 6,
+            "iconSize": 14
+          },
+          {
+            "id": "notificationBell",
+            "type": "iconButton",
+            "icon": "Bell",
+            "size": 18,
+            "count": 3,
+            "countBackground": "error",
+            "countTextColor": "white",
+            "countSize": 10
+          },
+          {
+            "id": "userAvatar",
+            "type": "avatar",
+            "size": 32,
+            "borderRadius": "50%",
+            "border": "2px solid rgba(255,255,255,0.08)",
+            "fallback": "JD"
+          }
+        ]
+      },
+      "workspace": {
+        "background": "#0B0F17",
+        "padding": "24px",
+        "canvas": {
+          "type": "agentFlow",
+          "layout": "grid 2x2 with center spine",
+          "cards": [
+            {
+              "id": "owner-card",
+              "type": "OwnerCard",
+              "title": "Owner",
+              "subtitle": "You are in control",
+              "status": "online",
+              "icon": "Crown",
+              "accentColor": "warning",
+              "width": 280,
+              "height": 120,
+              "actions": [
+                { "label": "New Task", "variant": "primary" },
+                { "label": "Assign", "variant": "ghost" }
+              ]
+            },
+            {
+              "id": "planner-card",
+              "type": "AgentCard",
+              "title": "Planner",
+              "agent": "Planner",
+              "status": "idle",
+              "subtitle": "3 subtasks remaining",
+              "accentColor": "purple",
+              "badge": "Idle",
+              "width": 280,
+              "metrics": [
+                { "label": "Tasks", "value": 8 },
+                { "label": "Done", "value": 5 }
+              ]
+            },
+            {
+              "id": "orchestrator-card",
+              "type": "AgentCard",
+              "title": "Orchestrator",
+              "agent": "Orchestrator",
+              "status": "running",
+              "subtitle": "Executing step 4 of 8",
+              "accentColor": "primary",
+              "badge": "Running",
+              "width": 280,
+              "progressBar": { "value": 50, "color": "primary" },
+              "currentAction": "Running auth middleware pipeline"
+            },
+            {
+              "id": "coder-card",
+              "type": "AgentCard",
+              "title": "Coder",
+              "agent": "Coder",
+              "status": "running",
+              "subtitle": "Writing src/middleware/auth.ts",
+              "accentColor": "primary",
+              "badge": "Writing",
+              "width": 280,
+              "logs": [
+                { "level": "info", "message": "> Initializing task..." },
+                { "level": "info", "message": "> Reading spec.md" },
+                { "level": "success", "message": "> Generating types..." },
+                { "level": "info", "message": "> Writing implementation..." }
+              ],
+              "logStyle": "mono small"
+            },
+            {
+              "id": "reviewer-card",
+              "type": "AgentCard",
+              "title": "Reviewer",
+              "agent": "Reviewer",
+              "status": "online",
+              "subtitle": "1 pending review",
+              "accentColor": "success",
+              "badge": "Online",
+              "width": 280,
+              "metrics": [
+                { "label": "Approved", "value": 12 },
+                { "label": "Changes", "value": 3 }
+              ]
+            }
+          ],
+          "connections": {
+            "type": "animatedArrows",
+            "color": "rgba(255,255,255,0.08)",
+            "activeColor": "primary",
+            "animation": "flowing dots 2s linear infinite",
+            "pairs": [
+              ["owner", "planner"],
+              ["planner", "orchestrator"],
+              ["orchestrator", "coder"],
+              ["coder", "reviewer"],
+              ["reviewer", "owner"]
+            ]
+          }
+        },
+        "activityPanel": {
+          "width": 320,
+          "background": "rgba(14,18,28,0.6)",
+          "borderLeft": "1px solid rgba(255,255,255,0.04)",
+          "sections": [
+            {
+              "id": "chat",
+              "type": "ChatPanel",
+              "header": {
+                "title": "Chat",
+                "subtitle": "Codebase Context",
+                "actions": ["Minimize", "PopOut"]
+              },
+              "messages": [
+                {
+                  "role": "user",
+                  "avatar": "JD",
+                  "text": "Add authentication middleware with JWT validation",
+                  "timestamp": "2m ago",
+                  "background": "rgba(59,130,246,0.1)",
+                  "borderRadius": "12px 12px 4px 12px",
+                  "maxWidth": "85%"
+                },
+                {
+                  "role": "assistant",
+                  "avatar": "AI",
+                  "text": "I'll create an auth guard that validates JWTs. Let me check the existing middleware structure first.",
+                  "timestamp": "1m ago",
+                  "background": "#1A2332",
+                  "borderRadius": "12px 12px 12px 4px",
+                  "maxWidth": "85%",
+                  "actions": ["Copy", "Apply"]
+                },
+                {
+                  "role": "assistant",
+                  "avatar": "AI",
+                  "text": "Found src/middleware/ directory. Creating auth.ts with:\n- JWT verification\n- Role-based access control\n- Error handling middleware",
+                  "timestamp": "30s ago",
+                  "background": "#1A2332",
+                  "borderRadius": "12px 12px 12px 4px",
+                  "maxWidth": "85%",
+                  "codeSnippet": {
+                    "language": "typescript",
+                    "content": "export async function authGuard(\n  req: Request,\n  res: Response,\n  next: NextFunction\n): Promise<void> {"
+                  }
+                }
+              ],
+              "input": {
+                "placeholder": "Ask anything about your codebase...",
+                "background": "#1A2332",
+                "borderRadius": 12,
+                "border": "1px solid rgba(255,255,255,0.06)",
+                "padding": "12px 16px",
+                "actions": ["AttachFile", "Send", "VoiceInput"]
+              },
+              "suggestionChips": [
+                "What changed in auth?",
+                "Run tests",
+                "Deploy preview"
+              ]
+            }
+          ]
+        },
+        "terminal": {
+          "height": 200,
+          "background": "#080C14",
+          "borderTop": "1px solid rgba(255,255,255,0.04)",
+          "tabs": [
+            { "label": "Terminal", "active": true, "count": null },
+            { "label": "Logs", "active": false, "count": 12 },
+            { "label": "Problems", "active": false, "count": 3 }
+          ],
+          "tabBar": {
+            "height": 36,
+            "background": "#0E121C",
+            "borderBottom": "1px solid rgba(255,255,255,0.04)",
+            "padding": "0 16px",
+            "activeBorderBottom": "2px solid primary",
+            "labelStyle": "small medium"
+          },
+          "content": {
+            "padding": "12px 16px",
+            "font": "mono",
+            "fontSize": 13,
+            "lineHeight": 1.6,
+            "lines": [
+              { "prefix": "→", "text": " npm run dev", "color": "#94A3B8" },
+              { "prefix": "", "text": "", "color": null },
+              { "prefix": ">", "text": " ai-company@1.0.0 dev", "color": "#64748B" },
+              { "prefix": ">", "text": " vite --port 3000", "color": "#64748B" },
+              { "prefix": "", "text": "", "color": null },
+              { "prefix": "✓", "text": " VITE v5.4.2 ready in 380ms", "color": "#22C55E" },
+              { "prefix": "→", "text": " Local: http://localhost:3000", "color": "#60A5FA" },
+              { "prefix": "", "text": "", "color": null },
+              { "prefix": "!", "text": " [hmr] Warning: unused import 'useEffect' in Header.tsx", "color": "#F59E0B" },
+              { "prefix": "→", "text": " watching for file changes...", "color": "#94A3B8" }
+            ],
+            "cursor": { "style": "block", "blink": true, "color": "primary" }
+          }
+        },
+        "notifications": {
+          "position": "fixed top-4 right-4",
+          "zIndex": 50,
+          "stackDirection": "top-to-bottom",
+          "gap": 8,
+          "items": [
+            {
+              "type": "success",
+              "icon": "CheckCircle",
+              "iconColor": "success",
+              "title": "Task completed",
+              "message": "Coder finished writing auth middleware",
+              "time": "2m ago",
+              "dismissable": true
+            },
+            {
+              "type": "warning",
+              "icon": "AlertTriangle",
+              "iconColor": "warning",
+              "title": "High memory usage",
+              "message": "Memory at 82% — consider pausing idle agents",
+              "time": "5m ago",
+              "dismissable": true
+            },
+            {
+              "type": "info",
+              "icon": "Info",
+              "iconColor": "primary",
+              "title": "Plan updated",
+              "message": "Planner generated 3 new subtasks",
+              "time": "8m ago",
+              "dismissable": true
+            }
+          ],
+          "cardStyle": "glass",
+          "backdropBlur": "24px",
+          "border": "1px solid rgba(255,255,255,0.08)",
+          "borderRadius": 12,
+          "padding": "12px 16px",
+          "width": 340,
+          "animation": {
+            "enter": "translateX(0) with opacity fade from translateX(100px)",
+            "exit": "translateX(100px) with opacity fade",
+            "duration": "300ms"
+          }
+        }
+      }
+    },
+
+    {
+      "id": "kanban",
+      "name": "Task Board (Kanban)",
+      "description": "Four-column kanban board with drag-and-drop task cards, each tagged by priority and agent assignment.",
+      "layout": "full-width board, sidebar collapsed to 64px icon-only",
+      "columns": [
+        {
+          "id": "backlog",
+          "title": "Backlog",
+          "color": "#64748B",
+          "count": 5,
+          "width": 300,
+          "cards": [
+            { "id": 1, "title": "Write integration tests for auth flow", "priority": "low", "tags": ["testing"], "assignee": null, "attachments": 2, "comments": 1 },
+            { "id": 2, "title": "Add API rate limiting middleware", "priority": "medium", "tags": ["backend", "security"], "assignee": null, "attachments": 0, "comments": 3 },
+            { "id": 3, "title": "Design system migration — button component", "priority": "low", "tags": ["ui", "design-system"], "assignee": null, "attachments": 1, "comments": 0 }
+          ],
+          "style": "bg rgba(255,255,255,0.02) rounded-xl p-4"
+        },
+        {
+          "id": "inProgress",
+          "title": "In Progress",
+          "color": "#3B82F6",
+          "count": 3,
+          "width": 300,
+          "cards": [
+            { "id": 4, "title": "JWT authentication middleware", "priority": "high", "tags": ["security", "backend"], "assignee": "Coder Agent", "progress": 60, "attachments": 0, "comments": 2 },
+            { "id": 5, "title": "User profile page layout", "priority": "medium", "tags": ["ui"], "assignee": "Coder Agent", "progress": 30, "attachments": 3, "comments": 0 }
+          ],
+          "style": "bg rgba(59,130,246,0.03) rounded-xl p-4"
+        },
+        {
+          "id": "review",
+          "title": "Review",
+          "color": "#8B5CF6",
+          "count": 2,
+          "width": 300,
+          "cards": [
+            { "id": 6, "title": "Dashboard analytics widgets", "priority": "medium", "tags": ["ui", "analytics"], "assignee": "Reviewer Agent", "attachments": 1, "comments": 4 }
+          ],
+          "style": "bg rgba(139,92,246,0.03) rounded-xl p-4"
+        },
+        {
+          "id": "done",
+          "title": "Done",
+          "color": "#22C55E",
+          "count": 8,
+          "width": 300,
+          "cards": [
+            { "id": 7, "title": "Project scaffolding & routing", "priority": "high", "tags": ["setup"], "assignee": null, "completed": true, "attachments": 0, "comments": 0 }
+          ],
+          "style": "bg rgba(34,197,94,0.03) rounded-xl p-4"
+        }
+      ],
+      "cardStyle": {
+        "background": "#131A24",
+        "borderRadius": 10,
+        "border": "1px solid rgba(255,255,255,0.04)",
+        "padding": "14px",
+        "marginBottom": 10,
+        "hoverBorder": "1px solid rgba(255,255,255,0.1)",
+        "transition": "all 200ms ease"
+      },
+      "priorityBadges": {
+        "high": { "background": "rgba(239,68,68,0.12)", "color": "#EF4444", "label": "High" },
+        "medium": { "background": "rgba(245,158,11,0.12)", "color": "#F59E0B", "label": "Medium" },
+        "low": { "background": "rgba(100,116,139,0.12)", "color": "#94A3B8", "label": "Low" }
+      },
+      "dragBehavior": "smooth reorder with ghost placeholder, opacity 0.5 on drag, scale 1.02 on hover"
+    },
+
+    {
+      "id": "files",
+      "name": "File Explorer",
+      "description": "Collapsible file tree on the left, Monaco-style code editor in the center, optional diff panel on the right.",
+      "layout": "tree (280px) | editor (1fr) | diff (optional 320px)",
+      "tree": {
+        "background": "#0E121C",
+        "borderRight": "1px solid rgba(255,255,255,0.04)",
+        "header": {
+          "title": "Explorer",
+          "actions": ["NewFile", "NewFolder", "CollapseAll"],
+          "padding": "16px",
+          "borderBottom": "1px solid rgba(255,255,255,0.04)"
+        },
+        "structure": [
+          {
+            "name": "src",
+            "type": "folder",
+            "open": true,
+            "children": [
+              {
+                "name": "components",
+                "type": "folder",
+                "open": true,
+                "children": [
+                  { "name": "Header.tsx", "type": "file", "icon": "FileIcon", "language": "tsx" },
+                  { "name": "Sidebar.tsx", "type": "file", "icon": "FileIcon", "language": "tsx" },
+                  { "name": "AgentCard.tsx", "type": "file", "icon": "FileIcon", "language": "tsx" }
+                ]
+              },
+              {
+                "name": "middleware",
+                "type": "folder",
+                "open": false,
+                "children": [
+                  { "name": "auth.ts", "type": "file", "icon": "FileIcon", "language": "typescript", "active": true }
+                ]
+              },
+              { "name": "app.ts", "type": "file", "icon": "FileIcon", "language": "typescript" },
+              { "name": "types.ts", "type": "file", "icon": "FileIcon", "language": "typescript" }
+            ]
+          },
+          { "name": "public", "type": "folder", "open": false, "children": [] },
+          { "name": "package.json", "type": "file", "icon": "FileJson", "language": "json" },
+          { "name": "tsconfig.json", "type": "file", "icon": "FileJson", "language": "json" }
+        ],
+        "itemHeight": 32,
+        "indent": 16,
+        "iconSize": 16,
+        "activeBackground": "rgba(59,130,246,0.1)",
+        "hoverBackground": "rgba(255,255,255,0.03)",
+        "fontSize": 13,
+        "folderColor": "#60A5FA",
+        "fileColor": "#94A3B8"
+      },
+      "editor": {
+        "header": {
+          "tabs": [
+            { "file": "auth.ts", "path": "src/middleware/auth.ts", "active": true, "modified": false },
+            { "file": "app.ts", "path": "src/app.ts", "active": false, "modified": true }
+          ],
+          "height": 40,
+          "background": "#0E121C",
+          "borderBottom": "1px solid rgba(255,255,255,0.04)",
+          "tabActiveBg": "#131A24",
+          "tabInactiveBg": "transparent",
+          "tabBorderRadius": "8px 8px 0 0",
+          "modifiedDot": { "size": 8, "color": "#F59E0B" }
+        },
+        "codeTheme": {
+          "name": "One Dark Pro",
+          "background": "#0B0F17",
+          "gutterBackground": "#080C14",
+          "gutterColor": "#475569",
+          "lineNumberColor": "#475569",
+          "cursorColor": "#3B82F6",
+          "selectionColor": "rgba(59,130,246,0.3)",
+          "colors": {
+            "keyword": "#C678DD",
+            "string": "#98C379",
+            "function": "#61AFEF",
+            "variable": "#E06C75",
+            "comment": "#5C6370",
+            "type": "#E5C07B",
+            "number": "#D19A66",
+            "operator": "#56B6C2"
+          }
+        },
+        "fontSize": 14,
+        "lineHeight": 1.7,
+        "padding": "16px 0"
+      },
+      "diffPanel": {
+        "visible": false,
+        "width": 320,
+        "background": "#0E121C",
+        "borderLeft": "1px solid rgba(255,255,255,0.04)",
+        "header": "Changes",
+        "style": "split diff with red/green line highlights"
+      }
+    },
+
+    {
+      "id": "timeline",
+      "name": "Activity Timeline",
+      "description": "Vertical chronological feed showing every agent action, git commit, and system event.",
+      "layout": "centered column, max-width 720px",
+      "header": {
+        "title": "Activity Timeline",
+        "subtitle": "Real-time agent and system events",
+        "actions": ["Filter", "AutoScroll", "Clear"],
+        "filters": ["All", "Agent", "System", "Git"]
+      },
+      "entries": [
+        {
+          "timestamp": "09:23:15",
+          "date": "Today",
+          "agent": "Orchestrator",
+          "icon": "GitBranch",
+          "iconBg": "rgba(59,130,246,0.15)",
+          "iconColor": "primary",
+          "title": "Task assigned",
+          "description": "Assigned 'Add auth middleware' to Coder Agent",
+          "meta": "Priority: High"
+        },
+        {
+          "timestamp": "09:24:02",
+          "agent": "Coder",
+          "icon": "Code",
+          "iconBg": "rgba(59,130,246,0.15)",
+          "iconColor": "primary",
+          "title": "File created",
+          "description": "Created src/middleware/auth.ts",
+          "meta": "124 lines"
+        },
+        {
+          "timestamp": "09:26:44",
+          "agent": "Planner",
+          "icon": "ClipboardList",
+          "iconBg": "rgba(139,92,246,0.15)",
+          "iconColor": "purple",
+          "title": "Plan updated",
+          "description": "Progress: 5/8 subtasks completed",
+          "meta": "+2 completed"
+        },
+        {
+          "timestamp": "09:28:12",
+          "agent": "Reviewer",
+          "icon": "Search",
+          "iconBg": "rgba(34,197,94,0.15)",
+          "iconColor": "success",
+          "title": "Pull request approved",
+          "description": "Approved PR #42 — Dashboard analytics widgets",
+          "meta": "+1 approval"
+        },
+        {
+          "timestamp": "09:30:45",
+          "agent": "System",
+          "icon": "Terminal",
+          "iconBg": "rgba(245,158,11,0.15)",
+          "iconColor": "warning",
+          "title": "Deployment started",
+          "description": "Vercel preview deployment for branch feat/auth",
+          "meta": "In progress"
+        }
+      ],
+      "timelineStyle": {
+        "lineColor": "rgba(255,255,255,0.06)",
+        "lineWidth": 2,
+        "dotSize": 10,
+        "entryPadding": "0 0 24px 0",
+        "entryCardBg": "#131A24",
+        "entryCardBorderRadius": 10,
+        "entryCardBorder": "1px solid rgba(255,255,255,0.04)",
+        "entryCardPadding": "14px 16px"
+      }
+    },
+
+    {
+      "id": "settings",
+      "name": "Settings",
+      "description": "Full settings panel with categorized sidebar navigation.",
+      "layout": "categories sidebar (240px) | settings content (1fr)",
+      "sidebar": {
+        "background": "#0E121C",
+        "borderRight": "1px solid rgba(255,255,255,0.04)",
+        "padding": "16px 12px",
+        "categories": [
+          { "id": "general", "label": "General", "icon": "Settings", "active": false },
+          { "id": "models", "label": "Models", "icon": "Cpu", "active": true, "count": 4 },
+          { "id": "agents", "label": "Agents", "icon": "Bot", "active": false, "count": 5 },
+          { "id": "api-keys", "label": "API Keys", "icon": "Key", "active": false },
+          { "id": "notifications", "label": "Notifications", "icon": "Bell", "active": false },
+          { "id": "shortcuts", "label": "Shortcuts", "icon": "Keyboard", "active": false }
+        ]
+      },
+      "content": {
+        "padding": "32px",
+        "sections": [
+          {
+            "id": "model-config",
+            "title": "Model Configuration",
+            "description": "Configure AI models available to agents",
+            "cards": [
+              {
+                "type": "modelCard",
+                "provider": "OpenAI",
+                "model": "GPT-4o",
+                "status": "active",
+                "capabilities": ["Chat", "Code", "Reasoning"],
+                "maxTokens": 128000,
+                "cost": "$5.00/1M tokens",
+                "actions": ["Configure", "Disable"],
+                "accentColor": "primary"
+              },
+              {
+                "type": "modelCard",
+                "provider": "Anthropic",
+                "model": "Claude 3.5 Sonnet",
+                "status": "active",
+                "capabilities": ["Chat", "Code", "Analysis"],
+                "maxTokens": 200000,
+                "cost": "$3.00/1M tokens",
+                "actions": ["Configure", "Disable"],
+                "accentColor": "purple"
+              },
+              {
+                "type": "modelCard",
+                "provider": "Google",
+                "model": "Gemini 1.5 Pro",
+                "status": "inactive",
+                "capabilities": ["Chat", "Code", "Multimodal"],
+                "maxTokens": 1000000,
+                "cost": "$2.50/1M tokens",
+                "actions": ["Enable", "Configure"],
+                "accentColor": "cyan"
+              }
+            ],
+            "cardStyle": {
+              "background": "#131A24",
+              "borderRadius": 12,
+              "border": "1px solid rgba(255,255,255,0.04)",
+              "padding": "20px",
+              "marginBottom": 12
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "id": "onboarding",
+      "name": "Login / Onboarding",
+      "description": "Centered glassmorphism authentication card with email/password and OAuth providers.",
+      "layout": "full-screen centered, max-w-md card",
+      "background": {
+        "type": "subtle gradient mesh",
+        "colors": ["#0B0F17", "#0F172A", "#1E1B4B"],
+        "animated": true,
+        "speed": "20s"
+      },
+      "card": {
+        "background": "rgba(19, 26, 36, 0.6)",
+        "backdropBlur": "32px",
+        "borderRadius": 20,
+        "border": "1px solid rgba(255,255,255,0.08)",
+        "padding": "40px",
+        "shadow": "0 32px 64px rgba(0,0,0,0.6)",
+        "elements": [
+          {
+            "id": "logo",
+            "type": "centered",
+            "marginBottom": 32,
+            "icon": "Sparkles",
+            "iconSize": 40,
+            "iconBg": "rgba(59,130,246,0.15)",
+            "iconBorderRadius": 12,
+            "iconPadding": 10,
+            "appName": "AI-Company",
+            "appNameStyle": "display textPrimary",
+            "tagline": "Your intelligent development workspace",
+            "taglineStyle": "body muted"
+          },
+          {
+            "id": "form",
+            "type": "vertical",
+            "gap": 16,
+            "fields": [
+              {
+                "type": "input",
+                "label": "Email",
+                "placeholder": "you@company.com",
+                "inputType": "email",
+                "required": true,
+                "leftIcon": "Mail"
+              },
+              {
+                "type": "input",
+                "label": "Password",
+                "placeholder": "••••••••",
+                "inputType": "password",
+                "required": true,
+                "leftIcon": "Lock",
+                "rightAction": { "label": "Forgot?", "type": "link" }
+              }
+            ],
+            "submitButton": {
+              "label": "Sign In",
+              "variant": "primary",
+              "fullWidth": true,
+              "height": 44,
+              "borderRadius": 10,
+              "fontWeight": 600
+            }
+          },
+          {
+            "id": "divider",
+            "type": "with-text",
+            "text": "or continue with",
+            "color": "muted",
+            "lineColor": "rgba(255,255,255,0.06)"
+          },
+          {
+            "id": "socialButtons",
+            "type": "row",
+            "gap": 12,
+            "providers": [
+              {
+                "provider": "GitHub",
+                "icon": "GitHub",
+                "background": "#1A2332",
+                "borderRadius": 10,
+                "height": 44,
+                "flex": 1,
+                "border": "1px solid rgba(255,255,255,0.06)"
+              },
+              {
+                "provider": "Google",
+                "icon": "Google",
+                "background": "#1A2332",
+                "borderRadius": 10,
+                "height": 44,
+                "flex": 1,
+                "border": "1px solid rgba(255,255,255,0.06)"
+              }
+            ]
+          },
+          {
+            "id": "signupLink",
+            "type": "centered",
+            "text": "Don't have an account?",
+            "link": { "label": "Create one", "href": "/signup" },
+            "style": "small muted",
+            "marginTop": 24
+          }
+        ]
+      }
+    },
+
+    {
+      "id": "model-selector-modal",
+      "name": "Model Selector (Overlay)",
+      "description": "Dropdown overlay for switching AI models across the dashboard.",
+      "trigger": "Header model badge click",
+      "position": "anchored to header badge",
+      "width": 320,
+      "maxHeight": 400,
+      "background": "#131A24",
+      "borderRadius": 12,
+      "border": "1px solid rgba(255,255,255,0.08)",
+      "shadow": "0 16px 48px rgba(0,0,0,0.6)",
+      "padding": "8px",
+      "search": {
+        "placeholder": "Search models...",
+        "background": "#1A2332",
+        "borderRadius": 8,
+        "marginBottom": 8,
+        "leftIcon": "Search"
+      },
+      "groups": [
+        {
+          "label": "Recommended",
+          "labelStyle": "tiny uppercase tracking-wider muted px-3 py-2",
+          "items": [
+            { "name": "GPT-4o", "provider": "OpenAI", "badge": "Best", "speed": "fast", "quality": "best", "active": true },
+            { "name": "Claude 3.5 Sonnet", "provider": "Anthropic", "badge": null, "speed": "fast", "quality": "best" }
+          ]
+        },
+        {
+          "label": "Fast",
+          "labelStyle": "tiny uppercase tracking-wider muted px-3 py-2",
+          "items": [
+            { "name": "GPT-4o Mini", "provider": "OpenAI", "badge": "Cheap", "speed": "fastest", "quality": "good" },
+            { "name": "Claude 3 Haiku", "provider": "Anthropic", "badge": null, "speed": "fastest", "quality": "good" }
+          ]
+        }
+      ],
+      "itemStyle": {
+        "height": 48,
+        "borderRadius": 8,
+        "padding": "0 12px",
+        "hoverBackground": "rgba(255,255,255,0.04)",
+        "activeBackground": "rgba(59,130,246,0.1)",
+        "gap": 12
+      }
+    }
+  ],
+
+  "componentSpecs": {
+    "agentCard": {
+      "variants": ["OwnerCard", "AgentCard"],
+      "common": {
+        "background": "#131A24",
+        "borderRadius": 12,
+        "border": "1px solid rgba(255,255,255,0.04)",
+        "padding": "16px",
+        "hoverBorder": "1px solid rgba(255,255,255,0.1)",
+        "transition": "all 200ms ease",
+        "shadow": "sm"
+      },
+      "states": {
+        "online": { "accentBorder": "1px solid rgba(34,197,94,0.3)" },
+        "running": { "accentBorder": "1px solid rgba(59,130,246,0.3)", "glow": "0 0 16px rgba(59,130,246,0.08)" },
+        "idle": { "accentBorder": "1px solid rgba(148,163,184,0.2)" },
+        "error": { "accentBorder": "1px solid rgba(239,68,68,0.3)" }
+      }
+    },
+    "progressBar": {
+      "height": 6,
+      "borderRadius": 3,
+      "background": "#1E293B",
+      "fillTransition": "width 500ms cubic-bezier(0.4, 0, 0.2, 1)",
+      "label": "small muted",
+      "valueLabel": "small medium textPrimary"
+    },
+    "badge": {
+      "variants": ["default", "success", "warning", "error", "info", "purple"],
+      "common": {
+        "display": "inline-flex",
+        "alignItems": "center",
+        "gap": 4,
+        "padding": "2px 8px",
+        "borderRadius": 6,
+        "fontSize": 11,
+        "fontWeight": 500,
+        "letterSpacing": "0.02em"
+      },
+      "colors": {
+        "default": { "background": "rgba(148,163,184,0.12)", "color": "#94A3B8" },
+        "success": { "background": "rgba(34,197,94,0.12)", "color": "#22C55E" },
+        "warning": { "background": "rgba(245,158,11,0.12)", "color": "#F59E0B" },
+        "error":   { "background": "rgba(239,68,68,0.12)",   "color": "#EF4444" },
+        "info":    { "background": "rgba(59,130,246,0.12)",  "color": "#3B82F6" },
+        "purple":  { "background": "rgba(139,92,246,0.12)",  "color": "#8B5CF6" }
+      }
+    },
+    "kanbanCard": {
+      "background": "#131A24",
+      "borderRadius": 10,
+      "border": "1px solid rgba(255,255,255,0.04)",
+      "padding": "14px",
+      "marginBottom": 10,
+      "hover": { "borderColor": "rgba(255,255,255,0.1)", "transform": "translateY(-1px)", "shadow": "md" },
+      "drag": { "opacity": 0.5, "scale": 1.02, "shadow": "xl", "rotate": "2deg" }
+    },
+    "chatMessage": {
+      "user": { "background": "rgba(59,130,246,0.1)", "borderRadius": "12px 12px 4px 12px", "maxWidth": "85%", "padding": "10px 14px" },
+      "assistant": { "background": "#1A2332", "borderRadius": "12px 12px 12px 4px", "maxWidth": "85%", "padding": "10px 14px" },
+      "marginBottom": 8,
+      "avatarSize": 28,
+      "gap": 8
+    },
+    "promptInput": {
+      "background": "#1A2332",
+      "borderRadius": 12,
+      "border": "1px solid rgba(255,255,255,0.06)",
+      "focusBorder": "1px solid rgba(59,130,246,0.3)",
+      "padding": "12px 16px",
+      "fontSize": 14,
+      "placeholderColor": "#475569",
+      "minHeight": 48,
+      "maxHeight": 160,
+      "transition": "all 200ms ease"
+    },
+    "notificationToast": {
+      "background": "rgba(19,26,36,0.85)",
+      "backdropBlur": "24px",
+      "borderRadius": 12,
+      "border": "1px solid rgba(255,255,255,0.08)",
+      "padding": "12px 16px",
+      "width": 340,
+      "shadow": "xl",
+      "animation": { "enter": "slideInRight 300ms ease", "exit": "fadeOut 200ms ease" }
+    },
+    "terminalLine": {
+      "font": "mono",
+      "fontSize": 13,
+      "lineHeight": 1.6,
+      "padding": "0 0 2px 0"
+    }
+  },
+
+  "responsiveBreakpoints": {
+    "2xl": { "minWidth": 1536, "layout": "full 3-column with expanded terminal" },
+    "xl":  { "minWidth": 1280, "layout": "full 3-column" },
+    "lg":  { "minWidth": 1024, "layout": "sidebar collapsed to 64px, activity panel slides over" },
+    "md":  { "minWidth": 768,  "layout": "sidebar icons only, activity panel as overlay, terminal collapsible" },
+    "sm":  { "minWidth": 640,  "layout": "single column, bottom navigation bar, all panels stacked" }
+  },
+
+  "animations": {
+    "sidebarExpand": "width 300ms ease",
+    "cardHover": "transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease",
+    "modalEnter": "scale 200ms ease, opacity 200ms ease",
+    "notificationEnter": "transform 300ms ease, opacity 300ms ease",
+    "progressFill": "width 500ms cubic-bezier(0.4, 0, 0.2, 1)",
+    "flowLines": "dash-offset 2s linear infinite",
+    "pageTransition": "opacity 200ms ease, transform 200ms ease",
+    "dragReorder": "transform 200ms ease"
+  },
+
+  "designedScreens": [
+    "1. Main Workspace — full dashboard with sidebar navigation, agent flow canvas, chat activity panel, terminal, and floating notifications",
+    "2. Task Board (Kanban) — four-column board (Backlog, In Progress, Review, Done) with drag-and-drop task cards, priority badges, and agent assignment",
+    "3. File Explorer — collapsible folder tree, multi-tab code editor with One Dark Pro syntax theme, and optional side-by-side diff panel",
+    "4. Activity Timeline — vertical chronological feed with agent actions, git events, and system logs, filterable and auto-scrolling",
+    "5. Settings — categorized sidebar (General, Models, Agents, API Keys, Notifications, Shortcuts) with configuration cards (e.g. Model Configuration)",
+    "6. Login / Onboarding — centered glassmorphism auth card with email/password form and GitHub/Google OAuth providers, animated gradient background",
+    "7. Model Selector Overlay — anchored dropdown with search, grouped by Recommended/Fast, provider badges, and active model indicator"
+  ]
+}
