@@ -1,3 +1,5 @@
 export * from './services/index.js'
 export * from './ai/index.js'
 export * from './middleware/error.middleware.js'
+export * from './middleware/auth.middleware.js'
+export * from './middleware/validate.middleware.js'

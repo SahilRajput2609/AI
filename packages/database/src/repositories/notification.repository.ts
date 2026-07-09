@@ -7,26 +7,32 @@ export class NotificationRepository {
   constructor(private db: Database.Database = getDatabase().getDb()) {}
 
   create(data: {
-    type: 'success' | 'error' | 'warning' | 'info'
+    type: 'success' | 'error' | 'warning' | 'info' | string
     title: string
     message: string
-    isRead: boolean
-    metadata: Record<string, unknown>
+    isRead?: boolean
+    is_read?: boolean
+    user_id?: string
+    project_id?: string
+    metadata?: Record<string, unknown>
   }): Notification {
     const id = generateId('notification')
     const now = Date.now()
+    const isRead = data.isRead !== undefined ? data.isRead : (data.is_read !== undefined ? data.is_read : false)
     const notification: Notification = {
       id,
-      type: data.type,
+      type: data.type as any,
       title: data.title,
       message: data.message,
-      read: data.isRead,
+      read: isRead,
       timestamp: new Date(now),
+      userId: data.user_id,
+      projectId: data.project_id,
     }
 
     const stmt = this.db.prepare(`
-      INSERT INTO notifications (id, type, title, message, is_read, timestamp)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO notifications (id, type, title, message, is_read, timestamp, user_id, project_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `)
 
     stmt.run(
@@ -35,7 +41,9 @@ export class NotificationRepository {
       notification.title,
       notification.message,
       notification.read ? 1 : 0,
-      now
+      now,
+      notification.userId || null,
+      notification.projectId || null
     )
 
     return notification
@@ -46,6 +54,23 @@ export class NotificationRepository {
     const row = stmt.get(id) as any
     if (!row) return null
     return this.mapRowToNotification(row)
+  }
+
+  findByUser(userId: string, limit = 50): Notification[] {
+    const stmt = this.db.prepare('SELECT * FROM notifications WHERE user_id = ? ORDER BY timestamp DESC LIMIT ?')
+    const rows = stmt.all(userId, limit) as any[]
+    return rows.map(row => this.mapRowToNotification(row))
+  }
+
+  findByProject(projectId: string, limit = 50): Notification[] {
+    const stmt = this.db.prepare('SELECT * FROM notifications WHERE project_id = ? ORDER BY timestamp DESC LIMIT ?')
+    const rows = stmt.all(projectId, limit) as any[]
+    return rows.map(row => this.mapRowToNotification(row))
+  }
+
+  markAllRead(userId: string): void {
+    const stmt = this.db.prepare('UPDATE notifications SET is_read = 1 WHERE user_id = ?')
+    stmt.run(userId)
   }
 
   findAll(filters?: { isRead?: boolean; type?: string }): Notification[] {
@@ -67,15 +92,16 @@ export class NotificationRepository {
     return rows.map(row => this.mapRowToNotification(row))
   }
 
-  update(id: string, data: Partial<Notification>): Notification | null {
+  update(id: string, data: Partial<Notification> & { is_read?: boolean }): Notification | null {
     const existing = this.findById(id)
     if (!existing) return null
 
-    const updated: Notification = { ...existing, ...data }
+    const isRead = data.read !== undefined ? data.read : (data.is_read !== undefined ? data.is_read : existing.read)
+    const updated: Notification = { ...existing, ...data, read: isRead }
 
     const stmt = this.db.prepare(`
       UPDATE notifications
-      SET type = ?, title = ?, message = ?, is_read = ?
+      SET type = ?, title = ?, message = ?, is_read = ?, user_id = ?, project_id = ?
       WHERE id = ?
     `)
 
@@ -84,6 +110,8 @@ export class NotificationRepository {
       updated.title,
       updated.message,
       updated.read ? 1 : 0,
+      updated.userId || null,
+      updated.projectId || null,
       id
     )
 
@@ -104,6 +132,8 @@ export class NotificationRepository {
       message: row.message || '',
       read: row.is_read === 1,
       timestamp: new Date(row.timestamp),
+      userId: row.user_id || undefined,
+      projectId: row.project_id || undefined,
     }
   }
 }

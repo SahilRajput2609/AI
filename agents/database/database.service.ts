@@ -56,6 +56,16 @@ export class DatabaseService {
     }
   }
 
+  validateSchema(taskId: string): void {
+    const task = this.state.tasks.find(t => t.id === taskId);
+    if (task && (task.status === 'pending' || task.status === 'in-progress')) {
+      task.status = 'validated';
+      if (!this.state.validatedSchemas.includes(task.tableName)) {
+        this.state.validatedSchemas.push(task.tableName);
+      }
+    }
+  }
+
   getTask(taskId: string): DatabaseTask | undefined {
     return this.state.tasks.find(t => t.id === taskId);
   }

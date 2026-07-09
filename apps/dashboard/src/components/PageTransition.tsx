@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 
 interface PageTransitionProps {
@@ -7,8 +8,13 @@ interface PageTransitionProps {
 
 export function PageTransition({ children, className = '' }: PageTransitionProps) {
   return (
-    <div className={`animate-fade-in-page will-change-transform ${className}`}>
+    <motion.div
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className={className}
+    >
       {children}
-    </div>
+    </motion.div>
   )
 }

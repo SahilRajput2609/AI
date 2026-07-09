@@ -6,6 +6,10 @@ import type {
   UpdateModelProviderInput,
 } from '@ai-company/shared'
 
+export interface APIRequestInit extends RequestInit {
+  responseType?: 'json' | 'arraybuffer'
+}
+
 export interface LocalExecutionPlan {
   id: string
   taskId: string
@@ -48,6 +52,7 @@ export class APIClient {
   private wsReconnectAttempts = 0
   private readonly maxReconnectAttempts = 5
   private wsReconnectTimer: ReturnType<typeof setTimeout> | null = null
+  private token: string | null = null
 
   constructor(config: APIClientConfig) {
     this.config = config
@@ -64,6 +69,10 @@ export class APIClient {
     if (callbacks.onConnect !== undefined) this.config.onConnect = callbacks.onConnect
     if (callbacks.onDisconnect !== undefined) this.config.onDisconnect = callbacks.onDisconnect
     if (callbacks.onMessage !== undefined) this.config.onMessage = callbacks.onMessage
+  }
+
+  setToken(token: string | null): void {
+    this.token = token
   }
 
   // WebSocket connection
@@ -107,6 +116,19 @@ export class APIClient {
     }
   }
 
+  // Room management
+  joinRoom(room: string): void {
+    this.send({ type: 'join_room', room })
+  }
+
+  leaveRoom(room: string): void {
+    this.send({ type: 'leave_room', room })
+  }
+
+  setUserId(userId: string): void {
+    this.send({ type: 'set_user', userId })
+  }
+
   disconnect(): void {
     if (this.wsReconnectTimer) {
       clearTimeout(this.wsReconnectTimer)
@@ -128,20 +150,31 @@ export class APIClient {
   // HTTP requests
   private async request<T>(
     endpoint: string,
-    options?: RequestInit
+    options?: APIRequestInit
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`
+    const { responseType, ...fetchOptions } = options || {}
+    const headers = {
+      'Content-Type': 'application/json',
+      ...fetchOptions.headers,
+    } as Record<string, string>
+
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`
+    }
+
     const response = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+      ...fetchOptions,
+      headers,
     })
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: response.statusText }))
       throw new Error(error.error || `HTTP ${response.status}`)
+    }
+
+    if (responseType === 'arraybuffer') {
+      return response.arrayBuffer() as Promise<any>
     }
 
     return response.json()
@@ -326,6 +359,305 @@ export class APIClient {
     return this.request(`/api/agent-configs/${role}`, {
       method: 'PUT',
       body: JSON.stringify(data),
+    })
+  }
+
+  // Projects API
+  async getProjects(): Promise<any[]> {
+    return this.request('/api/projects')
+  }
+
+  async getProject(id: string): Promise<any> {
+    return this.request(`/api/projects/${id}`)
+  }
+
+  async createProject(data: {
+    name: string
+    description?: string
+    type?: string
+    model?: string
+    framework?: string
+  }): Promise<any> {
+    return this.request('/api/projects', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateProject(id: string, data: Record<string, any>): Promise<any> {
+    return this.request(`/api/projects/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteProject(id: string): Promise<void> {
+    return this.request(`/api/projects/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async getProjectTasks(id: string): Promise<any[]> {
+    return this.request(`/api/projects/${id}/tasks`)
+  }
+
+  async getProjectFiles(id: string): Promise<{ files: any[]; tree: any[] }> {
+    return this.request(`/api/projects/${id}/files`)
+  }
+
+  async readProjectFile(id: string, filePath: string): Promise<{ content: string }> {
+    return this.request(`/api/projects/${id}/files/read?path=${encodeURIComponent(filePath)}`)
+  }
+
+  async writeProjectFile(id: string, filePath: string, content: string): Promise<any> {
+    return this.request(`/api/projects/${id}/files/write`, {
+      method: 'POST',
+      body: JSON.stringify({ path: filePath, content }),
+    })
+  }
+
+  async getProjectStats(id: string): Promise<any> {
+    return this.request(`/api/projects/${id}/stats`)
+  }
+
+  async searchProjects(query: string): Promise<any[]> {
+    return this.request(`/api/projects/search?q=${encodeURIComponent(query)}`)
+  }
+
+  // Chat API (global + project-scoped)
+  async getChatMessages(projectId?: string): Promise<any[]> {
+    const query = projectId ? `?projectId=${projectId}` : ''
+    return this.request(`/api/chat${query}`)
+  }
+
+  async sendChatMessage(text: string, projectId?: string): Promise<any> {
+    const body: Record<string, string> = { text }
+    if (projectId) body.projectId = projectId
+    return this.request('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    })
+  }
+
+  async deleteChatMessages(projectId?: string): Promise<void> {
+    const query = projectId ? `?projectId=${projectId}` : ''
+    return this.request(`/api/chat${query}`, {
+      method: 'DELETE',
+    })
+  }
+
+  // Versions API
+  async getVersions(projectId: string): Promise<any[]> {
+    return this.request(`/api/versions?projectId=${projectId}`)
+  }
+
+  async getVersion(id: string): Promise<any> {
+    return this.request(`/api/versions/${id}`)
+  }
+
+  async createVersion(projectId: string, label?: string): Promise<any> {
+    return this.request('/api/versions', {
+      method: 'POST',
+      body: JSON.stringify({ projectId, label }),
+    })
+  }
+
+  async deleteVersion(id: string): Promise<void> {
+    return this.request(`/api/versions/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async restoreVersion(id: string): Promise<{ status: string; fileCount: number }> {
+    return this.request(`/api/versions/${id}/restore`, {
+      method: 'POST',
+    })
+  }
+
+  async diffVersions(idA: string, idB: string): Promise<{
+    versionA: any; versionB: any; changes: { path: string; type: 'added' | 'removed' | 'modified' | 'unchanged' }[]; summary: { added: number; removed: number; modified: number; unchanged: number; total: number }
+  }> {
+    return this.request(`/api/versions/${idA}/diff/${idB}`)
+  }
+
+  // Deployments API
+  async getDeployments(projectId: string): Promise<any[]> {
+    return this.request(`/api/deployments?projectId=${projectId}`)
+  }
+
+  async getDeployment(id: string): Promise<any> {
+    return this.request(`/api/deployments/${id}`)
+  }
+
+  async createDeployment(projectId: string, platform?: string, region?: string): Promise<any> {
+    return this.request('/api/deployments', {
+      method: 'POST',
+      body: JSON.stringify({ projectId, platform, region }),
+    })
+  }
+
+  async getDeploymentLogs(id: string): Promise<{ id: string; project_id: string; status: string; build_logs: string; config: string }> {
+    return this.request(`/api/deployments/${id}/logs`)
+  }
+
+  // Templates API
+  async getTemplates(category?: string): Promise<any[]> {
+    const query = category ? `?category=${encodeURIComponent(category)}` : ''
+    return this.request(`/api/templates${query}`)
+  }
+
+  async getTemplate(id: string): Promise<any> {
+    return this.request(`/api/templates/${id}`)
+  }
+
+  async createTemplate(data: { name: string; description?: string; category?: string; config?: any }): Promise<any> {
+    return this.request('/api/templates', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateTemplate(id: string, data: Record<string, any>): Promise<any> {
+    return this.request(`/api/templates/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteTemplate(id: string): Promise<void> {
+    return this.request(`/api/templates/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
+  // Agent Config API
+  async getAgentConfigDefaults(): Promise<any[]> {
+    return this.request('/api/agent-configs/defaults')
+  }
+
+  async deleteAgentConfig(role: string): Promise<void> {
+    return this.request(`/api/agent-configs/${role}`, {
+      method: 'DELETE',
+    })
+  }
+
+  // Notifications API
+  async getNotifications(userId?: string, projectId?: string, limit?: number): Promise<any[]> {
+    const params = new URLSearchParams()
+    if (userId) params.set('userId', userId)
+    if (projectId) params.set('projectId', projectId)
+    if (limit) params.set('limit', String(limit))
+    return this.request(`/api/notifications?${params}`)
+  }
+
+  async createNotification(data: { title: string; message?: string; type?: string; userId?: string; projectId?: string }): Promise<any> {
+    return this.request('/api/notifications', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async markNotificationRead(id: string): Promise<any> {
+    return this.request(`/api/notifications/${id}/read`, {
+      method: 'PUT',
+    })
+  }
+
+  async deleteNotification(id: string): Promise<void> {
+    return this.request(`/api/notifications/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
+  // Deployment download
+  async downloadDeployment(id: string): Promise<ArrayBuffer> {
+    return this.request(`/api/deployments/${id}/download`, { responseType: 'arraybuffer' })
+  }
+
+  // Users API
+  async getCurrentUser(): Promise<any> {
+    return this.request('/api/users/me')
+  }
+
+  async getUser(id: string): Promise<any> {
+    return this.request(`/api/users/${id}`)
+  }
+
+  // Settings API
+  async getSettings(): Promise<any> {
+    return this.request('/api/settings/me')
+  }
+
+  async updateSettings(data: Record<string, any>): Promise<any> {
+    return this.request('/api/settings/me', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateTheme(theme: 'dark' | 'light'): Promise<any> {
+    return this.request('/api/settings/me/theme', {
+      method: 'PUT',
+      body: JSON.stringify({ theme }),
+    })
+  }
+
+  async updateNotifications(notifications: Record<string, any>): Promise<any> {
+    return this.request('/api/settings/me/notifications', {
+      method: 'PUT',
+      body: JSON.stringify(notifications),
+    })
+  }
+
+  async updateKeyboardShortcuts(shortcuts: Record<string, string>): Promise<any> {
+    return this.request('/api/settings/me/shortcuts', {
+      method: 'PUT',
+      body: JSON.stringify({ shortcuts }),
+    })
+  }
+
+  async updateModelPreferences(preferences: Record<string, any>): Promise<any> {
+    return this.request('/api/settings/me/models', {
+      method: 'PUT',
+      body: JSON.stringify(preferences),
+    })
+  }
+
+  // Auth API
+  async login(email: string, password: string): Promise<{ token: string; user: { id: string; email: string; role: string } }> {
+    return this.request('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    })
+  }
+
+  async signup(email: string, password: string): Promise<{ token: string; user: { id: string; email: string; role: string } }> {
+    return this.request('/api/auth/signup', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    })
+  }
+
+  async getCurrentUser(): Promise<{ user: { id: string; email: string; role: string } }> {
+    return this.request('/api/auth/me')
+  }
+
+  // OAuth API
+  async getOAuthConfig(): Promise<{ github: { clientId: string | null }; google: { clientId: string | null; redirectUri: string } }> {
+    return this.request('/api/auth/oauth/config')
+  }
+
+  async loginWithGithub(code: string): Promise<{ token: string; user: { id: string; email: string; role: string; avatar_url?: string } }> {
+    return this.request('/api/auth/oauth/github', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    })
+  }
+
+  async loginWithGoogle(code: string): Promise<{ token: string; user: { id: string; email: string; role: string; avatar_url?: string } }> {
+    return this.request('/api/auth/oauth/google', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
     })
   }
 }

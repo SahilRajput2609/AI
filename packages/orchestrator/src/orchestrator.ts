@@ -33,6 +33,7 @@ export interface TaskExecution {
 export class Orchestrator extends EventEmitter {
   private config: Required<OrchestratorConfig>
   private executions: Map<string, TaskExecution> = new Map()
+  private plans: Map<string, ExecutionPlan> = new Map()
   private taskQueue: string[] = []
   private runningTasks: Set<string> = new Set()
 
@@ -56,6 +57,7 @@ export class Orchestrator extends EventEmitter {
     }
 
     this.executions.set(task.id, execution)
+    this.plans.set(task.id, plan)
     this.taskQueue.push(task.id)
     this.emit('task:queued', { task, plan })
 
@@ -88,36 +90,50 @@ export class Orchestrator extends EventEmitter {
     }
   }
 
-  // Execute a task
+  // Execute a task using the real execution plan
   private async executeTask(taskId: string, execution: TaskExecution): Promise<void> {
     try {
-      const plan = {
-        subTasks: [
-          { id: `${taskId}-1`, description: 'Analyzing requirements', agentId: 'planner' },
-          { id: `${taskId}-2`, description: 'Executing implementation', agentId: 'coder' },
-          { id: `${taskId}-3`, description: 'Running validation', agentId: 'qa' },
-        ],
-      };
+      const plan = this.plans.get(taskId)
+      const subTasks = plan?.subTasks || [
+        { id: `${taskId}-1`, description: 'Analyzing requirements', agentId: 'planner' },
+        { id: `${taskId}-2`, description: 'Executing implementation', agentId: 'coder' },
+        { id: `${taskId}-3`, description: 'Running validation', agentId: 'qa' },
+      ]
 
-      for (const subtask of plan.subTasks) {
+      for (const subtask of subTasks) {
         this.emit('task:subtask', { taskId, subtask })
-        await new Promise(resolve => setTimeout(resolve, 500))
-        execution.currentStep = (execution.currentStep || 0) + 1;
-        this.emit('task:progress', { taskId, currentStep: execution.currentStep, totalSteps: plan.subTasks.length });
+        execution.currentStep = (execution.currentStep || 0) + 1
+        this.emit('task:progress', { taskId, currentStep: execution.currentStep, totalSteps: subTasks.length })
+
+        // Dispatch to a real agent if we have an agentId
+        if (subtask.agentId) {
+          try {
+            const result = await this.dispatchToAgent(subtask.agentId, subtask)
+            this.emit('task:subtask_completed', { taskId, subtask, result })
+          } catch (err: any) {
+            this.emit('task:subtask_failed', { taskId, subtask, error: err.message })
+            throw new Error(`Agent ${subtask.agentId} failed: ${err.message}`)
+          }
+        }
       }
 
-      execution.status = 'completed';
-      execution.completedAt = new Date();
+      execution.status = 'completed'
+      execution.completedAt = new Date()
       this.emit('task:completed', { taskId, execution })
     } catch (error) {
       execution.status = 'failed'
       execution.error = error instanceof Error ? error.message : String(error)
-      execution.completedAt = new Date();
+      execution.completedAt = new Date()
       this.emit('task:failed', { taskId, execution, error })
     } finally {
       this.runningTasks.delete(taskId)
       await this.processQueue()
     }
+  }
+
+  // Dispatch a subtask to an agent - can be overridden by subclasses
+  protected async dispatchToAgent(agentId: string, subtask: LocalSubTask): Promise<any> {
+    return { agentId, subtaskId: subtask.id, status: 'completed', timestamp: new Date().toISOString() }
   }
 
   // Get execution status

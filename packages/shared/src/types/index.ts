@@ -144,6 +144,11 @@ export interface Notification {
   timestamp: Date
   read: boolean
   actionUrl?: string
+  userId?: string
+  projectId?: string
+  user_id?: string
+  project_id?: string
+  is_read?: boolean
 }
 
 // File System Types

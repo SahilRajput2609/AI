@@ -1,37 +1,90 @@
 import { Router } from 'express';
-import { Owner } from '../../../../agents/owner/owner';
-import { Planner } from '../../../../agents/planner/planner';
-import { Orchestrator } from '../../../../agents/orchestrator/orchestrator';
-const owner = new Owner();
-const planner = new Planner();
-const orchestrator = new Orchestrator();
+import { asyncHandler, validate } from '@ai-company/backend';
+import { AgentManager } from '../agent-manager.js';
+import { modelProvidersRouter } from './model-providers.js';
+import { agentConfigsRouter } from './agent-configs.js';
+import { filesRouter } from './files.js';
+import { activitiesRouter } from './activities.js';
+import { notificationsRouter } from './notifications.js';
+import { authRouter } from './auth.js';
+import { oauthRouter } from './oauth.js';
+import { projectsRouter } from './projects.js';
+import { chatRouter, setChatBroadcast } from './chat.js';
+import { versionsRouter } from './versions.js';
+import { deploymentsRouter } from './deployments.js';
+import { templatesRouter } from './templates.js';
+const agentManager = new AgentManager();
+const owner = agentManager.getOwner();
+const planner = agentManager.getPlanner();
 let broadcastFn = null;
 export function setBroadcast(fn) {
     broadcastFn = fn;
+    setChatBroadcast(fn);
 }
-function broadcast(data) {
+export function broadcast(data) {
     if (broadcastFn)
         broadcastFn(data);
 }
 export const apiRouter = Router();
-apiRouter.get('/status', (_req, res) => {
+// ---- Core routes ----
+apiRouter.use('/auth', authRouter);
+apiRouter.use('/auth/oauth', oauthRouter);
+apiRouter.use('/model-providers', modelProvidersRouter);
+apiRouter.use('/agent-configs', agentConfigsRouter);
+apiRouter.use('/files', filesRouter);
+apiRouter.use('/activities', activitiesRouter);
+apiRouter.use('/notifications', notificationsRouter);
+// ---- New v2.0 routes ----
+apiRouter.use('/projects', projectsRouter);
+apiRouter.use('/chat', chatRouter);
+apiRouter.use('/versions', versionsRouter);
+apiRouter.use('/deployments', deploymentsRouter);
+apiRouter.use('/templates', templatesRouter);
+// ---- Agent status routes ----
+apiRouter.get('/agents', (_req, res) => {
+    res.json(agentManager.listAgents());
+});
+apiRouter.get('/agents/:role', (req, res) => {
+    const info = agentManager.getAgentInfo(req.params.role);
+    if (!info) {
+        res.status(404).json({ error: `Agent '${req.params.role}' not found` });
+        return;
+    }
+    const instance = info.instance;
+    const state = instance.service?.getState?.();
     res.json({
-        status: 'running',
-        agents: ['Owner', 'Planner', 'Orchestrator'],
-        uptime: process.uptime(),
+        id: info.id,
+        role: info.role,
+        name: info.name,
+        capabilities: info.capabilities,
+        isActive: !!(instance.service),
+        state: state || {},
     });
 });
+// ---- Task routes (Owner) ----
 apiRouter.get('/tasks', (_req, res) => {
     const state = owner.getService().getState();
     res.json(state.tasks);
 });
-apiRouter.post('/tasks', (req, res) => {
-    const { title, description, priority, category } = req.body;
-    if (!title) {
-        res.status(400).json({ error: 'title is required' });
-        return;
-    }
+apiRouter.post('/tasks', validate([
+    { field: 'title', required: true, type: 'string', minLength: 1, maxLength: 200 },
+    { field: 'description', type: 'string', maxLength: 2000 },
+    { field: 'priority', type: 'string', pattern: /^(low|medium|high|critical)$/ },
+]), (req, res) => {
+    const { title, description, priority, category, assignedRole } = req.body;
     const task = owner.createAndSubmitTask(title, description || '', priority || 'medium', category || 'general');
+    if (assignedRole) {
+        const orchService = agentManager.getOrchestratorService();
+        orchService.queueTask({
+            id: task.id,
+            description: task.description,
+            status: 'pending',
+            dependencies: [],
+            assignedAgent: assignedRole,
+        });
+        orchService.trackDependencies();
+        broadcast({ type: 'task:queued', taskId: task.id, agent: assignedRole });
+    }
     broadcast({ type: 'task:created', task });
     res.status(201).json(task);
 });
@@ -43,38 +96,71 @@ apiRouter.get('/tasks/:id', (req, res) => {
     }
     res.json(task);
 });
+apiRouter.put('/tasks/:id', asyncHandler(async (req, res) => {
+    const { title, description, status, priority } = req.body;
+    const svc = owner.getService();
+    const task = await svc.getTask(req.params.id);
+    if (!task) {
+        res.status(404).json({ error: 'task not found' });
+        return;
+    }
+    const updates = {};
+    if (title)
+        updates.title = title;
+    if (description)
+        updates.description = description;
+    if (status)
+        updates.status = status;
+    if (priority)
+        updates.priority = priority;
+    const updated = await svc.updateTask(task.id, updates);
+    broadcast({ type: 'task:updated', task: updated });
+    res.json(updated);
+}));
+apiRouter.delete('/tasks/:id', asyncHandler(async (req, res) => {
+    const svc = owner.getService();
+    const task = await svc.getTask(req.params.id);
+    if (!task) {
+        res.status(404).json({ error: 'task not found' });
+        return;
+    }
+    await svc.deleteTask(task.id);
+    broadcast({ type: 'task:deleted', taskId: req.params.id });
+    res.json({ status: 'deleted' });
+}));
 apiRouter.post('/tasks/:id/review', (req, res) => {
     const { approved, feedback } = req.body;
-    if (approved) {
+    if (typeof approved !== 'boolean') {
+        res.status(400).json({ error: 'approved is required and must be a boolean' });
+        return;
+    }
+    if (approved)
         owner.approveTask(req.params.id, feedback);
-    }
-    else {
+    else
         owner.rejectTask(req.params.id, feedback || 'No feedback provided');
-    }
     broadcast({ type: 'task:reviewed', taskId: req.params.id, approved });
     res.json({ status: 'ok' });
 });
+// ---- Plan routes (Planner) ----
 apiRouter.get('/plans', (_req, res) => {
     const state = planner.getService().getState();
     res.json(state.plans);
 });
-apiRouter.post('/plans', (req, res) => {
+apiRouter.post('/plans', validate([
+    { field: 'taskId', required: true, type: 'string' },
+    { field: 'title', required: true, type: 'string', minLength: 1, maxLength: 200 },
+]), (req, res) => {
     const { taskId, title } = req.body;
-    if (!taskId || !title) {
-        res.status(400).json({ error: 'taskId and title are required' });
-        return;
-    }
     const plan = planner.createExecutionPlan(taskId, title);
     broadcast({ type: 'plan:created', plan });
     res.status(201).json(plan);
 });
-apiRouter.post('/plans/:id/subtasks', (req, res) => {
-    const { description, estimatedEffort, assignedRole, dependencies } = req.body;
-    if (!description || !assignedRole) {
-        res.status(400).json({ error: 'description and assignedRole are required' });
-        return;
-    }
-    const subTask = planner.addTask(req.params.id, description, estimatedEffort || 'medium', assignedRole, dependencies || []);
+apiRouter.post('/plans/:id/subtasks', validate([
+    { field: 'description', required: true, type: 'string', minLength: 1 },
+    { field: 'assignedRole', required: true, type: 'string' },
+    { field: 'estimatedEffort', type: 'string', pattern: /^(low|medium|high)$/ },
+]), (req, res) => {
+    const subTask = planner.addTask(req.params.id, req.body.description, req.body.estimatedEffort || 'medium', req.body.assignedRole, req.body.dependencies || []);
     if (!subTask) {
         res.status(404).json({ error: 'plan not found' });
         return;
@@ -83,9 +169,59 @@ apiRouter.post('/plans/:id/subtasks', (req, res) => {
 });
 apiRouter.post('/plans/:id/finalize', (req, res) => {
     planner.finalizePlan(req.params.id);
+    const plan = planner.getPlan(req.params.id);
+    if (plan) {
+        const orchService = agentManager.getOrchestratorService();
+        for (const sub of plan.subtasks) {
+            orchService.queueTask({
+                id: `sub-${plan.id}-${sub.id}`,
+                description: sub.description,
+                status: 'pending',
+                dependencies: sub.dependencies,
+                assignedAgent: sub.assignedRole,
+            });
+        }
+        orchService.trackDependencies();
+        broadcast({ type: 'plan:dispatched', planId: req.params.id, subtaskCount: plan.subtasks.length });
+    }
     broadcast({ type: 'plan:finalized', planId: req.params.id });
     res.json({ status: 'ok' });
 });
+// ---- Orchestrator routes ----
 apiRouter.get('/orchestrator/state', (_req, res) => {
-    res.json({ status: 'running', message: 'Orchestrator is active' });
+    const state = agentManager.getQueueState();
+    res.json(state);
+});
+apiRouter.post('/orchestrator/dispatch', asyncHandler(async (_req, res) => {
+    await agentManager.dispatchFromQueue();
+    const state = agentManager.getQueueState();
+    broadcast({ type: 'orchestrator:dispatched', state });
+    res.json(state);
+}));
+// ---- Dispatch routes ----
+apiRouter.post('/dispatch/:agentRole', (req, res) => {
+    const { agentRole } = req.params;
+    const { action, ...payload } = req.body;
+    if (!action) {
+        res.status(400).json({ error: 'action is required' });
+        return;
+    }
+    try {
+        const result = agentManager.dispatch(agentRole, action, payload);
+        broadcast({ type: 'agent:dispatched', agentRole, action });
+        res.json({ success: true, result });
+    }
+    catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+// ---- Status route ----
+apiRouter.get('/status', (_req, res) => {
+    const agents = agentManager.listAgents();
+    res.json({
+        status: 'running',
+        agents: agents.map(a => a.name),
+        agentCount: agents.length,
+        uptime: process.uptime(),
+    });
 });

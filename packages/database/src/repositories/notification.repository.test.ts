@@ -15,7 +15,9 @@ describe('NotificationRepository', () => {
         title TEXT NOT NULL,
         message TEXT NOT NULL DEFAULT '',
         is_read INTEGER NOT NULL DEFAULT 0,
-        timestamp INTEGER NOT NULL
+        timestamp INTEGER NOT NULL,
+        user_id TEXT,
+        project_id TEXT
       )
     `)
     repo = new NotificationRepository(db)

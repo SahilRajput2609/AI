@@ -1,33 +1,46 @@
-import type { ReactNode } from 'react'
-import { clsx } from '../utils/clsx'
+"use client";
 
-type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'purple'
+import { motion } from "framer-motion";
+import React from "react";
+import { clsx } from "../utils/clsx";
 
-interface BadgeProps {
-  variant?: BadgeVariant
-  children: ReactNode
-  className?: string
+export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+  variant?: "default" | "success" | "warning" | "error" | "info";
+  size?: "sm" | "md";
 }
 
-const badgeColors: Record<BadgeVariant, string> = {
-  default: 'bg-white/10 text-text-secondary',
-  success: 'bg-accent-success-subtle text-accent-success',
-  warning: 'bg-accent-warning-subtle text-accent-warning',
-  error: 'bg-accent-error-subtle text-accent-error',
-  info: 'bg-accent-primary-subtle text-accent-primary',
-  purple: 'bg-accent-purple-subtle text-accent-purple',
-}
+export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
+  ({ className, variant = "default", size = "sm", children, ...props }, ref) => {
+    const variantStyles = {
+      default: "bg-[#2a2a2a] text-[#A1A1AA]",
+      success: "bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30",
+      warning: "bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/30",
+      error: "bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/30",
+      info: "bg-[#7C6BFF]/10 text-[#7C6BFF] border border-[#7C6BFF]/30",
+    };
 
-export function Badge({ variant = 'default', children, className }: BadgeProps) {
-  return (
-    <span
-      className={clsx(
-        'inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[11px] font-medium tracking-wide',
-        badgeColors[variant],
-        className,
-      )}
-    >
-      {children}
-    </span>
-  )
-}
+    const sizeStyles = {
+      sm: "px-2 py-1 text-xs",
+      md: "px-3 py-1.5 text-sm",
+    };
+
+    return (
+      <motion.span
+        ref={ref}
+        className={clsx(
+          "inline-flex items-center justify-center rounded-full font-medium transition-all",
+          variantStyles[variant],
+          sizeStyles[size],
+          className
+        )}
+        whileHover={{ scale: 1.05 }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        {...props}
+      >
+        {children}
+      </motion.span>
+    );
+  }
+);
+
+Badge.displayName = "Badge";

@@ -42,6 +42,9 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
+    if (process.env.REQUIRE_AUTH === 'true' || process.env.NODE_ENV === 'production') {
+      return next();
+    }
     req.user = {
       id: 'dev-user',
       email: 'dev@ai-company.com',

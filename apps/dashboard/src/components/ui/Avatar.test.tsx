@@ -28,9 +28,9 @@ describe('Avatar', () => {
     expect(div?.style.height).toBe('48px')
   })
 
-  it('applies custom border', () => {
-    const { container } = render(<Avatar fallback="A" border="3px solid red" />)
+  it('renders two uppercase characters from fallback', () => {
+    const { container } = render(<Avatar fallback="John Doe" />)
     const div = container.querySelector('div')
-    expect(div?.style.border).toBe('3px solid red')
+    expect(div?.textContent).toBe('JO')
   })
 })

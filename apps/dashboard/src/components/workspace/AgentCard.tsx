@@ -1,162 +1,96 @@
-import type { LucideIcon } from 'lucide-react'
-import { Crown } from 'lucide-react'
-import { clsx } from '../utils/clsx'
-import { Badge } from '../ui/Badge'
-import { ProgressBar } from '../ui/ProgressBar'
+"use client";
 
-type AgentStatus = 'online' | 'running' | 'idle' | 'error'
+import { motion } from "framer-motion";
+import { Users, Zap, Brain } from "lucide-react";
+import React from "react";
 
-interface Metric {
-  label: string
-  value: number | string
-}
-
-interface LogEntry {
-  level: string
-  message: string
-}
-
-interface AgentCardProps {
-  type: 'OwnerCard' | 'AgentCard'
-  title: string
-  subtitle: string
-  status: AgentStatus
-  icon?: LucideIcon
-  accentColor: string
-  width?: number
-  badge?: string
-  metrics?: Metric[]
-  progressBar?: { value: number; color: string }
-  currentAction?: string
-  logs?: LogEntry[]
-  actions?: { label: string; variant: string }[]
-  style?: React.CSSProperties
-}
-
-const statusBorders: Record<AgentStatus, string> = {
-  online: 'border-accent-success/40',
-  running: 'border-accent-primary/50',
-  idle: 'border-white/8',
-  error: 'border-accent-error/50',
-}
-
-const statusGlows: Record<AgentStatus, string> = {
-  online: 'shadow-[0_4px_20px_rgba(52,211,153,0.05)]',
-  running: 'shadow-[0_8px_30px_rgba(204,163,116,0.1)]',
-  idle: 'shadow-md',
-  error: 'shadow-[0_8px_30px_rgba(248,113,113,0.1)]',
-}
-
-const logColors: Record<string, string> = {
-  info: 'text-text-secondary',
-  success: 'text-accent-success font-medium',
-  error: 'text-accent-error font-medium',
-  warning: 'text-accent-warning font-medium',
+export interface AgentCardProps {
+  id: string;
+  name: string;
+  role: string;
+  status: "online" | "offline" | "busy";
+  tasksCompleted: number;
+  capabilities: string[];
 }
 
 export function AgentCard({
-  type,
-  title,
-  subtitle,
+  id,
+  name,
+  role,
   status,
-  icon: Icon,
-  accentColor,
-  width = 280,
-  badge,
-  metrics,
-  progressBar,
-  currentAction,
-  logs,
-  actions,
-  style,
+  tasksCompleted,
+  capabilities,
 }: AgentCardProps) {
-  const isOwner = type === 'OwnerCard'
+  const statusColors = {
+    online: "bg-[#10b981]",
+    offline: "bg-[#6B7280]",
+    busy: "bg-[#f59e0b]",
+  };
 
   return (
-    <div
-      className={clsx(
-        'glass-card rounded-[12px] p-5 flex flex-col gap-4.5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.45)] hover:border-white/15',
-        statusBorders[status],
-        statusGlows[status],
-        'will-change-transform',
-      )}
-      style={{ width, ...style }}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ scale: 1.02, y: -4 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      className="bg-[#090909] border border-[#202020] rounded-lg p-6 hover:border-[#7C6BFF]/30 hover:shadow-lg hover:shadow-[#7C6BFF]/10 transition-all"
     >
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          {isOwner ? (
-            <div className="w-7 h-7 rounded-full bg-accent-warning/20 flex items-center justify-center">
-              <Crown className="text-accent-warning" size={16} />
+      {/* Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-[#7C6BFF]/20 border border-[#7C6BFF]/30 flex items-center justify-center">
+              <Brain size={20} className="text-[#7C6BFF]" />
             </div>
-          ) : Icon ? (
-            <Icon className={accentColor} size={18} />
-          ) : null}
-          <div>
-            <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
-            <p className="text-xs text-text-muted">{subtitle}</p>
+            <div>
+              <h3 className="font-semibold text-white">{name}</h3>
+              <p className="text-xs text-[#6B7280]">{role}</p>
+            </div>
           </div>
         </div>
-        {badge && (
-          <Badge variant={status === 'running' ? 'info' : status === 'idle' ? 'default' : 'success'}>
-            {badge}
-          </Badge>
-        )}
+        <motion.div
+          className={`w-3 h-3 rounded-full ${statusColors[status]}`}
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
       </div>
 
-      {metrics && (
-        <div className="flex gap-4">
-          {metrics.map((m) => (
-            <div key={m.label}>
-              <span className="text-xs text-text-muted block">{m.label}</span>
-              <span className="text-sm font-semibold text-text-primary">{m.value}</span>
-            </div>
-          ))}
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-[#202020]">
+        <div>
+          <p className="text-xs text-[#6B7280] mb-1">Tasks Completed</p>
+          <p className="text-lg font-semibold text-white">{tasksCompleted}</p>
         </div>
-      )}
+        <div>
+          <p className="text-xs text-[#6B7280] mb-1">Status</p>
+          <p className="text-sm font-medium text-[#7C6BFF] capitalize">{status}</p>
+        </div>
+      </div>
 
-      {progressBar && (
-        <ProgressBar
-          value={progressBar.value}
-          max={100}
-          color={progressBar.color as 'primary' | 'purple' | 'success'}
-          valueLabel={`${progressBar.value}%`}
-        />
-      )}
-
-      {currentAction && (
-        <p className="text-xs text-text-secondary font-mono">{currentAction}</p>
-      )}
-
-      {logs && (
-        <div className="flex flex-col gap-0.5">
-          {logs.map((log, i) => (
-            <span
+      {/* Capabilities */}
+      <div>
+        <p className="text-xs text-[#6B7280] mb-2 uppercase tracking-wider">
+          Capabilities
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {capabilities.slice(0, 2).map((cap, i) => (
+            <motion.span
               key={i}
-              className={clsx('text-xs font-mono', logColors[log.level] || 'text-text-secondary')}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.05 }}
+              className="px-2 py-1 text-xs bg-[#7C6BFF]/10 text-[#7C6BFF] border border-[#7C6BFF]/20 rounded-full"
             >
-              {log.message}
+              {cap}
+            </motion.span>
+          ))}
+          {capabilities.length > 2 && (
+            <span className="px-2 py-1 text-xs text-[#6B7280]">
+              +{capabilities.length - 2} more
             </span>
-          ))}
+          )}
         </div>
-      )}
-
-      {actions && (
-        <div className="flex gap-2 mt-1">
-          {actions.map((action) => (
-            <button
-              key={action.label}
-              className={clsx(
-                'px-3.5 py-1.5 rounded-[8px] text-xs font-semibold cursor-pointer transition-all duration-300 transform active:scale-95',
-                action.variant === 'primary'
-                  ? 'bg-[#cca374] text-black shadow-[0_4px_15px_rgba(204,163,116,0.2)] hover:bg-[#e2cca8] hover:shadow-[0_6px_20px_rgba(204,163,116,0.3)] hover:-translate-y-0.5'
-                  : 'bg-white/5 border border-white/8 text-text-secondary hover:bg-white/10 hover:text-white hover:-translate-y-0.5',
-              )}
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
+      </div>
+    </motion.div>
+  );
 }

@@ -1,32 +1,86 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import { clsx } from '../utils/clsx'
+"use client";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'ghost' | 'social'
-  fullWidth?: boolean
-  children: ReactNode
+import { motion } from "framer-motion";
+import React from "react";
+import { clsx } from "../utils/clsx";
+
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+  size?: "sm" | "md" | "lg";
+  icon?: React.ReactNode;
+  isLoading?: boolean;
 }
 
-export function Button({
-  variant = 'primary',
-  fullWidth = false,
-  className,
-  children,
-  ...props
-}: ButtonProps) {
-  return (
-    <button
-      className={clsx(
-        'inline-flex items-center justify-center gap-2 font-mono font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
-        variant === 'primary' && 'bg-[#cca374] text-black hover:bg-[#e2cca8] hover:shadow-[0_0_15px_rgba(204,163,116,0.6)] disabled:opacity-50 border border-[#cca374]',
-        variant === 'ghost' && 'bg-transparent text-[#cca374] border border-transparent hover:border-[#cca374] hover:shadow-[inset_0_0_10px_rgba(204,163,116,0.3)] hover:bg-[rgba(204,163,116,0.1)]',
-        variant === 'social' && 'bg-transparent border border-[#555] px-4 py-2.5 text-sm text-[#a0a0a0] hover:text-white hover:border-[#cca374] hover:shadow-[0_0_10px_rgba(204,163,116,0.4)] cursor-pointer',
-        fullWidth && 'w-full',
-        'rounded-md transition-all duration-200',
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  )
-}
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      className,
+      variant = "primary",
+      size = "md",
+      icon,
+      isLoading,
+      children,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
+    const baseStyles =
+      "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7C6BFF]/50 disabled:opacity-50 disabled:cursor-not-allowed";
+
+    const sizeStyles = {
+      sm: "px-3 py-1.5 text-sm h-8",
+      md: "px-4 py-2 text-sm h-10",
+      lg: "px-6 py-3 text-base h-12",
+    };
+
+    const variantStyles = {
+      primary:
+        "bg-white text-black hover:bg-white/95 active:scale-[0.98] shadow-sm hover:shadow-md",
+      secondary:
+        "bg-[#111] text-white border border-[#333] hover:bg-[#1a1a1a] active:scale-[0.98]",
+      ghost:
+        "text-[#A1A1AA] hover:text-white hover:bg-white/5 active:scale-[0.98]",
+      danger: "bg-[#EF4444] text-white hover:bg-[#DC2626] active:scale-[0.98]",
+    };
+
+    return (
+      <motion.button
+        ref={ref}
+        className={clsx(baseStyles, sizeStyles[size], variantStyles[variant], className)}
+        disabled={disabled || isLoading}
+        whileHover={{ y: -1 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        {...props}
+      >
+        {isLoading ? (
+          <>
+            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
+            </svg>
+          </>
+        ) : (
+          <>
+            {icon}
+            {children}
+          </>
+        )}
+      </motion.button>
+    );
+  }
+);
+
+Button.displayName = "Button";

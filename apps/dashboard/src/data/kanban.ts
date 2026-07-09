@@ -55,7 +55,7 @@ export const initialColumns: KanbanColumnData[] = [
 ]
 
 export const priorityConfig = {
-  high: { bg: 'rgba(239,68,68,0.12)', color: '#EF4444', label: 'High' },
-  medium: { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B', label: 'Medium' },
-  low: { bg: 'rgba(100,116,139,0.12)', color: '#94A3B8', label: 'Low' },
+  high: { bg: 'rgba(239,68,68,0.1)', color: '#EF4444', label: 'High' },
+  medium: { bg: 'rgba(250,204,21,0.1)', color: '#FACC15', label: 'Medium' },
+  low: { bg: 'rgba(110,110,110,0.1)', color: '#6E6E6E', label: 'Low' },
 }

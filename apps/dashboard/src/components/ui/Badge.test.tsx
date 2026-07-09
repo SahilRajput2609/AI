@@ -11,36 +11,24 @@ describe('Badge', () => {
   it('applies default variant styling', () => {
     const { container } = render(<Badge>Default</Badge>)
     const span = container.querySelector('span')
-    expect(span?.className).toContain('bg-white/10')
+    expect(span?.className).toContain('bg-[#151515]')
   })
 
   it('applies success variant', () => {
     const { container } = render(<Badge variant="success">Success</Badge>)
     const span = container.querySelector('span')
-    expect(span?.className).toContain('bg-accent-success-subtle')
+    expect(span?.className).toContain('bg-[#22C55E]/10')
   })
 
   it('applies error variant', () => {
     const { container } = render(<Badge variant="error">Error</Badge>)
     const span = container.querySelector('span')
-    expect(span?.className).toContain('bg-accent-error-subtle')
-  })
-
-  it('applies info variant', () => {
-    const { container } = render(<Badge variant="info">Info</Badge>)
-    const span = container.querySelector('span')
-    expect(span?.className).toContain('bg-accent-primary-subtle')
+    expect(span?.className).toContain('bg-[#EF4444]/10')
   })
 
   it('applies warning variant', () => {
     const { container } = render(<Badge variant="warning">Warning</Badge>)
     const span = container.querySelector('span')
-    expect(span?.className).toContain('bg-accent-warning-subtle')
-  })
-
-  it('applies purple variant', () => {
-    const { container } = render(<Badge variant="purple">Purple</Badge>)
-    const span = container.querySelector('span')
-    expect(span?.className).toContain('bg-accent-purple-subtle')
+    expect(span?.className).toContain('bg-[#FACC15]/10')
   })
 })

@@ -1,135 +1,149 @@
-import { useState } from 'react'
-import { Minimize2, Maximize2, Paperclip, Send, Mic } from 'lucide-react'
-import { clsx } from '../utils/clsx'
-import { Avatar } from '../ui/Avatar'
+"use client";
 
-interface Message {
-  role: 'user' | 'assistant'
-  avatar: string
-  text: string
-  timestamp: string
-  codeSnippet?: { language: string; content: string }
+import { motion, AnimatePresence } from "framer-motion";
+import { Send, Paperclip } from "lucide-react";
+import React, { useState } from "react";
+
+export interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
 }
 
-const messages: Message[] = [
-  {
-    role: 'user',
-    avatar: 'JD',
-    text: 'Add authentication middleware with JWT validation',
-    timestamp: '2m ago',
-  },
-  {
-    role: 'assistant',
-    avatar: 'AI',
-    text: "I'll create an auth guard that validates JWTs. Let me check the existing middleware structure first.",
-    timestamp: '1m ago',
-  },
-  {
-    role: 'assistant',
-    avatar: 'AI',
-    text: 'Found src/middleware/ directory. Creating auth.ts with:\n- JWT verification\n- Role-based access control\n- Error handling middleware',
-    timestamp: '30s ago',
-    codeSnippet: {
-      language: 'typescript',
-      content: 'export async function authGuard(\n  req: Request,\n  res: Response,\n  next: NextFunction\n): Promise<void> {',
-    },
-  },
-]
-
-const suggestions = ['What changed in auth?', 'Run tests', 'Deploy preview']
-
 export function ChatPanel() {
-  const [input, setInput] = useState('')
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "1",
+      role: "assistant",
+      content: "Hi! I'm your AI assistant. How can I help you today?",
+      timestamp: new Date(),
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    // Simulate AI response
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: "I'm processing your request. This is a simulated response.",
+          timestamp: new Date(),
+        },
+      ]);
+      setIsLoading(false);
+    }, 800);
+  };
 
   return (
-    <div className="w-[320px] flex-shrink-0 bg-surface-sidebar/60 border-l border-white/5 flex flex-col">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-        <div>
-          <h3 className="text-sm font-semibold text-text-primary">Chat</h3>
-          <p className="text-[11px] text-text-muted">Codebase Context</p>
-        </div>
-        <div className="flex gap-1">
-          <button className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-white/5 cursor-pointer transition-colors">
-            <Minimize2 size={14} />
-          </button>
-          <button className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-white/5 cursor-pointer transition-colors">
-            <Maximize2 size={14} />
-          </button>
-        </div>
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="flex flex-col h-full bg-[#050505] border-l border-[#202020] rounded-lg overflow-hidden"
+    >
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-[#202020] bg-[#0a0a0a]">
+        <h3 className="text-sm font-semibold text-white">Chat</h3>
+        <p className="text-xs text-[#6B7280] mt-1">Conversation with AI</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3" style={{ scrollBehavior: 'smooth' }}>
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={clsx(
-              'flex gap-2 animate-slide-up will-change-transform',
-              msg.role === 'user' ? 'justify-end' : 'justify-start',
-            )}
-            style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'both' }}
-          >
-            {msg.role === 'assistant' && (
-              <Avatar fallback="AI" size={28} border="2px solid rgba(139,92,246,0.3)" />
-            )}
-            <div
-              className={clsx(
-                'max-w-[85%] p-2.5',
-                msg.role === 'user'
-                  ? 'bg-accent-primary-subtle rounded-[12px_12px_4px_12px]'
-                  : 'bg-surface-input rounded-[12px_12px_12px_4px]',
-              )}
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto space-y-3 p-4">
+        <AnimatePresence mode="popLayout">
+          {messages.map((message, i) => (
+            <motion.div
+              key={message.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ delay: i * 0.05 }}
+              className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
             >
-              <p className="text-sm text-text-primary whitespace-pre-wrap">{msg.text}</p>
-              {msg.codeSnippet && (
-                <div className="mt-2 bg-surface-terminal rounded-[8px] overflow-hidden">
-                  <div className="flex items-center justify-between px-3 py-1.5 bg-white/5">
-                    <span className="text-[11px] text-text-muted font-mono">{msg.codeSnippet.language}</span>
-                    <div className="flex gap-2">
-                      <button className="text-[11px] text-text-muted hover:text-text-primary cursor-pointer transition-colors">Copy</button>
-                      <button className="text-[11px] text-text-muted hover:text-text-primary cursor-pointer transition-colors">Apply</button>
-                    </div>
-                  </div>
-                  <pre className="p-3 text-xs text-text-secondary font-mono overflow-x-auto">
-                    <code>{msg.codeSnippet.content}</code>
-                  </pre>
+              {message.role === "assistant" && (
+                <div className="w-7 h-7 rounded-full bg-[#7C6BFF]/20 border border-[#7C6BFF]/30 flex-shrink-0 flex items-center justify-center">
+                  <span className="text-xs text-[#7C6BFF] font-bold">A</span>
                 </div>
               )}
-              <span className="text-[11px] text-text-muted mt-1 block">{msg.timestamp}</span>
+
+              <div
+                className={`max-w-xs px-4 py-2 rounded-lg text-sm leading-relaxed ${
+                  message.role === "user"
+                    ? "bg-[#7C6BFF] text-white rounded-br-none"
+                    : "bg-[#111] text-[#A1A1AA] border border-[#202020] rounded-bl-none"
+                }`}
+              >
+                {message.content}
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+
+        {isLoading && (
+          <motion.div
+            className="flex gap-2 items-end"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <div className="w-7 h-7 rounded-full bg-[#7C6BFF]/20" />
+            <div className="flex gap-1">
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-2 h-2 bg-[#7C6BFF] rounded-full"
+                  animate={{ y: [0, -6, 0] }}
+                  transition={{ delay: i * 0.15, duration: 0.6, repeat: Infinity }}
+                />
+              ))}
             </div>
-            {msg.role === 'user' && <Avatar fallback="JD" size={28} />}
-          </div>
-        ))}
+          </motion.div>
+        )}
       </div>
 
-      <div className="p-3 flex flex-col gap-2">
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {suggestions.map((s) => (
-            <button
-              key={s}
-              className="text-xs text-text-secondary bg-surface-input/50 border border-white/5 rounded-full px-3 py-1.5 whitespace-nowrap hover:bg-surface-input hover:text-text-primary cursor-pointer transition-colors"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2 bg-surface-input border border-white/10 rounded-[12px] px-4 py-3 focus-within:border-accent-primary/30 transition-colors">
-          <button className="text-text-muted hover:text-text-primary cursor-pointer transition-colors flex-shrink-0">
-            <Paperclip size={16} />
-          </button>
+      {/* Input */}
+      <div className="px-4 py-3 border-t border-[#202020] bg-[#0a0a0a]">
+        <div className="flex gap-2">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="p-2 text-[#6B7280] hover:text-[#7C6BFF] transition-colors"
+          >
+            <Paperclip size={18} />
+          </motion.button>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask anything about your codebase..."
-            className="flex-1 bg-transparent text-sm text-text-primary placeholder-text-muted outline-none"
+            onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+            placeholder="Type a message..."
+            className="flex-1 bg-[#111] border border-[#202020] rounded-lg px-3 py-2 text-sm text-white placeholder-[#6B7280] outline-none focus:border-[#7C6BFF]/50"
           />
-          <button className="text-text-muted hover:text-text-primary cursor-pointer transition-colors flex-shrink-0">
-            <Mic size={16} />
-          </button>
-          <button className="text-accent-primary hover:text-accent-primary-hover cursor-pointer transition-colors flex-shrink-0">
-            <Send size={16} />
-          </button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSend}
+            disabled={isLoading || !input.trim()}
+            className="p-2 text-[#7C6BFF] hover:bg-[#7C6BFF]/10 rounded-lg transition-colors disabled:opacity-50"
+          >
+            <Send size={18} />
+          </motion.button>
         </div>
       </div>
-    </div>
-  )
+    </motion.div>
+  );
 }

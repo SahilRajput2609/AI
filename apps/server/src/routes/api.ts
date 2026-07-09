@@ -1,10 +1,20 @@
 import { Router } from 'express'
-import { asyncHandler } from '@ai-company/backend'
+import { asyncHandler, validate } from '@ai-company/backend'
 import { AgentManager, AgentRole } from '../agent-manager.js'
 import { modelProvidersRouter } from './model-providers.js'
 import { agentConfigsRouter } from './agent-configs.js'
 import { filesRouter } from './files.js'
 import { activitiesRouter } from './activities.js'
+import { notificationsRouter, setNotificationBroadcast } from './notifications.js'
+import { authRouter } from './auth.js'
+import { oauthRouter } from './oauth.js'
+import { projectsRouter } from './projects.js'
+import { chatRouter, setChatBroadcast } from './chat.js'
+import { versionsRouter } from './versions.js'
+import { deploymentsRouter } from './deployments.js'
+import { templatesRouter } from './templates.js'
+import { settingsRouter } from './settings.js'
+import { usersRouter } from './users.js'
 
 const agentManager = new AgentManager()
 const owner = agentManager.getOwner()
@@ -14,26 +24,56 @@ let broadcastFn: ((data: unknown) => void) | null = null
 
 export function setBroadcast(fn: (data: unknown) => void) {
   broadcastFn = fn
+  setChatBroadcast(fn)
+  setNotificationBroadcast(fn)
 }
 
-function broadcast(data: unknown) {
+export function broadcast(data: unknown) {
   if (broadcastFn) broadcastFn(data)
 }
 
 export const apiRouter = Router()
 
+// ---- Core routes ----
+apiRouter.use('/auth', authRouter)
+apiRouter.use('/auth/oauth', oauthRouter)
+apiRouter.use('/users', usersRouter)
+apiRouter.use('/settings', settingsRouter)
 apiRouter.use('/model-providers', modelProvidersRouter)
 apiRouter.use('/agent-configs', agentConfigsRouter)
 apiRouter.use('/files', filesRouter)
 apiRouter.use('/activities', activitiesRouter)
+apiRouter.use('/notifications', notificationsRouter)
 
-apiRouter.get('/status', (_req, res) => {
-  const agents = agentManager.listAgents()
+// ---- New v2.0 routes ----
+apiRouter.use('/projects', projectsRouter)
+apiRouter.use('/chat', chatRouter)
+apiRouter.use('/versions', versionsRouter)
+apiRouter.use('/deployments', deploymentsRouter)
+apiRouter.use('/templates', templatesRouter)
+apiRouter.use('/deployments', deploymentsRouter)
+apiRouter.use('/templates', templatesRouter)
+
+// ---- Agent status routes ----
+apiRouter.get('/agents', (_req, res) => {
+  res.json(agentManager.listAgents())
+})
+
+apiRouter.get('/agents/:role', (req, res) => {
+  const info = agentManager.getAgentInfo(req.params.role as AgentRole)
+  if (!info) {
+    res.status(404).json({ error: `Agent '${req.params.role}' not found` })
+    return
+  }
+  const instance = info.instance as any
+  const state = instance.service?.getState?.()
   res.json({
-    status: 'running',
-    agents: agents.map(a => a.name),
-    agentCount: agents.length,
-    uptime: process.uptime(),
+    id: info.id,
+    role: info.role,
+    name: info.name,
+    capabilities: info.capabilities,
+    isActive: !!(instance.service),
+    state: state || {},
   })
 })
 
@@ -43,19 +83,13 @@ apiRouter.get('/tasks', (_req, res) => {
   res.json(state.tasks)
 })
 
-apiRouter.post('/tasks', (req, res) => {
+apiRouter.post('/tasks', validate([
+  { field: 'title', required: true, type: 'string', minLength: 1, maxLength: 200 },
+  { field: 'description', type: 'string', maxLength: 2000 },
+  { field: 'priority', type: 'string', pattern: /^(low|medium|high|critical)$/ },
+]), (req, res) => {
   const { title, description, priority, category, assignedRole } = req.body
-  if (!title) {
-    res.status(400).json({ error: 'title is required' })
-    return
-  }
-
-  const task = owner.createAndSubmitTask(
-    title,
-    description || '',
-    priority || 'medium',
-    category || 'general'
-  )
+  const task = owner.createAndSubmitTask(title, description || '', priority || 'medium', category || 'general')
 
   if (assignedRole) {
     const orchService = agentManager.getOrchestratorService()
@@ -75,7 +109,7 @@ apiRouter.post('/tasks', (req, res) => {
 })
 
 apiRouter.get('/tasks/:id', (req, res) => {
-  const task = owner.getService().getTask(req.params.id)
+  const task = owner.getService().getTask(req.params.id as string)
   if (!task) {
     res.status(404).json({ error: 'task not found' })
     return
@@ -83,17 +117,44 @@ apiRouter.get('/tasks/:id', (req, res) => {
   res.json(task)
 })
 
+apiRouter.put('/tasks/:id', asyncHandler(async (req, res) => {
+  const { title, description, status, priority } = req.body
+  const svc = owner.getService() as any
+  const task = await svc.getTask(req.params.id as string)
+  if (!task) {
+    res.status(404).json({ error: 'task not found' })
+    return
+  }
+  const updates: any = {}
+  if (title) updates.title = title
+  if (description) updates.description = description
+  if (status) updates.status = status
+  if (priority) updates.priority = priority
+  const updated = await svc.updateTask(task.id, updates)
+  broadcast({ type: 'task:updated', task: updated })
+  res.json(updated)
+}))
+
+apiRouter.delete('/tasks/:id', asyncHandler(async (req, res) => {
+  const svc = owner.getService() as any
+  const task = await svc.getTask(req.params.id as string)
+  if (!task) {
+    res.status(404).json({ error: 'task not found' })
+    return
+  }
+  await svc.deleteTask(task.id)
+  broadcast({ type: 'task:deleted', taskId: req.params.id })
+  res.json({ status: 'deleted' })
+}))
+
 apiRouter.post('/tasks/:id/review', (req, res) => {
   const { approved, feedback } = req.body
   if (typeof approved !== 'boolean') {
     res.status(400).json({ error: 'approved is required and must be a boolean' })
     return
   }
-  if (approved) {
-    owner.approveTask(req.params.id, feedback)
-  } else {
-    owner.rejectTask(req.params.id, feedback || 'No feedback provided')
-  }
+  if (approved) owner.approveTask(req.params.id, feedback)
+  else owner.rejectTask(req.params.id, feedback || 'No feedback provided')
   broadcast({ type: 'task:reviewed', taskId: req.params.id, approved })
   res.json({ status: 'ok' })
 })
@@ -104,43 +165,31 @@ apiRouter.get('/plans', (_req, res) => {
   res.json(state.plans)
 })
 
-apiRouter.post('/plans', (req, res) => {
+apiRouter.post('/plans', validate([
+  { field: 'taskId', required: true, type: 'string' },
+  { field: 'title', required: true, type: 'string', minLength: 1, maxLength: 200 },
+]), (req, res) => {
   const { taskId, title } = req.body
-  if (!taskId || !title) {
-    res.status(400).json({ error: 'taskId and title are required' })
-    return
-  }
-
   const plan = planner.createExecutionPlan(taskId, title)
   broadcast({ type: 'plan:created', plan })
   res.status(201).json(plan)
 })
 
-apiRouter.post('/plans/:id/subtasks', (req, res) => {
-  const { description, estimatedEffort, assignedRole, dependencies } = req.body
-  if (!description || !assignedRole) {
-    res.status(400).json({ error: 'description and assignedRole are required' })
-    return
-  }
-
-  const subTask = planner.addTask(
-    req.params.id,
-    description,
-    estimatedEffort || 'medium',
-    assignedRole,
-    dependencies || []
-  )
+apiRouter.post('/plans/:id/subtasks', validate([
+  { field: 'description', required: true, type: 'string', minLength: 1 },
+  { field: 'assignedRole', required: true, type: 'string' },
+  { field: 'estimatedEffort', type: 'string', pattern: /^(low|medium|high)$/ },
+]), (req, res) => {
+  const subTask = planner.addTask(req.params.id as string, req.body.description, req.body.estimatedEffort || 'medium', req.body.assignedRole, req.body.dependencies || [])
   if (!subTask) {
     res.status(404).json({ error: 'plan not found' })
     return
   }
-
   res.status(201).json(subTask)
 })
 
 apiRouter.post('/plans/:id/finalize', (req, res) => {
   planner.finalizePlan(req.params.id)
-
   const plan = planner.getPlan(req.params.id)
   if (plan) {
     const orchService = agentManager.getOrchestratorService()
@@ -156,7 +205,6 @@ apiRouter.post('/plans/:id/finalize', (req, res) => {
     orchService.trackDependencies()
     broadcast({ type: 'plan:dispatched', planId: req.params.id, subtaskCount: plan.subtasks.length })
   }
-
   broadcast({ type: 'plan:finalized', planId: req.params.id })
   res.json({ status: 'ok' })
 })
@@ -174,16 +222,14 @@ apiRouter.post('/orchestrator/dispatch', asyncHandler(async (_req, res) => {
   res.json(state)
 }))
 
-// ---- Dispatch routes (assign tasks to specific agents) ----
+// ---- Dispatch routes ----
 apiRouter.post('/dispatch/:agentRole', (req, res) => {
   const { agentRole } = req.params
   const { action, ...payload } = req.body
-
   if (!action) {
     res.status(400).json({ error: 'action is required' })
     return
   }
-
   try {
     const result = agentManager.dispatch(agentRole as AgentRole, action as any, payload)
     broadcast({ type: 'agent:dispatched', agentRole, action })
@@ -193,26 +239,13 @@ apiRouter.post('/dispatch/:agentRole', (req, res) => {
   }
 })
 
-// ---- Agent status routes ----
-apiRouter.get('/agents', (_req, res) => {
-  res.json(agentManager.listAgents())
-})
-
-apiRouter.get('/agents/:role', (req, res) => {
-  const info = agentManager.getAgentInfo(req.params.role as AgentRole)
-  if (!info) {
-    res.status(404).json({ error: `Agent '${req.params.role}' not found` })
-    return
-  }
-
-  const instance = info.instance as any
-  const state = instance.service?.getState?.()
+// ---- Status route ----
+apiRouter.get('/status', (_req, res) => {
+  const agents = agentManager.listAgents()
   res.json({
-    id: info.id,
-    role: info.role,
-    name: info.name,
-    capabilities: info.capabilities,
-    isActive: !!(instance.service),
-    state: state || {},
+    status: 'running',
+    agents: agents.map(a => a.name),
+    agentCount: agents.length,
+    uptime: process.uptime(),
   })
 })

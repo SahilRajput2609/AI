@@ -25,7 +25,7 @@ export class Database {
   }
 
   validateSchema(taskId: string): void {
-    this.service.optimizeQuery(taskId);
+    this.service.validateSchema(taskId);
     console.log(`Database: Schema validated for task "${taskId}".`);
   }
 

@@ -13,11 +13,6 @@ describe('Input', () => {
     expect(screen.getByText('🔍')).toBeTruthy()
   })
 
-  it('renders right action', () => {
-    render(<Input label="Password" id="password" rightAction={<button>Show</button>} />)
-    expect(screen.getByText('Show')).toBeTruthy()
-  })
-
   it('handles value changes', () => {
     const onChange = vi.fn()
     render(<Input label="Name" id="name" onChange={onChange} />)
@@ -30,5 +25,10 @@ describe('Input', () => {
     render(<Input label="Test" id="test" placeholder="Enter text" />)
     const input = screen.getByLabelText('Test') as HTMLInputElement
     expect(input.placeholder).toBe('Enter text')
+  })
+
+  it('renders error message', () => {
+    render(<Input label="Email" id="email" error="Required field" />)
+    expect(screen.getByText('Required field')).toBeTruthy()
   })
 })

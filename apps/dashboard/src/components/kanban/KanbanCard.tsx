@@ -1,77 +1,73 @@
-import { Paperclip, MessageSquare, CheckCircle } from 'lucide-react'
-import type { KanbanCardData } from '../../data/kanban'
-import { priorityConfig } from '../../data/kanban'
-import { ProgressBar } from '../ui/ProgressBar'
+"use client";
 
-interface KanbanCardProps {
-  card: KanbanCardData
-  onDragStart: (e: React.DragEvent, cardId: string, columnId: string) => void
-  columnId: string
+import { motion } from "framer-motion";
+import React from "react";
+import { GripVertical, Trash2 } from "lucide-react";
+
+export interface KanbanCardProps {
+  id: string;
+  title: string;
+  description?: string;
+  priority?: "low" | "medium" | "high";
+  onDelete?: (id: string) => void;
 }
 
-export function KanbanCard({ card, onDragStart, columnId }: KanbanCardProps) {
-  const priority = priorityConfig[card.priority]
+const priorityColors = {
+  low: "text-[#6B7280]",
+  medium: "text-[#F59E0B]",
+  high: "text-[#EF4444]",
+};
 
+export function KanbanCard({ id, title, description, priority = "medium", onDelete }: KanbanCardProps) {
   return (
-    <div
-      draggable
-      onDragStart={(e) => onDragStart(e, card.id, columnId)}
-      className="bg-surface-card rounded-[10px] border border-white/5 p-3.5 mb-2.5 cursor-grab active:cursor-grabbing transition-all duration-200 hover:-translate-y-0.5 hover:border-white/10 hover:shadow-md active:opacity-50 active:scale-[1.02] will-change-transform"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.2 }}
+      whileHover={{ scale: 1.02, y: -4 }}
+      whileTap={{ scale: 0.98 }}
+      className="group relative bg-[#090909] border border-[#202020] rounded-lg p-4 cursor-grab active:cursor-grabbing hover:border-[#7C6BFF]/30 shadow-sm hover:shadow-lg hover:shadow-[#7C6BFF]/10 transition-all duration-200"
     >
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <span
-          className="text-[11px] font-medium px-2 py-0.5 rounded-[6px]"
-          style={{ background: priority.bg, color: priority.color }}
-        >
-          {priority.label}
-        </span>
-        <div className="flex gap-1.5 flex-wrap justify-end">
-          {card.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-[10px] text-text-muted bg-white/5 px-1.5 py-0.5 rounded"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+      {/* Drag Handle */}
+      <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+        <GripVertical size={16} className="text-[#6B7280]" />
       </div>
 
-      <h4 className="text-sm text-text-primary font-medium leading-snug mb-2">
-        {card.completed && <CheckCircle className="inline text-accent-success mr-1.5" size={14} />}
-        {card.title}
-      </h4>
-
-      {card.progress !== undefined && (
-        <ProgressBar value={card.progress} max={100} color="primary" valueLabel={`${card.progress}%`} className="mb-2" />
+      {/* Priority Indicator */}
+      {priority && (
+        <div className={`absolute top-3 right-12 w-2 h-2 rounded-full ${priorityColors[priority]} opacity-60`} />
       )}
 
-      <div className="flex items-center justify-between text-xs text-text-muted">
-        <div className="flex items-center gap-3">
-          {card.assignee && (
-            <span className="flex items-center gap-1">
-              <span className="w-4 h-4 rounded-full bg-accent-primary-subtle flex items-center justify-center text-[8px] font-medium text-accent-primary">
-                {card.assignee.charAt(0)}
-              </span>
-              {card.assignee}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {card.attachments > 0 && (
-            <span className="flex items-center gap-1">
-              <Paperclip size={12} />
-              {card.attachments}
-            </span>
-          )}
-          {card.comments > 0 && (
-            <span className="flex items-center gap-1">
-              <MessageSquare size={12} />
-              {card.comments}
-            </span>
-          )}
+      {/* Delete Button */}
+      <button
+        onClick={() => onDelete?.(id)}
+        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-[#1a1a1a] rounded text-[#6B7280] hover:text-[#EF4444]"
+      >
+        <Trash2 size={14} />
+      </button>
+
+      {/* Content */}
+      <div className="pr-8">
+        <h3 className="text-sm font-semibold text-white leading-tight mb-2 line-clamp-2">
+          {title}
+        </h3>
+        {description && (
+          <p className="text-xs text-[#6B7280] leading-relaxed line-clamp-2">
+            {description}
+          </p>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-3 pt-3 border-t border-[#202020] flex items-center justify-between">
+        <span className="text-[10px] text-[#6B7280] uppercase tracking-wider">
+          ID: {id.slice(0, 8)}
+        </span>
+        <div className="text-[10px] font-medium text-[#7C6BFF]">
+          {priority.toUpperCase()}
         </div>
       </div>
-    </div>
-  )
+    </motion.div>
+  );
 }

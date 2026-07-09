@@ -1,76 +1,70 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { clsx } from '../utils/clsx'
-
-interface Tab {
-  label: string
-  active: boolean
-  count: number | null
-}
-
-const tabs: Tab[] = [
-  { label: 'Terminal', active: true, count: null },
-  { label: 'Logs', active: false, count: 12 },
-  { label: 'Problems', active: false, count: 3 },
-]
-
-const lines = [
-  { prefix: '→', text: ' npm run dev', color: 'text-text-secondary' },
-  { prefix: '', text: '', color: '' },
-  { prefix: '>', text: ' ai-company@1.0.0 dev', color: 'text-text-muted' },
-  { prefix: '>', text: ' vite --port 3000', color: 'text-text-muted' },
-  { prefix: '', text: '', color: '' },
-  { prefix: '✓', text: ' VITE v5.4.2 ready in 380ms', color: 'text-accent-success' },
-  { prefix: '→', text: ' Local: http://localhost:3000', color: 'text-text-link' },
-  { prefix: '', text: '', color: '' },
-  { prefix: '!', text: ' [hmr] Warning: unused import \'useEffect\' in Header.tsx', color: 'text-accent-warning' },
-  { prefix: '→', text: ' watching for file changes...', color: 'text-text-secondary' },
-]
+import { useRealtime } from '../../lib/realtime'
 
 export function Terminal() {
   const [activeTab, setActiveTab] = useState('Terminal')
+  const { logs, connected } = useRealtime()
+  const [displayLines, setDisplayLines] = useState<Array<{ prefix: string; text: string; color: string }>>([
+    { prefix: '', text: 'AI-Company Terminal v1.0.0', color: 'text-white' },
+    { prefix: '', text: 'Connected to agent orchestration layer', color: 'text-[#6E6E6E]' },
+  ])
+  const endRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (connected) {
+      setDisplayLines((prev) => [...prev, { prefix: '✓', text: 'WebSocket connected', color: 'text-[#22C55E]' }])
+    }
+  }, [connected])
+
+  useEffect(() => {
+    if (logs.length > 0) {
+      setDisplayLines((prev) =>
+        [...prev, ...logs.map((l) => ({ prefix: l.prefix, text: l.text, color: l.color }))].slice(-100)
+      )
+    }
+  }, [logs])
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [displayLines])
+
+  const tabs = ['Terminal', 'Logs']
 
   return (
-    <div className="h-[200px] flex-shrink-0 bg-surface-terminal border-t border-white/5 flex flex-col">
-      <div className="h-9 bg-surface-sidebar border-b border-white/5 flex items-center px-4 gap-4 flex-shrink-0">
+    <div className="flex flex-col h-[180px] border-t border-[#202020] bg-[#000000]">
+      {/* Tabs */}
+      <div className="h-9 flex items-center px-4 gap-4 border-b border-[#202020] flex-shrink-0">
         {tabs.map((tab) => (
           <button
-            key={tab.label}
-            onClick={() => setActiveTab(tab.label)}
+            key={tab}
+            onClick={() => setActiveTab(tab)}
             className={clsx(
-              'relative h-full flex items-center gap-1.5 text-xs font-medium transition-colors cursor-pointer',
-              activeTab === tab.label
-                ? 'text-text-primary'
-                : 'text-text-muted hover:text-text-secondary',
+              'relative h-full flex items-center text-xs font-medium transition-colors cursor-pointer',
+              activeTab === tab ? 'text-white' : 'text-[#6E6E6E] hover:text-[#A8A8A8]',
             )}
           >
-            {tab.label}
-            {tab.count && (
-              <span className="bg-surface-card text-text-muted text-[10px] px-1.5 py-0.5 rounded-full">
-                {tab.count}
-              </span>
-            )}
-            {activeTab === tab.label && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-primary rounded-full" />
+            {tab}
+            {activeTab === tab && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full" />
             )}
           </button>
         ))}
       </div>
 
-      <div className="flex-1 p-4 overflow-auto font-mono text-xs leading-relaxed" style={{ scrollBehavior: 'smooth' }}>
-        {lines.map((line, i) => (
+      {/* Content */}
+      <div className="flex-1 p-4 overflow-auto font-mono text-xs leading-relaxed">
+        {displayLines.map((line, i) => (
           <div key={i} className="flex">
             {line.prefix && (
-              <span className={clsx('w-4 flex-shrink-0', line.color || 'text-text-secondary')}>
-                {line.prefix}
-              </span>
+              <span className={clsx('w-4 flex-shrink-0', line.color)}>{line.prefix}</span>
             )}
-            <span className={clsx(line.color || 'text-text-secondary')}>
-              {line.text}
-            </span>
+            <span className={clsx(line.color || 'text-[#A8A8A8]')}>{line.text}</span>
           </div>
         ))}
+        <div ref={endRef} />
         <div className="flex items-center mt-0.5">
-          <span className="w-2 h-4 bg-accent-primary animate-blink" />
+          <span className="w-2 h-4 bg-white animate-pulse" />
         </div>
       </div>
     </div>

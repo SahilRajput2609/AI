@@ -1,123 +1,74 @@
-import { useState } from "react";
-import {
-  CheckCircle,
-  AlertTriangle,
-  Info,
-  X,
-} from "lucide-react";
+"use client";
 
-type NotificationType = "success" | "warning" | "info";
+import { motion, AnimatePresence } from "framer-motion";
+import { AlertCircle, CheckCircle, Info, X } from "lucide-react";
+import React from "react";
 
-interface Notification {
+export interface Notification {
   id: string;
-  type: NotificationType;
+  type: "success" | "error" | "info" | "warning";
   title: string;
   message: string;
-  time: string;
 }
 
-const notificationsData: Notification[] = [
-  {
-    id: "1",
-    type: "success",
-    title: "Task Completed",
-    message: "Coder finished writing auth middleware.",
-    time: "2 min ago",
-  },
-  {
-    id: "2",
-    type: "warning",
-    title: "High Memory Usage",
-    message: "Memory usage reached 82%.",
-    time: "5 min ago",
-  },
-  {
-    id: "3",
-    type: "info",
-    title: "Plan Updated",
-    message: "Planner generated 3 new subtasks.",
-    time: "8 min ago",
-  },
-];
+const iconMap = {
+  success: CheckCircle,
+  error: AlertCircle,
+  info: Info,
+  warning: AlertCircle,
+};
 
-export function NotificationToast() {
-  const [notifications, setNotifications] =
-    useState(notificationsData);
+const colorMap = {
+  success: "text-[#10b981] bg-[#10b981]/10 border-[#10b981]/20",
+  error: "text-[#ef4444] bg-[#ef4444]/10 border-[#ef4444]/20",
+  info: "text-[#7C6BFF] bg-[#7C6BFF]/10 border-[#7C6BFF]/20",
+  warning: "text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/20",
+};
 
-  function removeNotification(id: string) {
-    setNotifications((prev) =>
-      prev.filter((item) => item.id !== id)
-    );
-  }
-
-  const getIcon = (type: NotificationType) => {
-    switch (type) {
-      case "success":
-        return (
-          <CheckCircle
-            className="text-green-500"
-            size={20}
-          />
-        );
-
-      case "warning":
-        return (
-          <AlertTriangle
-            className="text-yellow-500"
-            size={20}
-          />
-        );
-
-      case "info":
-      default:
-        return (
-          <Info
-            className="text-blue-500"
-            size={20}
-          />
-        );
-    }
-  };
-
-  if (notifications.length === 0) return null;
-
+export function NotificationToast({
+  notifications = [],
+  onDismiss = () => {},
+}: {
+  notifications?: Notification[];
+  onDismiss?: (id: string) => void;
+}) {
   return (
-    <div className="fixed top-5 right-5 z-50 flex flex-col gap-3">
-      {notifications.map((notification) => (
-        <div
-          key={notification.id}
-          className="w-80 rounded-xl border border-zinc-700 bg-zinc-900 shadow-xl p-4"
-        >
-          <div className="flex items-start gap-3">
-            {getIcon(notification.type)}
+    <div className="fixed bottom-4 right-4 z-50 space-y-3 pointer-events-none">
+      <AnimatePresence mode="popLayout">
+        {notifications.map((notification) => {
+          const Icon = iconMap[notification.type];
+          const colorClass = colorMap[notification.type];
 
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <h3 className="text-white font-semibold text-sm">
-                  {notification.title}
-                </h3>
-
-                <button
-                  onClick={() =>
-                    removeNotification(notification.id)
-                  }
-                  className="text-zinc-400 hover:text-white"
-                >
-                  <X size={16} />
-                </button>
+          return (
+            <motion.div
+              key={notification.id}
+              initial={{ opacity: 0, y: 20, x: 100 }}
+              animate={{ opacity: 1, y: 0, x: 0 }}
+              exit={{ opacity: 0, y: -20, x: 100 }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 25,
+              }}
+              className={`${colorClass} border rounded-lg p-4 backdrop-blur-sm pointer-events-auto flex gap-3 items-start max-w-sm shadow-lg`}
+            >
+              <Icon size={20} className="flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold">{notification.title}</p>
+                <p className="text-xs opacity-90 mt-0.5">{notification.message}</p>
               </div>
-
-              <p className="text-zinc-300 text-sm mt-1">
-                {notification.message}
-              </p>
-
-              <p className="text-zinc-500 text-xs mt-2">
-                {notification.time}
-              </p>
-            </div>
-          </div>
-        </div>
-      ))}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onDismiss(notification.id)}
+                className="flex-shrink-0 hover:opacity-70 transition-opacity"
+              >
+                <X size={16} />
+              </motion.button>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
     </div>
   );
 }

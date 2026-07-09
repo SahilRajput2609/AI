@@ -5,23 +5,21 @@ interface AvatarProps {
   fallback: string
   src?: string
   className?: string
-  border?: string
 }
 
-export function Avatar({ size = 32, fallback, src, className, border }: AvatarProps) {
+export function Avatar({ size = 32, fallback, src, className }: AvatarProps) {
   return (
     <div
-      className={clsx('rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-accent-primary-subtle text-text-primary text-xs font-semibold', className)}
-      style={{
-        width: size,
-        height: size,
-        border: border || '2px solid rgba(255,255,255,0.08)',
-      }}
+      className={clsx(
+        'rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-[#151515] text-[#A8A8A8] text-xs font-medium',
+        className,
+      )}
+      style={{ width: size, height: size }}
     >
       {src ? (
         <img src={src} alt={fallback} className="w-full h-full object-cover" />
       ) : (
-        fallback
+        fallback.slice(0, 2).toUpperCase()
       )}
     </div>
   )

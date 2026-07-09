@@ -1,47 +1,64 @@
-import type { InputHTMLAttributes, ReactNode } from 'react'
-import { clsx } from '../utils/clsx'
+"use client";
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string
-  leftIcon?: ReactNode
-  rightAction?: ReactNode
+import { motion } from "framer-motion";
+import React from "react";
+import { clsx } from "../utils/clsx";
+
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
+  icon?: React.ReactNode;
+  size?: "sm" | "md" | "lg";
 }
 
-export function Input({
-  label,
-  leftIcon,
-  rightAction,
-  className,
-  id,
-  ...props
-}: InputProps) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm text-secondary-font font-medium text-secondary">
-        {label}
-      </label>
-      <div className="relative flex items-center">
-        {leftIcon && (
-          <span className="absolute left-3 text-secondary pointer-events-none">
-            {leftIcon}
-          </span>
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, label, error, icon, size = "md", ...props }, ref) => {
+    const sizeStyles = {
+      sm: "px-3 py-1.5 text-sm h-8",
+      md: "px-4 py-2 text-sm h-10",
+      lg: "px-4 py-3 text-base h-12",
+    };
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col gap-2"
+      >
+        {label && <label className="text-sm font-medium text-white">{label}</label>}
+
+        <div className="relative">
+          {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]">{icon}</div>}
+
+          <motion.input
+            ref={ref}
+            className={clsx(
+              sizeStyles[size],
+              "w-full bg-[#090909] border border-[#202020] rounded-lg text-white placeholder-[#6B7280] outline-none transition-all duration-200",
+              "focus:border-[#7C6BFF]/50 focus:ring-1 focus:ring-[#7C6BFF]/30",
+              "hover:border-[#333]",
+              error && "border-[#EF4444]/50 focus:border-[#EF4444]/50 focus:ring-[#EF4444]/20",
+              icon && "pl-10",
+              className
+            )}
+            whileFocus={{ scale: 1.01 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            {...props}
+          />
+        </div>
+
+        {error && (
+          <motion.span
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-xs text-[#EF4444]"
+          >
+            {error}
+          </motion.span>
         )}
-        <input
-          id={id}
-          className={clsx(
-            'w-full bg-surface-input border border-white/10 rounded-md px-4 py-3 text-sm text-primary placeholder-primary outline-none focus:border-primary focus:ring-primary focus:ring-1 focus:ring-primary/30 transition-all duration-200',
-            leftIcon && 'pl-10',
-            rightAction && 'pr-8',
-            className,
-          )}
-          {...props}
-        />
-        {rightAction && (
-          <span className="absolute right-3">
-            {rightAction}
-          </span>
-        )}
-      </div>
-    </div>
-  )
-}
+      </motion.div>
+    );
+  }
+);
+
+Input.displayName = "Input";

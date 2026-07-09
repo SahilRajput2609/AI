@@ -11,19 +11,19 @@ describe('Button', () => {
   it('applies primary variant by default', () => {
     const { container } = render(<Button>Primary</Button>)
     const button = container.querySelector('button')
-    expect(button?.className).toContain('bg-[#cca374]')
+    expect(button?.className).toContain('bg-white')
+  })
+
+  it('applies secondary variant', () => {
+    const { container } = render(<Button variant="secondary">Secondary</Button>)
+    const button = container.querySelector('button')
+    expect(button?.className).toContain('border')
   })
 
   it('applies ghost variant', () => {
     const { container } = render(<Button variant="ghost">Ghost</Button>)
     const button = container.querySelector('button')
     expect(button?.className).toContain('bg-transparent')
-  })
-
-  it('applies full width class', () => {
-    const { container } = render(<Button fullWidth>Full</Button>)
-    const button = container.querySelector('button')
-    expect(button?.className).toContain('w-full')
   })
 
   it('handles click events', () => {

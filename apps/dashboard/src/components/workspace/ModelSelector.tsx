@@ -1,40 +1,45 @@
 import { useState, useRef, useEffect } from 'react'
-import { Search, Check, Zap, Sparkles } from 'lucide-react'
+import { Search, Check } from 'lucide-react'
 import { clsx } from '../utils/clsx'
+import { api as apiClient } from '../../lib/api'
 
 interface ModelItem {
   name: string
   provider: string
-  badge: string | null
-  speed: string
-  quality: string
 }
-
-const groups: { label: string; items: ModelItem[] }[] = [
-  {
-    label: 'Recommended',
-    items: [
-      { name: 'GPT-4o', provider: 'OpenAI', badge: 'Best', speed: 'fast', quality: 'best' },
-      { name: 'Claude 3.5 Sonnet', provider: 'Anthropic', badge: null, speed: 'fast', quality: 'best' },
-    ],
-  },
-  {
-    label: 'Fast',
-    items: [
-      { name: 'GPT-4o Mini', provider: 'OpenAI', badge: 'Cheap', speed: 'fastest', quality: 'good' },
-      { name: 'Claude 3 Haiku', provider: 'Anthropic', badge: null, speed: 'fastest', quality: 'good' },
-    ],
-  },
-]
 
 interface ModelSelectorProps {
   onClose: () => void
+  onSelect?: (name: string) => void
 }
 
-export function ModelSelector({ onClose }: ModelSelectorProps) {
+export function ModelSelector({ onClose, onSelect }: ModelSelectorProps) {
   const [search, setSearch] = useState('')
-  const [selected, setSelected] = useState('GPT-4o')
+  const [selected, setSelected] = useState(() => localStorage.getItem('ai_company_selected_model') || 'GPT-4o')
+  const [models, setModels] = useState<ModelItem[]>([])
   const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    apiClient.getModelProviders().then((providers: any[]) => {
+      const active = providers.filter((p: any) => p.isActive)
+      const items: ModelItem[] = active.flatMap((p: any) =>
+        (p.models || []).map((m: any) => ({
+          name: m.name || m.modelId,
+          provider: p.name || p.provider,
+        }))
+      )
+      if (items.length > 0) setModels(items)
+      else setModels([
+        { name: 'GPT-4o', provider: 'OpenAI' },
+        { name: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
+      ])
+    }).catch(() => {
+      setModels([
+        { name: 'GPT-4o', provider: 'OpenAI' },
+        { name: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
+      ])
+    })
+  }, [])
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -44,89 +49,46 @@ export function ModelSelector({ onClose }: ModelSelectorProps) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [onClose])
 
-  const filtered = groups
-    .map((g) => ({
-      ...g,
-      items: g.items.filter(
-        (m) =>
-          m.name.toLowerCase().includes(search.toLowerCase()) ||
-          m.provider.toLowerCase().includes(search.toLowerCase()),
-      ),
-    }))
-    .filter((g) => g.items.length > 0)
+  const filtered = models.filter(m =>
+    m.name.toLowerCase().includes(search.toLowerCase()) ||
+    m.provider.toLowerCase().includes(search.toLowerCase())
+  )
 
   const handleSelect = (name: string) => {
     setSelected(name)
+    localStorage.setItem('ai_company_selected_model', name)
+    onSelect?.(name)
     onClose()
   }
 
   return (
-    <div
-      ref={ref}
-      className="absolute top-full right-0 mt-2 w-[320px] max-h-[400px] bg-surface-card border border-white/10 rounded-[12px] shadow-xl p-2 z-50 animate-fade-in"
-      style={{ boxShadow: '0 16px 48px rgba(0,0,0,0.6)' }}
-    >
-      <div className="flex items-center gap-2 bg-surface-input rounded-[8px] px-3 py-2 mb-2 border border-white/5 focus-within:border-accent-primary/30 transition-colors">
-        <Search className="text-text-muted flex-shrink-0" size={14} />
+    <div ref={ref} className="absolute top-full right-0 mt-2 w-[300px] rounded-xl border border-[#202020] bg-[#0F0F0F] shadow-2xl z-50 overflow-hidden">
+      <div className="flex items-center gap-2 px-3 h-10 border-b border-[#202020]">
+        <Search size={14} className="text-[#6E6E6E]" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search models..."
-          className="flex-1 bg-transparent text-xs text-text-primary placeholder-text-muted outline-none"
+          className="flex-1 bg-transparent text-sm text-white placeholder-[#6E6E6E] outline-none"
           autoFocus
         />
       </div>
-
-      <div className="overflow-y-auto max-h-[320px]">
-        {filtered.map((group) => (
-          <div key={group.label}>
-            <span className="block text-[11px] uppercase tracking-wider text-text-muted px-3 py-2 font-medium">
-              {group.label}
-            </span>
-            {group.items.map((item) => {
-              const isActive = selected === item.name
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => handleSelect(item.name)}
-                  className={clsx(
-                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-[8px] text-sm transition-colors cursor-pointer',
-                    isActive
-                      ? 'bg-accent-primary-subtle'
-                      : 'hover:bg-white/5',
-                  )}
-                >
-                  <div className="flex-1 flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-accent-primary-subtle flex items-center justify-center">
-                      <span className="text-[10px] font-bold text-accent-primary">
-                        {item.provider === 'OpenAI' ? 'O' : item.provider === 'Anthropic' ? 'A' : 'G'}
-                      </span>
-                    </div>
-                    <div className="text-left">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-text-primary">{item.name}</span>
-                        {item.badge && (
-                          <span className="text-[10px] font-medium text-accent-success bg-accent-success-subtle px-1.5 py-0.5 rounded">
-                            {item.badge}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-[11px] text-text-muted">{item.provider}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-text-muted">
-                    {item.speed === 'fastest' ? (
-                      <Zap size={12} className="text-accent-warning" />
-                    ) : (
-                      <Zap size={12} />
-                    )}
-                    {item.quality === 'best' && <Sparkles size={12} className="text-accent-purple" />}
-                  </div>
-                  {isActive && <Check className="text-accent-primary" size={16} />}
-                </button>
-              )
-            })}
-          </div>
+      <div className="max-h-[280px] overflow-y-auto py-1">
+        {filtered.map((model) => (
+          <button
+            key={model.name}
+            onClick={() => handleSelect(model.name)}
+            className={clsx(
+              'w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors cursor-pointer',
+              selected === model.name ? 'bg-[#151515] text-white' : 'text-[#A8A8A8] hover:bg-[#080808] hover:text-white',
+            )}
+          >
+            <div>
+              <span className="font-medium">{model.name}</span>
+              <span className="text-xs text-[#6E6E6E] ml-2">{model.provider}</span>
+            </div>
+            {selected === model.name && <Check size={14} className="text-white" />}
+          </button>
         ))}
       </div>
     </div>

@@ -11,6 +11,10 @@ function createTestDb() {
       description TEXT,
       path TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'active',
+      type TEXT NOT NULL DEFAULT 'custom',
+      model TEXT DEFAULT '',
+      framework TEXT DEFAULT '',
+      user_id TEXT,
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     )
@@ -32,6 +36,7 @@ describe('ProjectRepository', () => {
       description: 'A test project',
       path: '/projects/test',
       status: 'active',
+      type: 'custom',
     })
 
     expect(project.id).toBeTruthy()
@@ -46,6 +51,7 @@ describe('ProjectRepository', () => {
       name: 'Find Me',
       path: '/projects/find-me',
       status: 'active',
+      type: 'custom',
     })
 
     const found = repo.findById(created.id)
@@ -68,6 +74,7 @@ describe('ProjectRepository', () => {
       name: 'Update Me',
       path: '/projects/update-me',
       status: 'active',
+      type: 'custom',
     })
 
     const updated = repo.update(project.id, { name: 'Updated', status: 'paused' })
@@ -87,6 +94,7 @@ describe('ProjectRepository', () => {
       name: 'Delete Me',
       path: '/projects/delete-me',
       status: 'active',
+      type: 'custom',
     })
 
     const deleted = repo.delete(project.id)

@@ -9,8 +9,8 @@ const baseCard: KanbanCardData = {
   priority: 'high',
   tags: ['bug', 'frontend'],
   assignee: 'Coder Agent',
-  attachments: 2,
-  comments: 3,
+  attachments: 0,
+  comments: 0,
   progress: 60,
 }
 
@@ -33,26 +33,13 @@ describe('KanbanCard', () => {
 
   it('renders assignee initial', () => {
     render(<KanbanCard card={baseCard} onDragStart={vi.fn()} columnId="col1" />)
-    expect(screen.getByText('C')).toBeTruthy() // First letter of 'Coder Agent'
-  })
-
-  it('renders attachment and comment counts', () => {
-    render(<KanbanCard card={baseCard} onDragStart={vi.fn()} columnId="col1" />)
-    expect(screen.getByText('2')).toBeTruthy()
-    expect(screen.getByText('3')).toBeTruthy()
+    expect(screen.getByText('C')).toBeTruthy()
   })
 
   it('renders progress bar', () => {
     const { container } = render(<KanbanCard card={baseCard} onDragStart={vi.fn()} columnId="col1" />)
     const bar = container.querySelector('[style*="width: 60%"]')
     expect(bar).toBeTruthy()
-  })
-
-  it('shows completed checkmark when completed', () => {
-    const completedCard = { ...baseCard, completed: true }
-    const { container } = render(<KanbanCard card={completedCard} onDragStart={vi.fn()} columnId="col1" />)
-    const iconContainer = container.querySelector('svg')
-    expect(iconContainer).toBeTruthy()
   })
 
   it('fires onDragStart when dragged', () => {

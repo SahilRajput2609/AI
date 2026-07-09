@@ -1,4 +1,3 @@
-// Format date to relative time (e.g., "2 minutes ago")
 export function formatRelativeTime(date: Date | string): string {
   const now = new Date()
   const then = typeof date === 'string' ? new Date(date) : date
@@ -22,7 +21,6 @@ export function formatRelativeTime(date: Date | string): string {
   return `${years}y ago`
 }
 
-// Format date to short format (e.g., "Jan 1, 2024")
 export function formatShortDate(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date
   return new Intl.DateTimeFormat('en-US', {
@@ -32,7 +30,6 @@ export function formatShortDate(date: Date | string): string {
   }).format(d)
 }
 
-// Format date to time (e.g., "3:45 PM")
 export function formatTime(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date
   return new Intl.DateTimeFormat('en-US', {
@@ -42,13 +39,11 @@ export function formatTime(date: Date | string): string {
   }).format(d)
 }
 
-// Format date to full datetime (e.g., "Jan 1, 2024 at 3:45 PM")
 export function formatDateTime(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date
   return `${formatShortDate(d)} at ${formatTime(d)}`
 }
 
-// Check if date is today
 export function isToday(date: Date | string): boolean {
   const d = typeof date === 'string' ? new Date(date) : date
   const today = new Date()
