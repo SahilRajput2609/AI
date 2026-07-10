@@ -31,7 +31,7 @@ export class DeploymentRepository {
       deployment.config,
       deployment.deployed_by || null,
       deployment.created_at,
-      deployment.updated_at
+      deployment.updated_at,
     )
 
     return deployment

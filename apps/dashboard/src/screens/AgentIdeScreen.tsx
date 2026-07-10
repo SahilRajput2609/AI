@@ -14,10 +14,14 @@ export function AgentIdeScreen() {
   const [tasks, setTasks] = useState<{ description: string; assignedRole: string }[]>([])
   const [taskStatuses, setTaskStatuses] = useState<('queued' | 'running' | 'success' | 'failed')[]>([])
 
-  useEffect(() => { fetchAgents() }, [])
+  useEffect(() => {
+    fetchAgents()
+  }, [])
 
   async function fetchAgents() {
-    try { setAgents(await api.getAgents()) } catch {}
+    try {
+      setAgents(await api.getAgents())
+    } catch {}
   }
 
   async function startDeployment() {
@@ -104,7 +108,10 @@ export function AgentIdeScreen() {
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {agents.map((a: any) => (
-                  <span key={a.id || a.role} className="text-[11px] text-[#A8A8A8] bg-[#0F0F0F] border border-[#202020] px-2 py-1 rounded-md">
+                  <span
+                    key={a.id || a.role}
+                    className="text-[11px] text-[#A8A8A8] bg-[#0F0F0F] border border-[#202020] px-2 py-1 rounded-md"
+                  >
                     {a.name || a.role}
                   </span>
                 ))}
@@ -122,13 +129,15 @@ export function AgentIdeScreen() {
                 const status = taskStatuses[idx] || 'queued'
                 return (
                   <div key={idx} className="flex items-start gap-3">
-                    <div className={clsx(
-                      'w-2 h-2 rounded-full mt-1.5 flex-shrink-0',
-                      status === 'success' && 'bg-[#22C55E]',
-                      status === 'running' && 'bg-[#FACC15] animate-pulse',
-                      status === 'failed' && 'bg-[#EF4444]',
-                      status === 'queued' && 'bg-[#333]',
-                    )} />
+                    <div
+                      className={clsx(
+                        'w-2 h-2 rounded-full mt-1.5 flex-shrink-0',
+                        status === 'success' && 'bg-[#22C55E]',
+                        status === 'running' && 'bg-[#FACC15] animate-pulse',
+                        status === 'failed' && 'bg-[#EF4444]',
+                        status === 'queued' && 'bg-[#333]',
+                      )}
+                    />
                     <div>
                       <span className="text-xs text-[#6E6E6E] font-mono">{task.assignedRole}</span>
                       <p className="text-xs text-white">{task.description}</p>
@@ -165,7 +174,11 @@ export function AgentIdeScreen() {
                   if (log.includes('[OWNER]')) color = 'text-white'
                   if (log.includes('[PLANNER]')) color = 'text-[#A8A8A8]'
                   if (log.includes('Error')) color = 'text-[#EF4444]'
-                  return <div key={i} className={clsx('leading-relaxed', color)}>{log}</div>
+                  return (
+                    <div key={i} className={clsx('leading-relaxed', color)}>
+                      {log}
+                    </div>
+                  )
                 })
               ) : (
                 <EmptyState title="Ready" description="Enter a prompt and click Deploy to start." />

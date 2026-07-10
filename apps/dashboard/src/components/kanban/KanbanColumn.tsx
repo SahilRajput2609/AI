@@ -19,7 +19,9 @@ export function KanbanColumn({ column, onDragStart, onDragOver, onDrop, isDragOv
       <div className="flex items-center gap-2 mb-4">
         <div className="w-2 h-2 rounded-full" style={{ background: column.color }} />
         <h3 className="text-sm font-medium text-white">{column.title}</h3>
-        <span className="text-[11px] text-[#6E6E6E] bg-[#0F0F0F] border border-[#202020] px-1.5 py-0.5 rounded">{column.cards.length}</span>
+        <span className="text-[11px] text-[#6E6E6E] bg-[#0F0F0F] border border-[#202020] px-1.5 py-0.5 rounded">
+          {column.cards.length}
+        </span>
       </div>
 
       <div className="space-y-0">

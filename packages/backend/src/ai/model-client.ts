@@ -1,4 +1,5 @@
-import { ModelProvider, ModelRequest, ModelResponse } from '@ai-company/shared'
+import type { ModelRequest, ModelResponse } from '@ai-company/shared'
+import { ModelProvider } from '@ai-company/shared'
 
 export interface ModelClient {
   chat(request: ModelRequest): Promise<ModelResponse>
@@ -9,7 +10,7 @@ export class OpenAIClient implements ModelClient {
   constructor(
     private apiKey: string,
     private baseUrl: string,
-    private model: string
+    private model: string,
   ) {}
 
   async chat(request: ModelRequest): Promise<ModelResponse> {
@@ -17,15 +18,15 @@ export class OpenAIClient implements ModelClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
+        Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
         model: this.model,
         messages: request.messages,
         temperature: request.temperature,
         max_tokens: request.maxTokens,
-        stream: false
-      })
+        stream: false,
+      }),
     })
 
     if (!response.ok) {
@@ -34,7 +35,7 @@ export class OpenAIClient implements ModelClient {
     }
 
     const data = await response.json()
-    
+
     return {
       id: data.id,
       content: data.choices[0].message.content,
@@ -42,10 +43,10 @@ export class OpenAIClient implements ModelClient {
       usage: {
         promptTokens: data.usage.prompt_tokens,
         completionTokens: data.usage.completion_tokens,
-        totalTokens: data.usage.total_tokens
+        totalTokens: data.usage.total_tokens,
       },
       finishReason: data.choices[0].finish_reason,
-      createdAt: new Date(data.created * 1000)
+      createdAt: new Date(data.created * 1000),
     }
   }
 
@@ -54,15 +55,15 @@ export class OpenAIClient implements ModelClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
+        Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
         model: this.model,
         messages: request.messages,
         temperature: request.temperature,
         max_tokens: request.maxTokens,
-        stream: true
-      })
+        stream: true,
+      }),
     })
 
     if (!response.ok) {
@@ -82,7 +83,7 @@ export class OpenAIClient implements ModelClient {
       if (done) break
 
       const chunk = decoder.decode(value)
-      const lines = chunk.split('\n').filter(line => line.trim() !== '')
+      const lines = chunk.split('\n').filter((line) => line.trim() !== '')
 
       for (const line of lines) {
         if (line.startsWith('data: ')) {
@@ -108,7 +109,7 @@ export class AnthropicClient implements ModelClient {
   constructor(
     private apiKey: string,
     private baseUrl: string,
-    private model: string
+    private model: string,
   ) {}
 
   async chat(request: ModelRequest): Promise<ModelResponse> {
@@ -117,15 +118,15 @@ export class AnthropicClient implements ModelClient {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': this.apiKey,
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
         model: this.model,
         messages: request.messages,
         temperature: request.temperature,
         max_tokens: request.maxTokens || 4096,
-        stream: false
-      })
+        stream: false,
+      }),
     })
 
     if (!response.ok) {
@@ -134,7 +135,7 @@ export class AnthropicClient implements ModelClient {
     }
 
     const data = await response.json()
-    
+
     return {
       id: data.id,
       content: data.content[0].text,
@@ -142,10 +143,10 @@ export class AnthropicClient implements ModelClient {
       usage: {
         promptTokens: data.usage.input_tokens,
         completionTokens: data.usage.output_tokens,
-        totalTokens: data.usage.input_tokens + data.usage.output_tokens
+        totalTokens: data.usage.input_tokens + data.usage.output_tokens,
       },
       finishReason: data.stop_reason,
-      createdAt: new Date()
+      createdAt: new Date(),
     }
   }
 
@@ -155,15 +156,15 @@ export class AnthropicClient implements ModelClient {
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': this.apiKey,
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
         model: this.model,
         messages: request.messages,
         temperature: request.temperature,
         max_tokens: request.maxTokens || 4096,
-        stream: true
-      })
+        stream: true,
+      }),
     })
 
     if (!response.ok) {
@@ -183,7 +184,7 @@ export class AnthropicClient implements ModelClient {
       if (done) break
 
       const chunk = decoder.decode(value)
-      const lines = chunk.split('\n').filter(line => line.trim() !== '')
+      const lines = chunk.split('\n').filter((line) => line.trim() !== '')
 
       for (const line of lines) {
         if (line.startsWith('data: ')) {
@@ -207,9 +208,7 @@ export class AnthropicClient implements ModelClient {
 }
 
 export class MockClient implements ModelClient {
-  constructor(
-    private model: string
-  ) {}
+  constructor(private model: string) {}
 
   async chat(_request: ModelRequest): Promise<ModelResponse> {
     return {
@@ -218,15 +217,18 @@ export class MockClient implements ModelClient {
       model: this.model,
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
       finishReason: 'stop',
-      createdAt: new Date()
+      createdAt: new Date(),
     }
   }
 
   async *stream(_request: ModelRequest): AsyncGenerator<string, void, unknown> {
-    const words = `This is a simulated streaming response from ${this.model}. Configure a valid API key in .env to use real AI providers.`.split(' ')
+    const words =
+      `This is a simulated streaming response from ${this.model}. Configure a valid API key in .env to use real AI providers.`.split(
+        ' ',
+      )
     for (const word of words) {
       yield word + ' '
-      await new Promise(resolve => setTimeout(resolve, 50))
+      await new Promise((resolve) => setTimeout(resolve, 50))
     }
   }
 }
@@ -235,7 +237,7 @@ export class GenericClient implements ModelClient {
   constructor(
     private apiKey: string,
     private baseUrl: string,
-    private model: string
+    private model: string,
   ) {}
 
   async chat(request: ModelRequest): Promise<ModelResponse> {
@@ -243,15 +245,15 @@ export class GenericClient implements ModelClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
+        Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
         model: this.model,
         messages: request.messages,
         temperature: request.temperature,
         max_tokens: request.maxTokens,
-        stream: false
-      })
+        stream: false,
+      }),
     })
 
     if (!response.ok) {
@@ -260,7 +262,7 @@ export class GenericClient implements ModelClient {
     }
 
     const data = await response.json()
-    
+
     return {
       id: data.id || crypto.randomUUID(),
       content: data.choices?.[0]?.message?.content || data.content || '',
@@ -268,10 +270,10 @@ export class GenericClient implements ModelClient {
       usage: {
         promptTokens: data.usage?.prompt_tokens || 0,
         completionTokens: data.usage?.completion_tokens || 0,
-        totalTokens: data.usage?.total_tokens || 0
+        totalTokens: data.usage?.total_tokens || 0,
       },
       finishReason: data.choices?.[0]?.finish_reason || 'stop',
-      createdAt: new Date()
+      createdAt: new Date(),
     }
   }
 
@@ -280,15 +282,15 @@ export class GenericClient implements ModelClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
+        Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
         model: this.model,
         messages: request.messages,
         temperature: request.temperature,
         max_tokens: request.maxTokens,
-        stream: true
-      })
+        stream: true,
+      }),
     })
 
     if (!response.ok) {
@@ -308,7 +310,7 @@ export class GenericClient implements ModelClient {
       if (done) break
 
       const chunk = decoder.decode(value)
-      const lines = chunk.split('\n').filter(line => line.trim() !== '')
+      const lines = chunk.split('\n').filter((line) => line.trim() !== '')
 
       for (const line of lines) {
         if (line.startsWith('data: ')) {

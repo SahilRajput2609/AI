@@ -15,9 +15,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
         {icon || <FileX size={20} className="text-[#6E6E6E]" />}
       </div>
       <h3 className="text-sm font-medium text-white mb-1">{title}</h3>
-      {description && (
-        <p className="text-xs text-[#6E6E6E] text-center max-w-[280px]">{description}</p>
-      )}
+      {description && <p className="text-xs text-[#6E6E6E] text-center max-w-[280px]">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   )

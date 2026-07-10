@@ -20,7 +20,7 @@ export class ModelService {
     const model = await this.modelRepo.create({
       ...data,
       isActive: false,
-      config: {}
+      config: {},
     })
     return model
   }
@@ -37,10 +37,7 @@ export class ModelService {
     return this.modelRepo.delete(id)
   }
 
-  async listModels(filters?: {
-    provider?: string
-    isActive?: boolean
-  }): Promise<ModelEntity[]> {
+  async listModels(filters?: { provider?: string; isActive?: boolean }): Promise<ModelEntity[]> {
     return this.modelRepo.findAll(filters)
   }
 

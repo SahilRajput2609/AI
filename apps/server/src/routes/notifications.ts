@@ -38,42 +38,48 @@ notificationsRouter.get('/:id', (req: Request, res: Response) => {
 })
 
 // Create a notification
-notificationsRouter.post('/', validate([
-  { field: 'title', required: true, type: 'string', minLength: 1, maxLength: 200 },
-  { field: 'message', type: 'string', maxLength: 2000 },
-]), (req: Request, res: Response) => {
-  const { title, message, type, userId, projectId } = req.body as Record<string, string>
-  const notification = notificationRepo.create({
-    title,
-    message: message || '',
-    type: type || 'info',
-    user_id: userId || undefined,
-    project_id: projectId || undefined,
-    is_read: false,
-  })
-  res.status(201).json(notification)
-})
+notificationsRouter.post(
+  '/',
+  validate([
+    { field: 'title', required: true, type: 'string', minLength: 1, maxLength: 200 },
+    { field: 'message', type: 'string', maxLength: 2000 },
+  ]),
+  (req: Request, res: Response) => {
+    const { title, message, type, userId, projectId } = req.body as Record<string, string>
+    const notification = notificationRepo.create({
+      title,
+      message: message || '',
+      type: type || 'info',
+      user_id: userId || undefined,
+      project_id: projectId || undefined,
+      is_read: false,
+    })
+    res.status(201).json(notification)
+  },
+)
 
 // Broadcast notification to all connected WebSocket clients
-notificationsRouter.post('/broadcast', validate([
-  { field: 'message', required: true, type: 'string', minLength: 1, maxLength: 2000 },
-]), (req: Request, res: Response) => {
-  const { message, type = 'info', title } = req.body as Record<string, string>
-  
-  const broadcastData = {
-    event: 'notification',
-    type,
-    message,
-    title: title || 'Notification',
-  }
-  
-  if (broadcastFn) {
-    broadcastFn(broadcastData)
-    res.json({ success: true, message: 'Notification broadcast to all clients' })
-  } else {
-    res.status(500).json({ error: 'Broadcast function not initialized' })
-  }
-})
+notificationsRouter.post(
+  '/broadcast',
+  validate([{ field: 'message', required: true, type: 'string', minLength: 1, maxLength: 2000 }]),
+  (req: Request, res: Response) => {
+    const { message, type = 'info', title } = req.body as Record<string, string>
+
+    const broadcastData = {
+      event: 'notification',
+      type,
+      message,
+      title: title || 'Notification',
+    }
+
+    if (broadcastFn) {
+      broadcastFn(broadcastData)
+      res.json({ success: true, message: 'Notification broadcast to all clients' })
+    } else {
+      res.status(500).json({ error: 'Broadcast function not initialized' })
+    }
+  },
+)
 
 // Mark as read
 notificationsRouter.put('/:id/read', (req: Request, res: Response) => {

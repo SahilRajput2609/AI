@@ -33,11 +33,10 @@ projectsRouter.get('/', (_req: Request, res: Response) => {
 
 // Search projects
 projectsRouter.get('/search', (req: Request, res: Response) => {
-  const q = (req.query.q as string || '').toLowerCase()
+  const q = ((req.query.q as string) || '').toLowerCase()
   const all = projectRepo.findAll()
-  const results = all.filter((p: any) =>
-    p.name.toLowerCase().includes(q) ||
-    (p.description && p.description.toLowerCase().includes(q))
+  const results = all.filter(
+    (p: any) => p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q)),
   )
   res.json(results)
 })
@@ -53,49 +52,69 @@ projectsRouter.get('/:id', (req: Request, res: Response) => {
 })
 
 // Create project
-projectsRouter.post('/', validate([
-  { field: 'name', required: true, type: 'string', minLength: 1, maxLength: 200 },
-  { field: 'description', type: 'string', maxLength: 2000 },
-  { field: 'type', type: 'string' },
-  { field: 'model', type: 'string' },
-  { field: 'framework', type: 'string' },
-]), (req: Request, res: Response) => {
-  const { name, description, type, model, framework } = req.body as Record<string, any>
-  const project = projectRepo.create({
-    name,
-    description: description || '',
-    path: `/projects/${name.toLowerCase().replace(/\s+/g, '-')}`,
-    status: 'active',
-    type: type || 'custom',
-    model: model || '',
-    framework: framework || '',
-  })
+projectsRouter.post(
+  '/',
+  validate([
+    { field: 'name', required: true, type: 'string', minLength: 1, maxLength: 200 },
+    { field: 'description', type: 'string', maxLength: 2000 },
+    { field: 'type', type: 'string' },
+    { field: 'model', type: 'string' },
+    { field: 'framework', type: 'string' },
+  ]),
+  (req: Request, res: Response) => {
+    const { name, description, type, model, framework } = req.body as Record<string, any>
+    const project = projectRepo.create({
+      name,
+      description: description || '',
+      path: `/projects/${name.toLowerCase().replace(/\s+/g, '-')}`,
+      status: 'active',
+      type: type || 'custom',
+      model: model || '',
+      framework: framework || '',
+    })
 
-  ensureProjectDir(project.id)
-  const projectDir = join(PROJECTS_DIR, project.id)
-  writeFileSync(join(projectDir, 'package.json'), JSON.stringify({
-    name: project.name.toLowerCase().replace(/\s+/g, '-'),
-    version: '1.0.0',
-    private: true,
-  }, null, 2))
-  writeFileSync(join(projectDir, 'index.html'), '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8" />\n  <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n  <title>' + project.name + '</title>\n</head>\n<body>\n  <div id="root"></div>\n</body>\n</html>')
+    ensureProjectDir(project.id)
+    const projectDir = join(PROJECTS_DIR, project.id)
+    writeFileSync(
+      join(projectDir, 'package.json'),
+      JSON.stringify(
+        {
+          name: project.name.toLowerCase().replace(/\s+/g, '-'),
+          version: '1.0.0',
+          private: true,
+        },
+        null,
+        2,
+      ),
+    )
+    writeFileSync(
+      join(projectDir, 'index.html'),
+      '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8" />\n  <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n  <title>' +
+        project.name +
+        '</title>\n</head>\n<body>\n  <div id="root"></div>\n</body>\n</html>',
+    )
 
-  res.status(201).json(project)
-})
+    res.status(201).json(project)
+  },
+)
 
 // Update project
-projectsRouter.put('/:id', validate([
-  { field: 'name', type: 'string', minLength: 1, maxLength: 200 },
-  { field: 'description', type: 'string', maxLength: 2000 },
-  { field: 'status', type: 'string', pattern: /^(active|archived|paused)$/ },
-]), (req: Request, res: Response) => {
-  const updated = projectRepo.update(req.params.id as string, req.body)
-  if (!updated) {
-    res.status(404).json({ error: 'Project not found' })
-    return
-  }
-  res.json(updated)
-})
+projectsRouter.put(
+  '/:id',
+  validate([
+    { field: 'name', type: 'string', minLength: 1, maxLength: 200 },
+    { field: 'description', type: 'string', maxLength: 2000 },
+    { field: 'status', type: 'string', pattern: /^(active|archived|paused)$/ },
+  ]),
+  (req: Request, res: Response) => {
+    const updated = projectRepo.update(req.params.id as string, req.body)
+    if (!updated) {
+      res.status(404).json({ error: 'Project not found' })
+      return
+    }
+    res.json(updated)
+  },
+)
 
 // Delete project
 projectsRouter.delete('/:id', (req: Request, res: Response) => {
@@ -203,9 +222,14 @@ projectsRouter.get('/:id/stats', (req: Request, res: Response) => {
   const deployRepo = new DeploymentRepository()
 
   // Count versions and deployments
-  let versionCount = 0, deploymentCount = 0
-  try { versionCount = versionRepo.findByProjectId(projectId).length } catch {}
-  try { deploymentCount = deployRepo.findByProjectId(projectId).length } catch {}
+  let versionCount = 0,
+    deploymentCount = 0
+  try {
+    versionCount = versionRepo.findByProjectId(projectId).length
+  } catch {}
+  try {
+    deploymentCount = deployRepo.findByProjectId(projectId).length
+  } catch {}
 
   const dir = join(PROJECTS_DIR, projectId)
   let fileCount = 0

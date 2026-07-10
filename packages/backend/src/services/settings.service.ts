@@ -8,11 +8,11 @@ export class SettingsService {
     this.settingsRepository = new SettingsRepository(db)
   }
 
-  getOrCreateSettings(userId: string): UserSettings {
-    let settings = this.settingsRepository.getByUserId(userId)
+  async getOrCreateSettings(userId: string): Promise<UserSettings> {
+    let settings = await this.settingsRepository.getByUserId(userId)
 
     if (!settings) {
-      settings = this.settingsRepository.create({
+      settings = await this.settingsRepository.create({
         userId,
         theme: 'dark',
         autoSave: true,
@@ -33,42 +33,53 @@ export class SettingsService {
     return settings
   }
 
-  updateSettings(userId: string, updates: Partial<Omit<UserSettings, 'id' | 'userId' | 'createdAt'>>): UserSettings {
-    let settings = this.getOrCreateSettings(userId)
-    return this.settingsRepository.update(settings.id, updates)
+  async updateSettings(
+    userId: string,
+    updates: Partial<Omit<UserSettings, 'id' | 'userId' | 'createdAt'>>,
+  ): Promise<UserSettings> {
+    const settings = await this.getOrCreateSettings(userId)
+    const updated = await this.settingsRepository.update(settings.id, updates)
+    return updated!
   }
 
-  getSettings(userId: string): UserSettings | null {
+  async getSettings(userId: string): Promise<UserSettings | null> {
     return this.settingsRepository.getByUserId(userId)
   }
 
-  updateTheme(userId: string, theme: 'dark' | 'light'): UserSettings {
+  async updateTheme(userId: string, theme: 'dark' | 'light'): Promise<UserSettings> {
     return this.updateSettings(userId, { theme })
   }
 
-  updateNotifications(userId: string, notifications: {
-    taskUpdates?: boolean
-    agentErrors?: boolean
-    deploymentComplete?: boolean
-  }): UserSettings {
+  async updateNotifications(
+    userId: string,
+    notifications: {
+      taskUpdates?: boolean
+      agentErrors?: boolean
+      deploymentComplete?: boolean
+    },
+  ): Promise<UserSettings> {
     const updates: any = {}
     if (notifications.taskUpdates !== undefined) updates.notifyTaskUpdates = notifications.taskUpdates
     if (notifications.agentErrors !== undefined) updates.notifyAgentErrors = notifications.agentErrors
-    if (notifications.deploymentComplete !== undefined) updates.notifyDeploymentComplete = notifications.deploymentComplete
+    if (notifications.deploymentComplete !== undefined)
+      updates.notifyDeploymentComplete = notifications.deploymentComplete
     return this.updateSettings(userId, updates)
   }
 
-  updateKeyboardShortcuts(userId: string, shortcuts: Record<string, string>): UserSettings {
+  async updateKeyboardShortcuts(userId: string, shortcuts: Record<string, string>): Promise<UserSettings> {
     return this.updateSettings(userId, { keyboardShortcuts: shortcuts })
   }
 
-  updateModelPreferences(userId: string, preferences: {
-    defaultProvider?: string
-    defaultModel?: string
-  }): UserSettings {
-    const current = this.getOrCreateSettings(userId)
+  async updateModelPreferences(
+    userId: string,
+    preferences: {
+      defaultProvider?: string
+      defaultModel?: string
+    },
+  ): Promise<UserSettings> {
+    const current = await this.getOrCreateSettings(userId)
     return this.updateSettings(userId, {
-      modelPreferences: { ...current.modelPreferences, ...preferences }
+      modelPreferences: { ...current.modelPreferences, ...preferences },
     })
   }
 }

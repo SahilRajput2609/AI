@@ -32,50 +32,54 @@ versionsRouter.get('/:id', (req: Request, res: Response) => {
 })
 
 // Create a snapshot/version
-versionsRouter.post('/', validate([
-  { field: 'projectId', required: true, type: 'string' },
-  { field: 'label', type: 'string' },
-]), asyncHandler(async (req: Request, res: Response) => {
-  const { projectId, label } = req.body as Record<string, string>
+versionsRouter.post(
+  '/',
+  validate([
+    { field: 'projectId', required: true, type: 'string' },
+    { field: 'label', type: 'string' },
+  ]),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { projectId, label } = req.body as Record<string, string>
 
-  const project = projectRepo.findById(projectId)
-  if (!project) {
-    res.status(404).json({ error: 'Project not found' })
-    return
-  }
+    const project = projectRepo.findById(projectId)
+    if (!project) {
+      res.status(404).json({ error: 'Project not found' })
+      return
+    }
 
-  const versionNumber = versionRepo.getLatestVersion(projectId) + 1
+    const versionNumber = versionRepo.getLatestVersion(projectId) + 1
 
-  const projectDir = join(PROJECTS_DIR, projectId)
-  const snapshot: Record<string, string> = {}
+    const projectDir = join(PROJECTS_DIR, projectId)
+    const snapshot: Record<string, string> = {}
 
-  if (existsSync(projectDir)) {
-    function scanDir(dir: string, basePath: string) {
-      for (const entry of readdirSync(dir)) {
-        const full = join(dir, entry)
-        const rel = join(basePath, entry).replace(/\\/g, '/')
-        if (statSync(full).isDirectory()) {
-          scanDir(full, rel)
-        } else {
-          snapshot[rel] = readFileSync(full, 'utf-8')
+    if (existsSync(projectDir)) {
+      function scanDir(dir: string, basePath: string) {
+        for (const entry of readdirSync(dir)) {
+          const full = join(dir, entry)
+          const rel = join(basePath, entry).replace(/\\/g, '/')
+          if (statSync(full).isDirectory()) {
+            scanDir(full, rel)
+          } else {
+            snapshot[rel] = readFileSync(full, 'utf-8')
+          }
         }
       }
+      scanDir(projectDir, '')
     }
-    scanDir(projectDir, '')
-  }
 
-  const version = versionRepo.create({
-    project_id: projectId,
-    version_number: versionNumber,
-    title: label || `v${versionNumber}`,
-    description: label || undefined,
-    snapshot_data: JSON.stringify(snapshot),
-    file_count: Object.keys(snapshot).length,
-    created_by: undefined,
-  })
+    const version = versionRepo.create({
+      project_id: projectId,
+      version_number: versionNumber,
+      title: label || `v${versionNumber}`,
+      description: label || undefined,
+      snapshot_data: JSON.stringify(snapshot),
+      file_count: Object.keys(snapshot).length,
+      created_by: undefined,
+    })
 
-  res.status(201).json(version)
-}))
+    res.status(201).json(version)
+  }),
+)
 
 // Delete a version
 versionsRouter.delete('/:id', (req: Request, res: Response) => {
@@ -138,10 +142,10 @@ versionsRouter.get('/:id/diff/:otherId', (req: Request, res: Response) => {
   }
 
   const summary = {
-    added: changes.filter(c => c.type === 'added').length,
-    removed: changes.filter(c => c.type === 'removed').length,
-    modified: changes.filter(c => c.type === 'modified').length,
-    unchanged: changes.filter(c => c.type === 'unchanged').length,
+    added: changes.filter((c) => c.type === 'added').length,
+    removed: changes.filter((c) => c.type === 'removed').length,
+    modified: changes.filter((c) => c.type === 'modified').length,
+    unchanged: changes.filter((c) => c.type === 'unchanged').length,
     total: changes.length,
   }
 

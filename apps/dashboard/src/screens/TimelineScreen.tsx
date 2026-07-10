@@ -39,7 +39,9 @@ export function TimelineScreen() {
       const data = await api.getActivities(50)
       setEntries(data)
       setError(null)
-    } catch { setError('Failed to load activities') }
+    } catch {
+      setError('Failed to load activities')
+    }
     setLoading(false)
   }
 
@@ -47,7 +49,9 @@ export function TimelineScreen() {
     return (
       <div className="flex-1 flex items-center justify-center text-sm text-[#EF4444]">
         {error}
-        <button onClick={fetchActivities} className="ml-3 text-[#6E6E6E] hover:text-white underline cursor-pointer">Retry</button>
+        <button onClick={fetchActivities} className="ml-3 text-[#6E6E6E] hover:text-white underline cursor-pointer">
+          Retry
+        </button>
       </div>
     )
   }
@@ -100,9 +104,7 @@ export function TimelineScreen() {
                         <span className="text-xs text-[#6E6E6E]">{formatDate(entry.created_at)}</span>
                       </div>
                       <h4 className="text-sm font-medium text-white">{entry.title}</h4>
-                      {entry.description && (
-                        <p className="text-xs text-[#A8A8A8] mt-0.5">{entry.description}</p>
-                      )}
+                      {entry.description && <p className="text-xs text-[#A8A8A8] mt-0.5">{entry.description}</p>}
                     </div>
                   </div>
                 )

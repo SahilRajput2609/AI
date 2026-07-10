@@ -22,7 +22,14 @@ describe('ModelService', () => {
   })
 
   it('creates a model', async () => {
-    const data = { name: 'GPT-4', provider: 'openai', modelId: 'gpt-4', capabilities: ['chat'], maxTokens: 8192, costPer1MTokens: 30 }
+    const data = {
+      name: 'GPT-4',
+      provider: 'openai',
+      modelId: 'gpt-4',
+      capabilities: ['chat'],
+      maxTokens: 8192,
+      costPer1MTokens: 30,
+    }
     const expected = { id: 'model-1', ...data, isActive: false, config: {} }
     mockRepo.create.mockResolvedValue(expected)
 

@@ -5,14 +5,7 @@ interface SkeletonProps {
 }
 
 export function Skeleton({ className }: SkeletonProps) {
-  return (
-    <div
-      className={clsx(
-        'rounded-lg bg-[#151515] animate-pulse',
-        className,
-      )}
-    />
-  )
+  return <div className={clsx('rounded-lg bg-[#151515] animate-pulse', className)} />
 }
 
 export function SkeletonCard() {

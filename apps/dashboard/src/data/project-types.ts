@@ -1,4 +1,32 @@
-export type ProjectType = 'website' | 'landing-page' | 'portfolio' | 'dashboard' | 'crm' | 'erp' | 'admin-panel' | 'e-commerce' | 'react-app' | 'nextjs' | 'vue' | 'angular' | 'node-api' | 'python' | 'fastapi' | 'desktop-app' | 'electron' | 'flutter' | 'react-native' | 'ai-agent' | 'automation' | 'chrome-extension' | 'vscode-extension' | 'machine-learning' | 'blockchain' | 'iot' | 'game' | 'custom'
+export type ProjectType =
+  | 'website'
+  | 'landing-page'
+  | 'portfolio'
+  | 'dashboard'
+  | 'crm'
+  | 'erp'
+  | 'admin-panel'
+  | 'e-commerce'
+  | 'react-app'
+  | 'nextjs'
+  | 'vue'
+  | 'angular'
+  | 'node-api'
+  | 'python'
+  | 'fastapi'
+  | 'desktop-app'
+  | 'electron'
+  | 'flutter'
+  | 'react-native'
+  | 'ai-agent'
+  | 'automation'
+  | 'chrome-extension'
+  | 'vscode-extension'
+  | 'machine-learning'
+  | 'blockchain'
+  | 'iot'
+  | 'game'
+  | 'custom'
 
 export const projectTypes: { value: ProjectType; label: string; category: string }[] = [
   // Frontend
@@ -48,5 +76,5 @@ export const suggestionChips = [
 ]
 
 export function getProjectTypeLabel(value: ProjectType): string {
-  return projectTypes.find(t => t.value === value)?.label || value
+  return projectTypes.find((t) => t.value === value)?.label || value
 }

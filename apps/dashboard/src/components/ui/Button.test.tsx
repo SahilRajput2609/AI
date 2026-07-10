@@ -23,7 +23,8 @@ describe('Button', () => {
   it('applies ghost variant', () => {
     const { container } = render(<Button variant="ghost">Ghost</Button>)
     const button = container.querySelector('button')
-    expect(button?.className).toContain('bg-transparent')
+    // Ghost variant uses text colors and bg-white/5
+    expect(button?.className).toContain('text-[#A1A1AA]')
   })
 
   it('handles click events', () => {

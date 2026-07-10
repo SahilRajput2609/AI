@@ -1,11 +1,11 @@
-import { DatabaseTask, DatabaseOperation, DatabaseStatus, DatabaseState } from './database.types';
+import type { DatabaseTask, DatabaseOperation, DatabaseStatus, DatabaseState } from './database.types'
 
 export class DatabaseService {
   private state: DatabaseState = {
     tasks: [],
     appliedMigrations: [],
     validatedSchemas: [],
-  };
+  }
 
   designSchema(tableName: string, operation: DatabaseOperation, schema: string): DatabaseTask {
     const task: DatabaseTask = {
@@ -15,66 +15,66 @@ export class DatabaseService {
       schema,
       status: 'pending',
       createdAt: new Date().toISOString(),
-    };
-    this.state.tasks.push(task);
-    return task;
+    }
+    this.state.tasks.push(task)
+    return task
   }
 
   createMigration(taskId: string, migrationFile: string): void {
-    const task = this.state.tasks.find(t => t.id === taskId);
+    const task = this.state.tasks.find((t) => t.id === taskId)
     if (task && (task.status === 'pending' || task.status === 'validated')) {
-      task.migrationFile = migrationFile;
-      task.status = 'in-progress';
+      task.migrationFile = migrationFile
+      task.status = 'in-progress'
     }
   }
 
   applyMigration(taskId: string): void {
-    const task = this.state.tasks.find(t => t.id === taskId);
+    const task = this.state.tasks.find((t) => t.id === taskId)
     if (task && task.status === 'in-progress') {
-      task.status = 'applied';
-      task.appliedAt = new Date().toISOString();
+      task.status = 'applied'
+      task.appliedAt = new Date().toISOString()
       if (!this.state.appliedMigrations.includes(task.migrationFile!)) {
-        this.state.appliedMigrations.push(task.migrationFile!);
+        this.state.appliedMigrations.push(task.migrationFile!)
       }
     }
   }
 
   markFailed(taskId: string): void {
-    const task = this.state.tasks.find(t => t.id === taskId);
+    const task = this.state.tasks.find((t) => t.id === taskId)
     if (task) {
-      task.status = 'failed';
+      task.status = 'failed'
     }
   }
 
   optimizeQuery(taskId: string): void {
-    const task = this.state.tasks.find(t => t.id === taskId);
+    const task = this.state.tasks.find((t) => t.id === taskId)
     if (task) {
-      task.status = 'validated';
+      task.status = 'validated'
       if (!this.state.validatedSchemas.includes(task.tableName)) {
-        this.state.validatedSchemas.push(task.tableName);
+        this.state.validatedSchemas.push(task.tableName)
       }
     }
   }
 
   validateSchema(taskId: string): void {
-    const task = this.state.tasks.find(t => t.id === taskId);
+    const task = this.state.tasks.find((t) => t.id === taskId)
     if (task && (task.status === 'pending' || task.status === 'in-progress')) {
-      task.status = 'validated';
+      task.status = 'validated'
       if (!this.state.validatedSchemas.includes(task.tableName)) {
-        this.state.validatedSchemas.push(task.tableName);
+        this.state.validatedSchemas.push(task.tableName)
       }
     }
   }
 
   getTask(taskId: string): DatabaseTask | undefined {
-    return this.state.tasks.find(t => t.id === taskId);
+    return this.state.tasks.find((t) => t.id === taskId)
   }
 
   getTasksByStatus(status: DatabaseStatus): DatabaseTask[] {
-    return this.state.tasks.filter(t => t.status === status);
+    return this.state.tasks.filter((t) => t.status === status)
   }
 
   getState(): DatabaseState {
-    return { ...this.state };
+    return { ...this.state }
   }
 }

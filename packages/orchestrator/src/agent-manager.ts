@@ -81,9 +81,7 @@ export class AgentManager extends EventEmitter {
   // Find available agent for a subtask
   findAvailableAgent(subTask: AgentSubTask): ManagedAgent | null {
     const candidates = Array.from(this.agents.values()).filter(
-      (agent) =>
-        (agent.role === subTask.assignedRole || subTask.assignedRole === 'any') &&
-        agent.status !== 'error'
+      (agent) => (agent.role === subTask.assignedRole || subTask.assignedRole === 'any') && agent.status !== 'error',
     )
 
     // Prefer idle agents

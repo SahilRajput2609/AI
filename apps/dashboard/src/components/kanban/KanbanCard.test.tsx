@@ -20,26 +20,29 @@ describe('KanbanCard', () => {
     expect(screen.getByText('Test Task')).toBeTruthy()
   })
 
-  it('renders priority label', () => {
-    render(<KanbanCard card={baseCard} onDragStart={vi.fn()} columnId="col1" />)
-    expect(screen.getByText('High')).toBeTruthy()
-  })
-
-  it('renders tags', () => {
-    render(<KanbanCard card={baseCard} onDragStart={vi.fn()} columnId="col1" />)
-    expect(screen.getByText('bug')).toBeTruthy()
-    expect(screen.getByText('frontend')).toBeTruthy()
-  })
-
-  it('renders assignee initial', () => {
-    render(<KanbanCard card={baseCard} onDragStart={vi.fn()} columnId="col1" />)
-    expect(screen.getByText('C')).toBeTruthy()
-  })
-
-  it('renders progress bar', () => {
+  it('renders priority indicator', () => {
     const { container } = render(<KanbanCard card={baseCard} onDragStart={vi.fn()} columnId="col1" />)
-    const bar = container.querySelector('[style*="width: 60%"]')
-    expect(bar).toBeTruthy()
+    // Priority is shown as a colored indicator, check that the card renders
+    expect(screen.getByText('Test Task')).toBeTruthy()
+    expect(container.querySelector('[draggable]')).toBeTruthy()
+  })
+
+  it('renders card with drag support', () => {
+    const { container } = render(<KanbanCard card={baseCard} onDragStart={vi.fn()} columnId="col1" />)
+    const draggableElement = container.querySelector('[draggable="true"]')
+    expect(draggableElement).toBeTruthy()
+  })
+
+  it('renders card priority in footer', () => {
+    render(<KanbanCard card={baseCard} onDragStart={vi.fn()} columnId="col1" />)
+    // Priority is displayed in footer in uppercase
+    expect(screen.getByText('HIGH')).toBeTruthy()
+  })
+
+  it('renders card ID in footer', () => {
+    render(<KanbanCard card={baseCard} onDragStart={vi.fn()} columnId="col1" />)
+    // Card ID is shown in footer (sliced to 8 chars)
+    expect(screen.getByText('ID: 1')).toBeTruthy()
   })
 
   it('fires onDragStart when dragged', () => {

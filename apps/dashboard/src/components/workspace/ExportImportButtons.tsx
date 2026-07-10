@@ -10,11 +10,15 @@ export default function ExportImportButtons({ state, onExport, onImport }: Expor
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleExport = () => {
-    const json = JSON.stringify({
-      prompt: state.prompt,
-      selectedProjectId: state.selectedProjectId,
-      taskStatuses: state.taskStatuses,
-    }, null, 2)
+    const json = JSON.stringify(
+      {
+        prompt: state.prompt,
+        selectedProjectId: state.selectedProjectId,
+        taskStatuses: state.taskStatuses,
+      },
+      null,
+      2,
+    )
     onExport(json)
     const blob = new Blob([json], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -39,8 +43,18 @@ export default function ExportImportButtons({ state, onExport, onImport }: Expor
 
   return (
     <div className="flex gap-2">
-      <button onClick={handleExport} className="h-8 px-3 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 transition-all">Export</button>
-      <button onClick={() => fileInputRef.current?.click()} className="h-8 px-3 rounded-lg border border-[#202020] bg-transparent text-xs text-[#A8A8A8] hover:bg-[#080808] hover:border-[#333] transition-all">Import</button>
+      <button
+        onClick={handleExport}
+        className="h-8 px-3 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 transition-all"
+      >
+        Export
+      </button>
+      <button
+        onClick={() => fileInputRef.current?.click()}
+        className="h-8 px-3 rounded-lg border border-[#202020] bg-transparent text-xs text-[#A8A8A8] hover:bg-[#080808] hover:border-[#333] transition-all"
+      >
+        Import
+      </button>
       <input type="file" ref={fileInputRef} accept=".json" onChange={handleImportFile} style={{ display: 'none' }} />
     </div>
   )

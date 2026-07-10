@@ -1,7 +1,7 @@
 import type Database from 'better-sqlite3'
 import { getDatabase } from '../database.js'
 import { generateId } from '@ai-company/shared'
-import { Notification } from '@ai-company/shared'
+import type { Notification } from '@ai-company/shared'
 
 export class NotificationRepository {
   constructor(private db: Database.Database = getDatabase().getDb()) {}
@@ -18,7 +18,7 @@ export class NotificationRepository {
   }): Notification {
     const id = generateId('notification')
     const now = Date.now()
-    const isRead = data.isRead !== undefined ? data.isRead : (data.is_read !== undefined ? data.is_read : false)
+    const isRead = data.isRead !== undefined ? data.isRead : data.is_read !== undefined ? data.is_read : false
     const notification: Notification = {
       id,
       type: data.type as any,
@@ -43,7 +43,7 @@ export class NotificationRepository {
       notification.read ? 1 : 0,
       now,
       notification.userId || null,
-      notification.projectId || null
+      notification.projectId || null,
     )
 
     return notification
@@ -59,13 +59,13 @@ export class NotificationRepository {
   findByUser(userId: string, limit = 50): Notification[] {
     const stmt = this.db.prepare('SELECT * FROM notifications WHERE user_id = ? ORDER BY timestamp DESC LIMIT ?')
     const rows = stmt.all(userId, limit) as any[]
-    return rows.map(row => this.mapRowToNotification(row))
+    return rows.map((row) => this.mapRowToNotification(row))
   }
 
   findByProject(projectId: string, limit = 50): Notification[] {
     const stmt = this.db.prepare('SELECT * FROM notifications WHERE project_id = ? ORDER BY timestamp DESC LIMIT ?')
     const rows = stmt.all(projectId, limit) as any[]
-    return rows.map(row => this.mapRowToNotification(row))
+    return rows.map((row) => this.mapRowToNotification(row))
   }
 
   markAllRead(userId: string): void {
@@ -89,14 +89,14 @@ export class NotificationRepository {
     query += ' ORDER BY timestamp DESC'
     const stmt = this.db.prepare(query)
     const rows = stmt.all(...params) as any[]
-    return rows.map(row => this.mapRowToNotification(row))
+    return rows.map((row) => this.mapRowToNotification(row))
   }
 
   update(id: string, data: Partial<Notification> & { is_read?: boolean }): Notification | null {
     const existing = this.findById(id)
     if (!existing) return null
 
-    const isRead = data.read !== undefined ? data.read : (data.is_read !== undefined ? data.is_read : existing.read)
+    const isRead = data.read !== undefined ? data.read : data.is_read !== undefined ? data.is_read : existing.read
     const updated: Notification = { ...existing, ...data, read: isRead }
 
     const stmt = this.db.prepare(`
@@ -112,7 +112,7 @@ export class NotificationRepository {
       updated.read ? 1 : 0,
       updated.userId || null,
       updated.projectId || null,
-      id
+      id,
     )
 
     return updated

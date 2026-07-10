@@ -80,12 +80,9 @@ authRouter.post('/login', (req, res) => {
     }
 
     const inputHash = crypto.pbkdf2Sync(password, user.salt, PBKDF2_ITERATIONS, 64, 'sha512').toString('hex')
-    
+
     // Constant time comparison for password hashes
-    const match = crypto.timingSafeEqual(
-      Buffer.from(user.password_hash, 'hex'),
-      Buffer.from(inputHash, 'hex')
-    )
+    const match = crypto.timingSafeEqual(Buffer.from(user.password_hash, 'hex'), Buffer.from(inputHash, 'hex'))
 
     if (!match) {
       res.status(400).json({ error: 'Invalid email or password' })

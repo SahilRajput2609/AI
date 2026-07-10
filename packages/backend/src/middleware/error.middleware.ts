@@ -4,23 +4,18 @@ export class AppError extends Error {
   constructor(
     public statusCode: number,
     message: string,
-    public isOperational = true
+    public isOperational = true,
   ) {
     super(message)
     Object.setPrototypeOf(this, AppError.prototype)
   }
 }
 
-export function errorMiddleware(
-  err: Error | AppError,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-) {
+export function errorMiddleware(err: Error | AppError, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
       error: err.message,
-      statusCode: err.statusCode
+      statusCode: err.statusCode,
     })
     return
   }
@@ -28,7 +23,7 @@ export function errorMiddleware(
   console.error('Unexpected error:', err)
   res.status(500).json({
     error: 'Internal server error',
-    statusCode: 500
+    statusCode: 500,
   })
 }
 
@@ -36,7 +31,7 @@ export function notFoundMiddleware(req: Request, res: Response, next: NextFuncti
   res.status(404).json({
     error: 'Route not found',
     statusCode: 404,
-    path: req.path
+    path: req.path,
   })
 }
 

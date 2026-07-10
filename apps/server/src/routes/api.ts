@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { asyncHandler, validate } from '@ai-company/backend'
-import { AgentManager, AgentRole } from '../agent-manager.js'
+import type { AgentRole } from '../agent-manager.js'
+import { AgentManager } from '../agent-manager.js'
 import { modelProvidersRouter } from './model-providers.js'
 import { agentConfigsRouter } from './agent-configs.js'
 import { filesRouter } from './files.js'
@@ -72,7 +73,7 @@ apiRouter.get('/agents/:role', (req, res) => {
     role: info.role,
     name: info.name,
     capabilities: info.capabilities,
-    isActive: !!(instance.service),
+    isActive: !!instance.service,
     state: state || {},
   })
 })
@@ -83,30 +84,34 @@ apiRouter.get('/tasks', (_req, res) => {
   res.json(state.tasks)
 })
 
-apiRouter.post('/tasks', validate([
-  { field: 'title', required: true, type: 'string', minLength: 1, maxLength: 200 },
-  { field: 'description', type: 'string', maxLength: 2000 },
-  { field: 'priority', type: 'string', pattern: /^(low|medium|high|critical)$/ },
-]), (req, res) => {
-  const { title, description, priority, category, assignedRole } = req.body
-  const task = owner.createAndSubmitTask(title, description || '', priority || 'medium', category || 'general')
+apiRouter.post(
+  '/tasks',
+  validate([
+    { field: 'title', required: true, type: 'string', minLength: 1, maxLength: 200 },
+    { field: 'description', type: 'string', maxLength: 2000 },
+    { field: 'priority', type: 'string', pattern: /^(low|medium|high|critical)$/ },
+  ]),
+  (req, res) => {
+    const { title, description, priority, category, assignedRole } = req.body
+    const task = owner.createAndSubmitTask(title, description || '', priority || 'medium', category || 'general')
 
-  if (assignedRole) {
-    const orchService = agentManager.getOrchestratorService()
-    orchService.queueTask({
-      id: task.id,
-      description: task.description,
-      status: 'pending',
-      dependencies: [],
-      assignedAgent: assignedRole,
-    })
-    orchService.trackDependencies()
-    broadcast({ type: 'task:queued', taskId: task.id, agent: assignedRole })
-  }
+    if (assignedRole) {
+      const orchService = agentManager.getOrchestratorService()
+      orchService.queueTask({
+        id: task.id,
+        description: task.description,
+        status: 'pending',
+        dependencies: [],
+        assignedAgent: assignedRole,
+      })
+      orchService.trackDependencies()
+      broadcast({ type: 'task:queued', taskId: task.id, agent: assignedRole })
+    }
 
-  broadcast({ type: 'task:created', task })
-  res.status(201).json(task)
-})
+    broadcast({ type: 'task:created', task })
+    res.status(201).json(task)
+  },
+)
 
 apiRouter.get('/tasks/:id', (req, res) => {
   const task = owner.getService().getTask(req.params.id as string)
@@ -117,35 +122,41 @@ apiRouter.get('/tasks/:id', (req, res) => {
   res.json(task)
 })
 
-apiRouter.put('/tasks/:id', asyncHandler(async (req, res) => {
-  const { title, description, status, priority } = req.body
-  const svc = owner.getService() as any
-  const task = await svc.getTask(req.params.id as string)
-  if (!task) {
-    res.status(404).json({ error: 'task not found' })
-    return
-  }
-  const updates: any = {}
-  if (title) updates.title = title
-  if (description) updates.description = description
-  if (status) updates.status = status
-  if (priority) updates.priority = priority
-  const updated = await svc.updateTask(task.id, updates)
-  broadcast({ type: 'task:updated', task: updated })
-  res.json(updated)
-}))
+apiRouter.put(
+  '/tasks/:id',
+  asyncHandler(async (req, res) => {
+    const { title, description, status, priority } = req.body
+    const svc = owner.getService() as any
+    const task = await svc.getTask(req.params.id as string)
+    if (!task) {
+      res.status(404).json({ error: 'task not found' })
+      return
+    }
+    const updates: any = {}
+    if (title) updates.title = title
+    if (description) updates.description = description
+    if (status) updates.status = status
+    if (priority) updates.priority = priority
+    const updated = await svc.updateTask(task.id, updates)
+    broadcast({ type: 'task:updated', task: updated })
+    res.json(updated)
+  }),
+)
 
-apiRouter.delete('/tasks/:id', asyncHandler(async (req, res) => {
-  const svc = owner.getService() as any
-  const task = await svc.getTask(req.params.id as string)
-  if (!task) {
-    res.status(404).json({ error: 'task not found' })
-    return
-  }
-  await svc.deleteTask(task.id)
-  broadcast({ type: 'task:deleted', taskId: req.params.id })
-  res.json({ status: 'deleted' })
-}))
+apiRouter.delete(
+  '/tasks/:id',
+  asyncHandler(async (req, res) => {
+    const svc = owner.getService() as any
+    const task = await svc.getTask(req.params.id as string)
+    if (!task) {
+      res.status(404).json({ error: 'task not found' })
+      return
+    }
+    await svc.deleteTask(task.id)
+    broadcast({ type: 'task:deleted', taskId: req.params.id })
+    res.json({ status: 'deleted' })
+  }),
+)
 
 apiRouter.post('/tasks/:id/review', (req, res) => {
   const { approved, feedback } = req.body
@@ -165,28 +176,42 @@ apiRouter.get('/plans', (_req, res) => {
   res.json(state.plans)
 })
 
-apiRouter.post('/plans', validate([
-  { field: 'taskId', required: true, type: 'string' },
-  { field: 'title', required: true, type: 'string', minLength: 1, maxLength: 200 },
-]), (req, res) => {
-  const { taskId, title } = req.body
-  const plan = planner.createExecutionPlan(taskId, title)
-  broadcast({ type: 'plan:created', plan })
-  res.status(201).json(plan)
-})
+apiRouter.post(
+  '/plans',
+  validate([
+    { field: 'taskId', required: true, type: 'string' },
+    { field: 'title', required: true, type: 'string', minLength: 1, maxLength: 200 },
+  ]),
+  (req, res) => {
+    const { taskId, title } = req.body
+    const plan = planner.createExecutionPlan(taskId, title)
+    broadcast({ type: 'plan:created', plan })
+    res.status(201).json(plan)
+  },
+)
 
-apiRouter.post('/plans/:id/subtasks', validate([
-  { field: 'description', required: true, type: 'string', minLength: 1 },
-  { field: 'assignedRole', required: true, type: 'string' },
-  { field: 'estimatedEffort', type: 'string', pattern: /^(low|medium|high)$/ },
-]), (req, res) => {
-  const subTask = planner.addTask(req.params.id as string, req.body.description, req.body.estimatedEffort || 'medium', req.body.assignedRole, req.body.dependencies || [])
-  if (!subTask) {
-    res.status(404).json({ error: 'plan not found' })
-    return
-  }
-  res.status(201).json(subTask)
-})
+apiRouter.post(
+  '/plans/:id/subtasks',
+  validate([
+    { field: 'description', required: true, type: 'string', minLength: 1 },
+    { field: 'assignedRole', required: true, type: 'string' },
+    { field: 'estimatedEffort', type: 'string', pattern: /^(low|medium|high)$/ },
+  ]),
+  (req, res) => {
+    const subTask = planner.addTask(
+      req.params.id as string,
+      req.body.description,
+      req.body.estimatedEffort || 'medium',
+      req.body.assignedRole,
+      req.body.dependencies || [],
+    )
+    if (!subTask) {
+      res.status(404).json({ error: 'plan not found' })
+      return
+    }
+    res.status(201).json(subTask)
+  },
+)
 
 apiRouter.post('/plans/:id/finalize', (req, res) => {
   planner.finalizePlan(req.params.id)
@@ -215,12 +240,15 @@ apiRouter.get('/orchestrator/state', (_req, res) => {
   res.json(state)
 })
 
-apiRouter.post('/orchestrator/dispatch', asyncHandler(async (_req, res) => {
-  await agentManager.dispatchFromQueue()
-  const state = agentManager.getQueueState()
-  broadcast({ type: 'orchestrator:dispatched', state })
-  res.json(state)
-}))
+apiRouter.post(
+  '/orchestrator/dispatch',
+  asyncHandler(async (_req, res) => {
+    await agentManager.dispatchFromQueue()
+    const state = agentManager.getQueueState()
+    broadcast({ type: 'orchestrator:dispatched', state })
+    res.json(state)
+  }),
+)
 
 // ---- Dispatch routes ----
 apiRouter.post('/dispatch/:agentRole', (req, res) => {
@@ -244,7 +272,7 @@ apiRouter.get('/status', (_req, res) => {
   const agents = agentManager.listAgents()
   res.json({
     status: 'running',
-    agents: agents.map(a => a.name),
+    agents: agents.map((a) => a.name),
     agentCount: agents.length,
     uptime: process.uptime(),
   })

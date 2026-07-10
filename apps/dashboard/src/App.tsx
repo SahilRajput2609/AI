@@ -20,8 +20,9 @@ import { AgentsConfigScreen } from './screens/AgentsConfigScreen'
 
 function isOAuthCallback(): boolean {
   const params = new URLSearchParams(window.location.search)
-  return params.has('code') && params.has('state') &&
-    (params.get('state') === 'github' || params.get('state') === 'google')
+  return (
+    params.has('code') && params.has('state') && (params.get('state') === 'github' || params.get('state') === 'google')
+  )
 }
 
 export default function App() {
@@ -94,22 +95,21 @@ export default function App() {
         onLogout={handleLogout}
       />
 
-      <div className="flex flex-1 overflow-hidden relative">
+      <div className="flex flex-1 overflow-hidden">
         {/* Mobile overlay */}
         {mobileMenuOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-            onClick={() => setMobileMenuOpen(false)}
-          />
+          <div className="fixed inset-0 bg-black/60 z-30 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
         )}
 
         {/* Sidebar */}
-        <div className={`
+        <div
+          className={`
           ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0
-          fixed lg:relative inset-y-0 left-0 z-40 lg:z-auto
+          fixed lg:relative inset-y-0 left-0 z-40 lg:z-auto h-full
           transition-transform duration-200
-        `}>
+        `}
+        >
           <Sidebar
             activeScreen={screen}
             onNavigate={handleNavigate}
@@ -120,27 +120,39 @@ export default function App() {
         </div>
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-hidden flex flex-col">
           <PageTransition key={projectId ? `project-${projectId}` : screen}>
-            {projectId ? (
-              <ProjectScreen projectId={projectId} onBack={() => setProjectId(null)} />
-            ) : screen === 'workspace' ? (
-              <WorkspaceScreen onOpenProject={(id) => { setProjectId(id); setScreen('workspace') }} />
-            ) : screen === 'kanban' ? (
-              <KanbanScreen />
-            ) : screen === 'files' ? (
-              <FilesScreen />
-            ) : screen === 'timeline' ? (
-              <TimelineScreen />
-            ) : screen === 'settings' ? (
-              <SettingsScreen />
-            ) : screen === 'agent-ide' ? (
-              <AgentIdeScreen />
-            ) : screen === 'agents' ? (
-              <AgentsConfigScreen />
-            ) : (
-              <WorkspaceScreen onOpenProject={(id) => { setProjectId(id); setScreen('workspace') }} />
-            )}
+            <div className="flex-1 flex overflow-hidden h-full">
+              {projectId ? (
+                <ProjectScreen projectId={projectId} onBack={() => setProjectId(null)} />
+              ) : screen === 'workspace' ? (
+                <WorkspaceScreen
+                  onOpenProject={(id) => {
+                    setProjectId(id)
+                    setScreen('workspace')
+                  }}
+                />
+              ) : screen === 'kanban' ? (
+                <KanbanScreen />
+              ) : screen === 'files' ? (
+                <FilesScreen />
+              ) : screen === 'timeline' ? (
+                <TimelineScreen />
+              ) : screen === 'settings' ? (
+                <SettingsScreen />
+              ) : screen === 'agent-ide' ? (
+                <AgentIdeScreen />
+              ) : screen === 'agents' ? (
+                <AgentsConfigScreen />
+              ) : (
+                <WorkspaceScreen
+                  onOpenProject={(id) => {
+                    setProjectId(id)
+                    setScreen('workspace')
+                  }}
+                />
+              )}
+            </div>
           </PageTransition>
         </main>
       </div>
@@ -150,7 +162,10 @@ export default function App() {
         open={commandOpen}
         onClose={() => setCommandOpen(false)}
         onNavigate={handleNavigate}
-        onOpenProject={(id) => { setProjectId(id); setScreen('workspace') }}
+        onOpenProject={(id) => {
+          setProjectId(id)
+          setScreen('workspace')
+        }}
       />
     </div>
   )

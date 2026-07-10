@@ -25,7 +25,11 @@ function TreeNode({ node, depth = 0 }: { node: TreeNodeData; depth?: number }) {
         onClick={() => isFolder && setOpen(!open)}
       >
         {isFolder ? (
-          open ? <FolderOpen size={14} className="text-[#A8A8A8]" /> : <Folder size={14} className="text-[#6E6E6E]" />
+          open ? (
+            <FolderOpen size={14} className="text-[#A8A8A8]" />
+          ) : (
+            <Folder size={14} className="text-[#6E6E6E]" />
+          )
         ) : (
           <FileText size={14} className="text-[#6E6E6E]" />
         )}
@@ -47,7 +51,9 @@ export function FilesScreen() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => { fetchFiles() }, [])
+  useEffect(() => {
+    fetchFiles()
+  }, [])
 
   async function fetchFiles() {
     setLoading(true)
@@ -55,7 +61,9 @@ export function FilesScreen() {
     try {
       const data = await api.getFiles()
       setTree(data.tree || [])
-    } catch { setError('Failed to load files') }
+    } catch {
+      setError('Failed to load files')
+    }
     setLoading(false)
   }
 
@@ -63,7 +71,9 @@ export function FilesScreen() {
     return (
       <div className="flex-1 flex items-center justify-center text-sm text-[#EF4444]">
         {error}
-        <button onClick={fetchFiles} className="ml-3 text-[#6E6E6E] hover:text-white underline cursor-pointer">Retry</button>
+        <button onClick={fetchFiles} className="ml-3 text-[#6E6E6E] hover:text-white underline cursor-pointer">
+          Retry
+        </button>
       </div>
     )
   }
@@ -76,7 +86,9 @@ export function FilesScreen() {
         </div>
         <div className="flex-1 py-2 overflow-auto">
           {loading ? (
-            <div className="p-4"><SkeletonTable rows={5} /></div>
+            <div className="p-4">
+              <SkeletonTable rows={5} />
+            </div>
           ) : tree.length === 0 ? (
             <EmptyState title="No files yet" description="Create a project to get started." />
           ) : (

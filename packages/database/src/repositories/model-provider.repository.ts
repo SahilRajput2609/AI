@@ -1,8 +1,9 @@
 import type Database from 'better-sqlite3'
 import { getDatabase } from '../database.js'
 import { generateId } from '@ai-company/shared'
-import { ModelProviderConfig, ModelProvider } from '@ai-company/shared'
-import { ModelProviderEntity, ModelProviderModel } from '../models/model-provider.model.js'
+import type { ModelProviderConfig, ModelProvider } from '@ai-company/shared'
+import type { ModelProviderEntity } from '../models/model-provider.model.js'
+import { ModelProviderModel } from '../models/model-provider.model.js'
 
 export class ModelProviderRepository {
   constructor(private db: Database.Database = getDatabase().getDb()) {}
@@ -36,7 +37,7 @@ export class ModelProviderRepository {
       entity.isActive ? 1 : 0,
       entity.models,
       entity.createdAt.getTime(),
-      entity.updatedAt.getTime()
+      entity.updatedAt.getTime(),
     )
 
     return ModelProviderModel.fromEntity({ ...entity, createdAt: now, updatedAt: now })
@@ -52,13 +53,13 @@ export class ModelProviderRepository {
   getAllProviders(): ModelProviderConfig[] {
     const stmt = this.db.prepare('SELECT * FROM model_providers ORDER BY created_at ASC')
     const rows = stmt.all() as any[]
-    return rows.map(row => this.mapRowToProviderConfig(row))
+    return rows.map((row) => this.mapRowToProviderConfig(row))
   }
 
   getActiveProviders(): ModelProviderConfig[] {
     const stmt = this.db.prepare('SELECT * FROM model_providers WHERE is_active = 1 ORDER BY created_at ASC')
     const rows = stmt.all() as any[]
-    return rows.map(row => this.mapRowToProviderConfig(row))
+    return rows.map((row) => this.mapRowToProviderConfig(row))
   }
 
   updateProvider(id: string, updates: Partial<ModelProviderConfig>): ModelProviderConfig | null {
@@ -82,7 +83,7 @@ export class ModelProviderRepository {
       updated.isActive ? 1 : 0,
       JSON.stringify(updated.models),
       now.getTime(),
-      id
+      id,
     )
 
     return updated
@@ -104,20 +105,20 @@ export class ModelProviderRepository {
   getProvidersByType(provider: ModelProvider): ModelProviderConfig[] {
     const stmt = this.db.prepare('SELECT * FROM model_providers WHERE provider = ? ORDER BY created_at ASC')
     const rows = stmt.all(provider) as any[]
-    return rows.map(row => this.mapRowToProviderConfig(row))
+    return rows.map((row) => this.mapRowToProviderConfig(row))
   }
 
   findByStatus(status: string): ModelProviderConfig[] {
     const isActive = status === 'active' ? 1 : 0
     const stmt = this.db.prepare('SELECT * FROM model_providers WHERE is_active = ? ORDER BY created_at ASC')
     const rows = stmt.all(isActive) as any[]
-    return rows.map(row => this.mapRowToProviderConfig(row))
+    return rows.map((row) => this.mapRowToProviderConfig(row))
   }
 
   findByProvider(provider: string): ModelProviderConfig[] {
     const stmt = this.db.prepare('SELECT * FROM model_providers WHERE provider = ? ORDER BY created_at ASC')
     const rows = stmt.all(provider) as any[]
-    return rows.map(row => this.mapRowToProviderConfig(row))
+    return rows.map((row) => this.mapRowToProviderConfig(row))
   }
 
   private mapRowToProviderConfig(row: any): ModelProviderConfig {

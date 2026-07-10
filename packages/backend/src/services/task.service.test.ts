@@ -94,7 +94,10 @@ describe('TaskService', () => {
   it('assigns a task', async () => {
     mockRepo.update.mockResolvedValue({ id: 'task-1', assigned_agent: 'agent-1' })
     await service.assignTask('task-1', 'agent-1')
-    expect(mockRepo.update).toHaveBeenCalledWith('task-1', { assigned_agent: 'agent-1', updated_at: expect.any(Number) })
+    expect(mockRepo.update).toHaveBeenCalledWith('task-1', {
+      assigned_agent: 'agent-1',
+      updated_at: expect.any(Number),
+    })
   })
 
   it('gets tasks by project', async () => {

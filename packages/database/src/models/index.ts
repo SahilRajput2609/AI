@@ -47,12 +47,24 @@ export interface Activity {
   id: string
   project_id: string
   agent_id?: string
-  type: 'agent' | 'system' | 'git' | 'user'
-    | 'task_created' | 'task_assigned' | 'task_completed'
-    | 'file_created' | 'file_updated' | 'file_deleted'
-    | 'plan_updated' | 'pr_created' | 'pr_approved'
-    | 'deployment_started' | 'deployment_completed'
-    | 'agent_started' | 'agent_stopped'
+  type:
+    | 'agent'
+    | 'system'
+    | 'git'
+    | 'user'
+    | 'task_created'
+    | 'task_assigned'
+    | 'task_completed'
+    | 'file_created'
+    | 'file_updated'
+    | 'file_deleted'
+    | 'plan_updated'
+    | 'pr_created'
+    | 'pr_approved'
+    | 'deployment_started'
+    | 'deployment_completed'
+    | 'agent_started'
+    | 'agent_stopped'
   title: string
   description?: string
   metadata?: Record<string, any>

@@ -24,6 +24,7 @@ The AI Agency is a multi-agent development platform built as a monorepo.
 ```
 
 ## Tech Stack
+
 - **Frontend**: React 19, Vite 8, Tailwind 4, Lucide icons
 - **Backend**: Express 5, WebSocket (ws)
 - **Database**: SQLite via better-sqlite3

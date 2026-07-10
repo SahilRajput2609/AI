@@ -18,9 +18,12 @@ const sizeStyles = {
 }
 
 export function Modal({ open, onClose, title, children, size = 'md' }: ModalProps) {
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') onClose()
-  }, [onClose])
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    },
+    [onClose],
+  )
 
   useEffect(() => {
     if (open) {
@@ -66,9 +69,7 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
                 </button>
               </div>
             )}
-            <div className="p-5">
-              {children}
-            </div>
+            <div className="p-5">{children}</div>
           </motion.div>
         </div>
       )}

@@ -44,7 +44,9 @@ describe('TaskRepository', () => {
     const db = createTestDb()
     repo = new TaskRepository(db)
 
-    const stmt = db.prepare('INSERT INTO projects (id, name, path, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)')
+    const stmt = db.prepare(
+      'INSERT INTO projects (id, name, path, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
+    )
     stmt.run('project-1', 'Test Project', '/project-1', 'active', Date.now(), Date.now())
     projectId = 'project-1'
   })

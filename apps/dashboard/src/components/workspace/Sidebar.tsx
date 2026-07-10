@@ -1,17 +1,27 @@
-﻿"use client";
-
-import { motion, AnimatePresence } from "framer-motion";
-import { Home, Kanban, Settings, Users, Clock, File, X } from "lucide-react";
-import React, { useState } from "react";
-import type { Screen } from "../../lib/navigation";
+import { motion } from 'framer-motion'
+import { Home, Kanban, Settings, Users, Clock, FileText, Zap, ChevronLeft, ChevronRight, LogOut } from 'lucide-react'
+import type { Screen } from '../../lib/navigation'
 
 interface SidebarProps {
-  activeScreen: Screen;
-  onNavigate: (screen: Screen) => void;
-  onLogout: () => void;
-  collapsed?: boolean;
-  onToggleCollapse?: () => void;
+  activeScreen: Screen
+  onNavigate: (screen: Screen) => void
+  onLogout: () => void
+  collapsed?: boolean
+  onToggleCollapse?: () => void
 }
+
+const navItems: {
+  icon: React.ComponentType<{ size: number; className?: string }>
+  label: string
+  screen: Screen
+}[] = [
+  { icon: Home, label: 'Workspace', screen: 'workspace' },
+  { icon: Kanban, label: 'Tasks', screen: 'kanban' },
+  { icon: Users, label: 'Agents', screen: 'agents' },
+  { icon: Zap, label: 'Agent IDE', screen: 'agent-ide' },
+  { icon: FileText, label: 'Files', screen: 'files' },
+  { icon: Clock, label: 'Timeline', screen: 'timeline' },
+]
 
 export function Sidebar({
   activeScreen,
@@ -20,92 +30,85 @@ export function Sidebar({
   collapsed = false,
   onToggleCollapse = () => {},
 }: SidebarProps) {
-  const [isOpen, setIsOpen] = useState(true);
-
-  const navItems: { icon: React.ComponentType<{ size: number; className: string }>; label: string; screen: Screen }[] = [
-    { icon: Home, label: "Workspace", screen: "workspace" },
-    { icon: Kanban, label: "Tasks", screen: "kanban" },
-    { icon: Users, label: "Agents", screen: "agents" },
-    { icon: File, label: "Files", screen: "files" },
-    { icon: Clock, label: "Timeline", screen: "timeline" },
-    { icon: Settings, label: "Settings", screen: "settings" },
-  ];
-
   return (
     <motion.aside
-      initial={{ x: -280, opacity: 0 }}
+      initial={{ x: -10, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed inset-y-16 left-0 bg-[#0a0a0a] border-r border-[#202020] transition-all duration-300 z-30 ${
-        isOpen ? "w-64" : "w-0"
-      } md:w-64 md:relative md:inset-0`}
+      transition={{ duration: 0.2 }}
+      className={`
+        bg-[#050505] border-r border-[#1A1A1A] flex flex-col h-full transition-all duration-200
+        ${collapsed ? 'w-14' : 'w-56'}
+      `}
     >
-      <div className="flex flex-col h-full p-4 space-y-2">
-        {/* Close Button (Mobile) */}
-        <div className="md:hidden flex justify-end mb-4">
-          <motion.button
-            onClick={() => setIsOpen(false)}
-            whileTap={{ scale: 0.95 }}
-            className="p-2 text-[#6B7280] hover:text-white"
-          >
-            <X size={20} />
-          </motion.button>
-        </div>
-
-        {/* Logo */}
-        <motion.div className="px-4 py-3 mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#7C6BFF] flex items-center justify-center">
-              <span className="text-white font-bold text-sm">A</span>
-            </div>
-            <span className="text-sm font-semibold text-white">AI-Company</span>
-          </div>
-        </motion.div>
-
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1">
-          {navItems.map((item, i) => (
-            <motion.button
-              key={i}
+      {/* Navigation */}
+      <nav className="flex-1 py-3 px-2 space-y-0.5">
+        {navItems.map((item) => {
+          const isActive = activeScreen === item.screen
+          return (
+            <button
+              key={item.screen}
               onClick={() => onNavigate(item.screen)}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05 }}
-              whileHover={{ x: 4 }}
-              className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-[#A1A1AA] hover:text-white hover:bg-[#111] transition-all group ${
-                activeScreen === item.screen ? "bg-[#111] text-[#7C6BFF]" : ""
-              }`}
+              className={`
+                w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all group text-left
+                ${isActive ? 'bg-[#0F0F0F] text-white' : 'text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#0A0A0A]'}
+              `}
             >
               <item.icon
-                size={18}
-                className={`${activeScreen === item.screen ? "text-[#7C6BFF]" : "group-hover:text-[#7C6BFF]"} transition-colors`}
+                size={16}
+                className={`flex-shrink-0 ${isActive ? 'text-[#7C6BFF]' : 'group-hover:text-[#A1A1AA]'} transition-colors`}
               />
-              <span className="text-sm font-medium">{item.label}</span>
-            </motion.button>
-          ))}
-        </nav>
+              {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
+              {isActive && !collapsed && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#7C6BFF] flex-shrink-0" />
+              )}
+            </button>
+          )
+        })}
+      </nav>
 
-        {/* Footer */}
-        <motion.div
-          className="pt-4 border-t border-[#202020] space-y-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
+      {/* Bottom section */}
+      <div className="px-2 py-3 border-t border-[#1A1A1A] space-y-0.5">
+        <button
+          onClick={() => onNavigate('settings')}
+          className={`
+            w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all group text-left
+            ${
+              activeScreen === 'settings'
+                ? 'bg-[#0F0F0F] text-white'
+                : 'text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#0A0A0A]'
+            }
+          `}
         >
-          <div className="px-4 py-3 rounded-lg bg-[#7C6BFF]/10 border border-[#7C6BFF]/20">
-            <p className="text-xs text-[#7C6BFF] font-medium">Pro Plan</p>
-            <p className="text-xs text-[#6B7280] mt-1">Unlimited everything</p>
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={onLogout}
-            className="w-full px-4 py-2 text-sm font-medium text-white bg-[#111] border border-[#333] rounded-lg hover:bg-[#1a1a1a] transition-colors"
-          >
-            Logout
-          </motion.button>
-        </motion.div>
+          <Settings
+            size={16}
+            className={`flex-shrink-0 ${activeScreen === 'settings' ? 'text-[#7C6BFF]' : 'group-hover:text-[#A1A1AA]'} transition-colors`}
+          />
+          {!collapsed && <span className="text-sm font-medium">Settings</span>}
+        </button>
+
+        <button
+          onClick={onLogout}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[#6B7280] hover:text-[#EF4444] hover:bg-[#EF4444]/5 transition-all group text-left"
+        >
+          <LogOut size={16} className="flex-shrink-0 transition-colors" />
+          {!collapsed && <span className="text-sm font-medium">Logout</span>}
+        </button>
+
+        {/* Collapse toggle */}
+        <button
+          onClick={onToggleCollapse}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[#444] hover:text-[#666] transition-all"
+        >
+          {collapsed ? (
+            <ChevronRight size={14} className="flex-shrink-0 mx-auto" />
+          ) : (
+            <>
+              <ChevronLeft size={14} className="flex-shrink-0" />
+              <span className="text-xs">Collapse</span>
+            </>
+          )}
+        </button>
       </div>
     </motion.aside>
-  );
+  )
 }

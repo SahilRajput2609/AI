@@ -6,8 +6,5 @@
     "jsx": "react-jsx"
   },
   "include": ["src/**/*"],
-  "references": [
-    { "path": "../shared" },
-    { "path": "../api" }
-  ]
+  "references": [{ "path": "../shared" }, { "path": "../api" }]
 }

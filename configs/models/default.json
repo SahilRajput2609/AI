@@ -20,9 +20,7 @@
     "google": {
       "name": "Google",
       "baseUrl": "https://generativelanguage.googleapis.com/v1",
-      "models": [
-        { "id": "gemini-2.0-flash", "capabilities": ["chat", "code", "multimodal"], "maxTokens": 1000000 }
-      ]
+      "models": [{ "id": "gemini-2.0-flash", "capabilities": ["chat", "code", "multimodal"], "maxTokens": 1000000 }]
     }
   }
 }

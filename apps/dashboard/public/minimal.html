@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <title>Minimal Test</title>
+  <style>
+    body { background: #000; color: #fff; font-family: monospace; padding: 20px; }
+    .msg { margin: 5px 0; }
+    .err { color: #ff6b6b; }
+    .ok { color: #51cf66; }
+  </style>
+</head>
+<body>
+  <h1>Minimal React Test</h1>
+  <div id="messages"></div>
+  <div id="root"></div>
+
+  <script>
+    function log(msg, type = 'normal') {
+      const msgEl = document.createElement('div');
+      msgEl.className = `msg ${type === 'error' ? 'err' : type === 'ok' ? 'ok' : ''}`;
+      msgEl.textContent = `${msg}`;
+      document.getElementById('messages').appendChild(msgEl);
+    }
+
+    window.onerror = (msg, url, line) => {
+      log(`Error: ${msg} (${url}:${line})`, 'error');
+      return true;
+    };
+
+    window.onunhandledrejection = (event) => {
+      log(`Unhandled Promise Rejection: ${event.reason}`, 'error');
+    };
+
+    log('1. HTML loaded', 'ok');
+  </script>
+
+  <script type="module">
+    try {
+      log('2. Module starting', 'ok');
+
+      const { createRoot } = await import('react-dom/client');
+      log('3. React DOM imported', 'ok');
+
+      const React = await import('react');
+      log('4. React imported', 'ok');
+
+      const root = createRoot(document.getElementById('root'));
+      log('5. Root created', 'ok');
+
+      const element = React.createElement('div', null, 'Hello React!');
+      root.render(element);
+      log('6. Rendered', 'ok');
+
+    } catch (e) {
+      log(`Error in module: ${e.message}`, 'error');
+      console.error(e);
+    }
+  </script>
+</body>
+</html>

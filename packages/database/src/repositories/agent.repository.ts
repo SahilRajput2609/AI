@@ -33,7 +33,7 @@ export class AgentRepository {
       agent.current_task_id || null,
       JSON.stringify(agent.metadata || {}),
       agent.created_at,
-      agent.updated_at
+      agent.updated_at,
     )
 
     return agent
@@ -56,7 +56,7 @@ export class AgentRepository {
   findAll(): Agent[] {
     const stmt = this.db.prepare('SELECT * FROM agents ORDER BY created_at ASC')
     const rows = stmt.all() as any[]
-    return rows.map(row => this.mapRowToAgent(row))
+    return rows.map((row) => this.mapRowToAgent(row))
   }
 
   update(id: string, data: Partial<Omit<Agent, 'id' | 'created_at'>>): Agent | null {
@@ -85,7 +85,7 @@ export class AgentRepository {
       updated.current_task_id || null,
       JSON.stringify(updated.metadata || {}),
       updated.updated_at,
-      id
+      id,
     )
 
     return updated

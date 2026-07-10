@@ -45,7 +45,7 @@ export class ModelRepository {
       entity.maxTokens,
       entity.costPer1MTokens,
       entity.isActive ? 1 : 0,
-      JSON.stringify(entity.config)
+      JSON.stringify(entity.config),
     )
 
     return entity
@@ -74,7 +74,7 @@ export class ModelRepository {
     query += ' ORDER BY name ASC'
     const stmt = this.db.prepare(query)
     const rows = stmt.all(...params) as any[]
-    return rows.map(row => this.mapRowToEntity(row))
+    return rows.map((row) => this.mapRowToEntity(row))
   }
 
   update(id: string, data: Partial<ModelEntity>): ModelEntity | null {
@@ -100,7 +100,7 @@ export class ModelRepository {
       updated.isActive ? 1 : 0,
       JSON.stringify(updated.config),
       updated.updatedAt ? updated.updatedAt.getTime() : null,
-      id
+      id,
     )
 
     return updated

@@ -33,81 +33,86 @@ deploymentsRouter.get('/:id', (req: Request, res: Response) => {
 })
 
 // Create a new deployment
-deploymentsRouter.post('/', validate([
-  { field: 'projectId', required: true, type: 'string' },
-  { field: 'platform', type: 'string' },
-  { field: 'region', type: 'string' },
-]), asyncHandler(async (req: Request, res: Response) => {
-  const { projectId, platform, region } = req.body as Record<string, string>
+deploymentsRouter.post(
+  '/',
+  validate([
+    { field: 'projectId', required: true, type: 'string' },
+    { field: 'platform', type: 'string' },
+    { field: 'region', type: 'string' },
+  ]),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { projectId, platform, region } = req.body as Record<string, string>
 
-  const project = projectRepo.findById(projectId)
-  if (!project) {
-    res.status(404).json({ error: 'Project not found' })
-    return
-  }
+    const project = projectRepo.findById(projectId)
+    if (!project) {
+      res.status(404).json({ error: 'Project not found' })
+      return
+    }
 
-  const deploy = deployRepo.create({
-    project_id: projectId,
-    version_id: undefined,
-    platform: platform || 'vercel',
-    status: 'pending',
-    build_logs: undefined,
-    config: JSON.stringify({ region: region || 'auto', autoDeploy: true }),
-    deployed_by: undefined,
-  })
+    const deploy = deployRepo.create({
+      project_id: projectId,
+      version_id: undefined,
+      platform: platform || 'vercel',
+      status: 'pending',
+      build_logs: undefined,
+      config: JSON.stringify({ region: region || 'auto', autoDeploy: true }),
+      deployed_by: undefined,
+    })
 
-  setTimeout(() => {
-    try {
-      const projectDir = join(PROJECTS_DIR, projectId)
-      if (existsSync(projectDir)) {
-        const files: string[] = []
-        function scan(dir: string) {
-          for (const entry of readdirSync(dir)) {
-            const full = join(dir, entry)
-            const rel = relative(projectDir, full).replace(/\\/g, '/')
-            if (statSync(full).isDirectory()) scan(full)
-            else files.push(rel)
+    setTimeout(() => {
+      try {
+        const projectDir = join(PROJECTS_DIR, projectId)
+        if (existsSync(projectDir)) {
+          const files: string[] = []
+          function scan(dir: string) {
+            for (const entry of readdirSync(dir)) {
+              const full = join(dir, entry)
+              const rel = relative(projectDir, full).replace(/\\/g, '/')
+              if (statSync(full).isDirectory()) scan(full)
+              else files.push(rel)
+            }
           }
+          scan(projectDir)
+
+          const platformUrl =
+            platform === 'netlify' ? 'netlify.app' : platform === 'aws' ? 'amplifyapp.com' : 'vercel.app'
+          const hasIndexHtml = files.some((f) => f.endsWith('index.html'))
+          const hasPackageJson = files.some((f) => f === 'package.json')
+          const buildLogs = [
+            `🔍 Found ${files.length} files across project`,
+            `📂 Platform: ${platform || 'vercel'}`,
+            `📄 ${hasIndexHtml ? '✓ index.html found' : '⚠ No index.html found'}`,
+            `📦 ${hasPackageJson ? '✓ package.json found' : 'ℹ No package.json (static site)'}`,
+            ``,
+            `📋 File listing:`,
+            ...files.map((f) => `  ${f}`),
+            ``,
+            `✅ Build completed successfully`,
+            `🚀 Deployed to: https://${project.name.toLowerCase().replace(/\s+/g, '-')}.${platformUrl}`,
+          ].join('\n')
+
+          deployRepo.update(deploy.id, {
+            status: 'ready',
+            url: `https://${project.name.toLowerCase().replace(/\s+/g, '-')}.${platformUrl}`,
+            build_logs: buildLogs,
+          })
+        } else {
+          deployRepo.update(deploy.id, {
+            status: 'failed',
+            build_logs: 'Project directory not found on disk.',
+          })
         }
-        scan(projectDir)
-
-        const platformUrl = platform === 'netlify' ? 'netlify.app' : platform === 'aws' ? 'amplifyapp.com' : 'vercel.app'
-        const hasIndexHtml = files.some(f => f.endsWith('index.html'))
-        const hasPackageJson = files.some(f => f === 'package.json')
-        const buildLogs = [
-          `🔍 Found ${files.length} files across project`,
-          `📂 Platform: ${platform || 'vercel'}`,
-          `📄 ${hasIndexHtml ? '✓ index.html found' : '⚠ No index.html found'}`,
-          `📦 ${hasPackageJson ? '✓ package.json found' : 'ℹ No package.json (static site)'}`,
-          ``,
-          `📋 File listing:`,
-          ...files.map(f => `  ${f}`),
-          ``,
-          `✅ Build completed successfully`,
-          `🚀 Deployed to: https://${project.name.toLowerCase().replace(/\s+/g, '-')}.${platformUrl}`,
-        ].join('\n')
-
-        deployRepo.update(deploy.id, {
-          status: 'ready',
-          url: `https://${project.name.toLowerCase().replace(/\s+/g, '-')}.${platformUrl}`,
-          build_logs: buildLogs,
-        })
-      } else {
+      } catch (err: any) {
         deployRepo.update(deploy.id, {
           status: 'failed',
-          build_logs: 'Project directory not found on disk.',
+          build_logs: `Build error: ${err.message}`,
         })
       }
-    } catch (err: any) {
-      deployRepo.update(deploy.id, {
-        status: 'failed',
-        build_logs: `Build error: ${err.message}`,
-      })
-    }
-  }, 3000)
+    }, 3000)
 
-  res.status(201).json(deploy)
-}))
+    res.status(201).json(deploy)
+  }),
+)
 
 // Get deployment logs
 deploymentsRouter.get('/:id/logs', (req: Request, res: Response) => {

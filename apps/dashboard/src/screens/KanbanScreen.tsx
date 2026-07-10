@@ -49,7 +49,9 @@ export function KanbanScreen() {
   const [newTaskDescription, setNewTaskDescription] = useState('')
   const [filterPriority, setFilterPriority] = useState<string | null>(null)
 
-  useEffect(() => { fetchTasks() }, [])
+  useEffect(() => {
+    fetchTasks()
+  }, [])
 
   async function fetchTasks() {
     setLoading(true)
@@ -57,16 +59,19 @@ export function KanbanScreen() {
     try {
       const tasks = await api.getTasks()
       let filtered = tasks
-      if (searchQuery) filtered = filtered.filter((t: any) =>
-        t.title?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      if (searchQuery)
+        filtered = filtered.filter((t: any) => t.title?.toLowerCase().includes(searchQuery.toLowerCase()))
       if (filterPriority) filtered = filtered.filter((t: any) => t.priority === filterPriority)
       setColumns(buildColumns(filtered))
-    } catch { setError('Failed to load tasks') }
+    } catch {
+      setError('Failed to load tasks')
+    }
     setLoading(false)
   }
 
-  useEffect(() => { fetchTasks() }, [searchQuery, filterPriority])
+  useEffect(() => {
+    fetchTasks()
+  }, [searchQuery, filterPriority])
 
   const handleCreateTask = async () => {
     if (!newTaskTitle.trim()) return
@@ -113,14 +118,18 @@ export function KanbanScreen() {
         return newColumns
       })
       await api.updateTask(cardId, { status: targetColumnId })
-    } catch { fetchTasks() }
+    } catch {
+      fetchTasks()
+    }
   }, [])
 
   if (error) {
     return (
       <div className="flex-1 flex items-center justify-center text-sm text-[#EF4444]">
         {error}
-        <button onClick={fetchTasks} className="ml-3 text-[#6E6E6E] hover:text-white underline cursor-pointer">Retry</button>
+        <button onClick={fetchTasks} className="ml-3 text-[#6E6E6E] hover:text-white underline cursor-pointer">
+          Retry
+        </button>
       </div>
     )
   }
@@ -144,12 +153,21 @@ export function KanbanScreen() {
                 className="bg-transparent text-xs text-white outline-none w-32 placeholder-[#6E6E6E]"
                 autoFocus
               />
-              <button onClick={() => { setSearchQuery(''); setShowSearch(false) }} className="text-[#6E6E6E] hover:text-white">
+              <button
+                onClick={() => {
+                  setSearchQuery('')
+                  setShowSearch(false)
+                }}
+                className="text-[#6E6E6E] hover:text-white"
+              >
                 <X size={12} />
               </button>
             </div>
           ) : (
-            <button onClick={() => setShowSearch(true)} className="flex items-center gap-2 h-8 px-3 rounded-lg border border-[#202020] bg-transparent text-[#A8A8A8] text-xs hover:bg-[#080808] hover:border-[#333] transition-all">
+            <button
+              onClick={() => setShowSearch(true)}
+              className="flex items-center gap-2 h-8 px-3 rounded-lg border border-[#202020] bg-transparent text-[#A8A8A8] text-xs hover:bg-[#080808] hover:border-[#333] transition-all"
+            >
               <Search size={14} /> Search
             </button>
           )}
@@ -181,7 +199,9 @@ export function KanbanScreen() {
           <div className="bg-[#0F0F0F] border border-[#202020] rounded-xl p-5 w-96 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-medium text-white">New Task</h3>
-              <button onClick={() => setShowNewTask(false)} className="text-[#6E6E6E] hover:text-white"><X size={14} /></button>
+              <button onClick={() => setShowNewTask(false)} className="text-[#6E6E6E] hover:text-white">
+                <X size={14} />
+              </button>
             </div>
             <div className="space-y-3">
               <input
@@ -200,8 +220,19 @@ export function KanbanScreen() {
                 className="w-full bg-[#080808] border border-[#202020] rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#7C6BFF]/40 resize-none"
               />
               <div className="flex gap-2 justify-end pt-2">
-                <button onClick={() => setShowNewTask(false)} className="px-3 py-1.5 rounded-lg text-xs text-[#A8A8A8] hover:text-white hover:bg-[#151515] transition-all">Cancel</button>
-                <button onClick={handleCreateTask} disabled={!newTaskTitle.trim()} className="px-4 py-1.5 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 disabled:opacity-30 transition-all">Create</button>
+                <button
+                  onClick={() => setShowNewTask(false)}
+                  className="px-3 py-1.5 rounded-lg text-xs text-[#A8A8A8] hover:text-white hover:bg-[#151515] transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateTask}
+                  disabled={!newTaskTitle.trim()}
+                  className="px-4 py-1.5 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 disabled:opacity-30 transition-all"
+                >
+                  Create
+                </button>
               </div>
             </div>
           </div>
@@ -210,7 +241,9 @@ export function KanbanScreen() {
 
       {/* Board */}
       {loading ? (
-        <div className="p-6"><SkeletonTable rows={3} /></div>
+        <div className="p-6">
+          <SkeletonTable rows={3} />
+        </div>
       ) : columns.every((c) => c.cards.length === 0) ? (
         <EmptyState title="No tasks yet" description="Create your first task to get started." />
       ) : (

@@ -31,7 +31,7 @@ export class ProjectRepository {
       project.model || '',
       project.framework || '',
       project.created_at,
-      project.updated_at
+      project.updated_at,
     )
 
     return project
@@ -82,7 +82,7 @@ export class ProjectRepository {
       updated.model || '',
       updated.framework || '',
       updated.updated_at,
-      id
+      id,
     )
 
     return updated
@@ -96,7 +96,7 @@ export class ProjectRepository {
 
   search(query: string): Project[] {
     const stmt = this.db.prepare(
-      'SELECT * FROM projects WHERE name LIKE ? OR description LIKE ? ORDER BY updated_at DESC'
+      'SELECT * FROM projects WHERE name LIKE ? OR description LIKE ? ORDER BY updated_at DESC',
     )
     const pattern = `%${query}%`
     return stmt.all(pattern, pattern) as Project[]

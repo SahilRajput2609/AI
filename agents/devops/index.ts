@@ -1,3 +1,3 @@
-export * from './devops';
-export * from './devops.service';
-export * from './devops.types';
+export * from './devops'
+export * from './devops.service'
+export * from './devops.types'

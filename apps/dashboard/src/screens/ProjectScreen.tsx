@@ -1,11 +1,25 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  ArrowLeft, Layout, Code2, Eye, File, MessageSquare,
-  GitBranch, GitCompare, RotateCcw, Rocket, Settings, Globe, Terminal,
-  Plus, Trash2, XCircle,
+  ArrowLeft,
+  Layout,
+  Code2,
+  Eye,
+  File,
+  MessageSquare,
+  GitBranch,
+  GitCompare,
+  RotateCcw,
+  Rocket,
+  Settings,
+  Globe,
+  Terminal,
+  Plus,
+  Trash2,
+  XCircle,
   Loader2,
-  Send, ExternalLink,
+  Send,
+  ExternalLink,
 } from 'lucide-react'
 import { api } from '../lib/api'
 import { useRealtime } from '../lib/realtime'
@@ -37,7 +51,9 @@ export function ProjectScreen({ projectId, onBack }: ProjectScreenProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => { loadProject() }, [projectId])
+  useEffect(() => {
+    loadProject()
+  }, [projectId])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -89,7 +105,9 @@ export function ProjectScreen({ projectId, onBack }: ProjectScreenProps) {
       <div className="flex-1 flex flex-col items-center justify-center gap-3">
         <XCircle size={24} className="text-[#EF4444]" />
         <p className="text-sm text-[#EF4444]">{error || 'Project not found'}</p>
-        <button onClick={onBack} className="text-xs text-[#7C6BFF] hover:underline">Go back</button>
+        <button onClick={onBack} className="text-xs text-[#7C6BFF] hover:underline">
+          Go back
+        </button>
       </div>
     )
   }
@@ -109,17 +127,19 @@ export function ProjectScreen({ projectId, onBack }: ProjectScreenProps) {
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="text-sm font-medium text-white truncate">{project.name}</h1>
-          {project.description && (
-            <p className="text-[11px] text-[#6B7280] truncate">{project.description}</p>
-          )}
+          {project.description && <p className="text-[11px] text-[#6B7280] truncate">{project.description}</p>}
         </div>
         <div className="flex items-center gap-2">
-          <span className={clsx(
-            'text-[10px] px-2 py-0.5 rounded-full font-medium',
-            project.status === 'completed' ? 'bg-[#22C55E]/10 text-[#22C55E]'
-              : project.status === 'building' ? 'bg-[#7C6BFF]/10 text-[#7C6BFF]'
-              : 'bg-[#6B7280]/10 text-[#6B7280]'
-          )}>
+          <span
+            className={clsx(
+              'text-[10px] px-2 py-0.5 rounded-full font-medium',
+              project.status === 'completed'
+                ? 'bg-[#22C55E]/10 text-[#22C55E]'
+                : project.status === 'building'
+                  ? 'bg-[#7C6BFF]/10 text-[#7C6BFF]'
+                  : 'bg-[#6B7280]/10 text-[#6B7280]',
+            )}
+          >
             {project.status || 'draft'}
           </span>
         </div>
@@ -250,7 +270,7 @@ function PreviewTab({ projectId }: { projectId: string }) {
 
   useEffect(() => {
     if (lastFileSaved && lastFileSaved.projectId === projectId) {
-      setRefreshKey(k => k + 1)
+      setRefreshKey((k) => k + 1)
     }
   }, [lastFileSaved, projectId])
 
@@ -274,7 +294,9 @@ function PreviewTab({ projectId }: { projectId: string }) {
       setLoading(false)
     }
     load()
-    return () => { if (previewUrl) URL.revokeObjectURL(previewUrl) }
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl)
+    }
   }, [projectId, refreshKey])
 
   return (
@@ -287,7 +309,7 @@ function PreviewTab({ projectId }: { projectId: string }) {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setRefreshKey(k => k + 1)}
+            onClick={() => setRefreshKey((k) => k + 1)}
             className="px-2 py-1 rounded-md text-[10px] text-[#6B7280] hover:text-white hover:bg-[#151515] transition-all"
           >
             Refresh
@@ -323,11 +345,11 @@ async function buildPreviewHtml(projectId: string): Promise<string | null> {
     const tree = await api.getProjectFiles(projectId)
     const allFiles = flattenTree(tree.files || tree.tree || [])
 
-    const indexFile = allFiles.find(f => f.name === 'index.html' || f.path?.endsWith('/index.html'))
+    const indexFile = allFiles.find((f) => f.name === 'index.html' || f.path?.endsWith('/index.html'))
     if (!indexFile) {
       // Generate a default preview
-      const cssFiles = allFiles.filter(f => f.name.endsWith('.css'))
-      const jsFiles = allFiles.filter(f => f.name.endsWith('.js'))
+      const cssFiles = allFiles.filter((f) => f.name.endsWith('.css'))
+      const jsFiles = allFiles.filter((f) => f.name.endsWith('.js'))
       return buildDefaultPreview(cssFiles, jsFiles)
     }
 
@@ -348,8 +370,8 @@ function flattenTree(files: any[]): any[] {
 }
 
 function buildDefaultPreview(cssFiles: any[], jsFiles: any[]): string {
-  const cssLinks = cssFiles.map(f => `<link rel="stylesheet" href="${f.path || f.name}">`).join('\n  ')
-  const jsScripts = jsFiles.map(f => `<script src="${f.path || f.name}"></script>`).join('\n  ')
+  const cssLinks = cssFiles.map((f) => `<link rel="stylesheet" href="${f.path || f.name}">`).join('\n  ')
+  const jsScripts = jsFiles.map((f) => `<script src="${f.path || f.name}"></script>`).join('\n  ')
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -381,8 +403,9 @@ function CodeTab({ projectId }: { projectId: string }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.getProjectFiles(projectId)
-      .then(data => setFiles(data.files || data.tree || []))
+    api
+      .getProjectFiles(projectId)
+      .then((data) => setFiles(data.files || data.tree || []))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [projectId])
@@ -421,8 +444,9 @@ function FilesTab({ projectId }: { projectId: string }) {
 
   useEffect(() => {
     if (selectedFile) {
-      api.readProjectFile(projectId, selectedFile.path)
-        .then(r => setFileContent(r.content))
+      api
+        .readProjectFile(projectId, selectedFile.path)
+        .then((r) => setFileContent(r.content))
         .catch(() => setFileContent('// Error loading file'))
     }
   }, [selectedFile, projectId])
@@ -436,7 +460,9 @@ function FilesTab({ projectId }: { projectId: string }) {
         <p className="text-[10px] text-[#6B7280] uppercase tracking-wider px-2 mb-2 font-medium">Project Files</p>
         {loading ? (
           <div className="space-y-1 px-2">
-            {[1,2,3,4].map(i => <div key={i} className="h-6 bg-[#151515] rounded animate-pulse" />)}
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-6 bg-[#151515] rounded animate-pulse" />
+            ))}
           </div>
         ) : (
           <>
@@ -461,9 +487,7 @@ function FilesTab({ projectId }: { projectId: string }) {
                 <span className="ml-auto text-[10px] text-[#6B7280]">{f.size || ''}</span>
               </button>
             ))}
-            {files.length === 0 && (
-              <p className="text-[10px] text-[#6B7280] px-2">No files yet</p>
-            )}
+            {files.length === 0 && <p className="text-[10px] text-[#6B7280] px-2">No files yet</p>}
           </>
         )}
       </div>
@@ -516,12 +540,23 @@ function ChatTab({ projectId }: { projectId: string }) {
     const text = input.trim()
     setInput('')
     setSending(true)
-    setMessages(prev => [...prev, { id: 'temp-' + Date.now(), role: 'user', content: text, created_at: new Date().toISOString() }])
+    setMessages((prev) => [
+      ...prev,
+      { id: 'temp-' + Date.now(), role: 'user', content: text, created_at: new Date().toISOString() },
+    ])
     try {
       const response = await api.sendChatMessage(text, projectId)
-      setMessages(prev => [...prev, response.message || response])
+      setMessages((prev) => [...prev, response.message || response])
     } catch {
-      setMessages(prev => [...prev, { id: 'error-' + Date.now(), role: 'assistant', content: 'Sorry, something went wrong.', created_at: new Date().toISOString() }])
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: 'error-' + Date.now(),
+          role: 'assistant',
+          content: 'Sorry, something went wrong.',
+          created_at: new Date().toISOString(),
+        },
+      ])
     } finally {
       setSending(false)
     }
@@ -543,12 +578,14 @@ function ChatTab({ projectId }: { projectId: string }) {
         ) : (
           messages.map((msg) => (
             <div key={msg.id} className={clsx('flex gap-3', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
-              <div className={clsx(
-                'max-w-[75%] px-3 py-2 rounded-2xl text-xs leading-relaxed',
-                msg.role === 'user'
-                  ? 'bg-[#7C6BFF] text-white rounded-br-md'
-                  : 'bg-[#151515] text-[#D4D4D8] rounded-bl-md border border-[#202020]',
-              )}>
+              <div
+                className={clsx(
+                  'max-w-[75%] px-3 py-2 rounded-2xl text-xs leading-relaxed',
+                  msg.role === 'user'
+                    ? 'bg-[#7C6BFF] text-white rounded-br-md'
+                    : 'bg-[#151515] text-[#D4D4D8] rounded-bl-md border border-[#202020]',
+                )}
+              >
                 {msg.content}
               </div>
             </div>
@@ -594,7 +631,9 @@ function VersionsTab({ projectId }: { projectId: string }) {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [projectId])
+  useEffect(() => {
+    load()
+  }, [projectId])
 
   const handleCreate = async () => {
     setCreating(true)
@@ -651,7 +690,9 @@ function VersionsTab({ projectId }: { projectId: string }) {
       </div>
       {loading ? (
         <div className="space-y-2">
-          {[1,2,3].map(i => <div key={i} className="h-16 bg-[#151515] rounded-xl animate-pulse" />)}
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-16 bg-[#151515] rounded-xl animate-pulse" />
+          ))}
         </div>
       ) : versions.length === 0 ? (
         <div className="text-center py-12 text-[#6B7280]">
@@ -662,16 +703,17 @@ function VersionsTab({ projectId }: { projectId: string }) {
       ) : (
         <div className="space-y-2">
           {versions.map((v) => (
-            <div key={v.id} className="flex items-center justify-between bg-[#0F0F0F] border border-[#202020] rounded-xl p-4">
+            <div
+              key={v.id}
+              className="flex items-center justify-between bg-[#0F0F0F] border border-[#202020] rounded-xl p-4"
+            >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-[#7C6BFF]/10 flex items-center justify-center">
                   <GitBranch size={14} className="text-[#7C6BFF]" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="text-xs font-medium text-white">
-                      {v.title || `v${v.version_number}`}
-                    </p>
+                    <p className="text-xs font-medium text-white">{v.title || `v${v.version_number}`}</p>
                     <span className="text-[10px] text-[#6B7280] bg-[#151515] px-1.5 py-0.5 rounded">
                       {v.file_count || 0} files
                     </span>
@@ -723,7 +765,9 @@ function DeployTab({ projectId }: { projectId: string }) {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [projectId])
+  useEffect(() => {
+    load()
+  }, [projectId])
 
   const handleDeploy = async () => {
     setDeploying(true)
@@ -788,7 +832,9 @@ function DeployTab({ projectId }: { projectId: string }) {
       <h4 className="text-xs font-medium text-[#A1A1AA] mb-3">Deployment History</h4>
       {loading ? (
         <div className="space-y-2">
-          {[1,2].map(i => <div key={i} className="h-16 bg-[#151515] rounded-xl animate-pulse" />)}
+          {[1, 2].map((i) => (
+            <div key={i} className="h-16 bg-[#151515] rounded-xl animate-pulse" />
+          ))}
         </div>
       ) : deployments.length === 0 ? (
         <div className="text-center py-8 text-[#6B7280]">
@@ -804,35 +850,52 @@ function DeployTab({ projectId }: { projectId: string }) {
                 className="w-full flex items-center justify-between bg-[#0F0F0F] border border-[#202020] rounded-xl p-3 hover:border-[#333] transition-all text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className={clsx(
-                    'w-2 h-2 rounded-full',
-                    d.status === 'ready' ? 'bg-[#22C55E]' : d.status === 'building' || d.status === 'pending' ? 'bg-[#FACC15]' : d.status === 'failed' ? 'bg-[#EF4444]' : 'bg-[#6B7280]',
-                  )} />
+                  <div
+                    className={clsx(
+                      'w-2 h-2 rounded-full',
+                      d.status === 'ready'
+                        ? 'bg-[#22C55E]'
+                        : d.status === 'building' || d.status === 'pending'
+                          ? 'bg-[#FACC15]'
+                          : d.status === 'failed'
+                            ? 'bg-[#EF4444]'
+                            : 'bg-[#6B7280]',
+                    )}
+                  />
                   <div>
                     <p className="text-xs text-white font-medium">{d.platform || platform}</p>
                     <p className="text-[10px] text-[#6B7280]">{new Date(d.created_at).toLocaleString()}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={clsx(
-                    'text-[10px] px-1.5 py-0.5 rounded-full',
-                    d.status === 'ready' ? 'bg-[#22C55E]/10 text-[#22C55E]'
-                      : d.status === 'building' || d.status === 'pending' ? 'bg-[#FACC15]/10 text-[#FACC15]'
-                      : d.status === 'failed' ? 'bg-[#EF4444]/10 text-[#EF4444]'
-                      : 'bg-[#6B7280]/10 text-[#6B7280]',
-                  )}>
+                  <span
+                    className={clsx(
+                      'text-[10px] px-1.5 py-0.5 rounded-full',
+                      d.status === 'ready'
+                        ? 'bg-[#22C55E]/10 text-[#22C55E]'
+                        : d.status === 'building' || d.status === 'pending'
+                          ? 'bg-[#FACC15]/10 text-[#FACC15]'
+                          : d.status === 'failed'
+                            ? 'bg-[#EF4444]/10 text-[#EF4444]'
+                            : 'bg-[#6B7280]/10 text-[#6B7280]',
+                    )}
+                  >
                     {d.status}
                   </span>
                   {d.url && (
-                    <a href={d.url} target="_blank" rel="noreferrer" className="p-1 rounded text-[#6B7280] hover:text-white" onClick={e => e.stopPropagation()}>
+                    <a
+                      href={d.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-1 rounded text-[#6B7280] hover:text-white"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <ExternalLink size={12} />
                     </a>
                   )}
                 </div>
               </button>
-              {expandedLogs === d.id && (
-                <DeploymentLogsInline deploymentId={d.id} />
-              )}
+              {expandedLogs === d.id && <DeploymentLogsInline deploymentId={d.id} />}
             </div>
           ))}
         </div>
@@ -847,7 +910,11 @@ function DeploymentLogsInline({ deploymentId }: { deploymentId: string }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.getDeploymentLogs(deploymentId).then(setLogs).catch(() => {}).finally(() => setLoading(false))
+    api
+      .getDeploymentLogs(deploymentId)
+      .then(setLogs)
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [deploymentId])
 
   if (loading) {
@@ -867,18 +934,31 @@ function DeploymentLogsInline({ deploymentId }: { deploymentId: string }) {
         <span className="text-[10px] text-[#6B7280] uppercase tracking-wider font-medium">Build Logs</span>
       </div>
       <pre className="font-mono text-[11px] leading-relaxed whitespace-pre-wrap max-h-60 overflow-y-auto">
-        {logLines.length > 0 ? logLines.map((line: string, i: number) => {
-          const isError = /error|failed/i.test(line)
-          const isWarn = /warn(ing)?/i.test(line)
-          const isSuccess = /success|ready|built/i.test(line)
-          return (
-            <div key={i} className={
-              isError ? 'text-[#EF4444]' : isWarn ? 'text-[#FACC15]' : isSuccess ? 'text-[#22C55E]' : 'text-[#A1A1AA]'
-            }>
-              <span className="text-[#6B7280]">{String(i + 1).padStart(3, ' ')}</span>{'  '}{line}
-            </div>
-          )
-        }) : (
+        {logLines.length > 0 ? (
+          logLines.map((line: string, i: number) => {
+            const isError = /error|failed/i.test(line)
+            const isWarn = /warn(ing)?/i.test(line)
+            const isSuccess = /success|ready|built/i.test(line)
+            return (
+              <div
+                key={i}
+                className={
+                  isError
+                    ? 'text-[#EF4444]'
+                    : isWarn
+                      ? 'text-[#FACC15]'
+                      : isSuccess
+                        ? 'text-[#22C55E]'
+                        : 'text-[#A1A1AA]'
+                }
+              >
+                <span className="text-[#6B7280]">{String(i + 1).padStart(3, ' ')}</span>
+                {'  '}
+                {line}
+              </div>
+            )
+          })
+        ) : (
           <div className="text-[#6B7280]">No logs available</div>
         )}
       </pre>
@@ -961,5 +1041,3 @@ function SettingsTab({ project, onRefresh, onBack }: { project: any; onRefresh: 
 }
 
 /* ─── Helpers ─── */
-
-

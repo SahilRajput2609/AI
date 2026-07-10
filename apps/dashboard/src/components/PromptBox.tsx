@@ -9,7 +9,11 @@ interface PromptBoxProps {
   placeholder?: string
 }
 
-export function PromptBox({ onSubmit, isLoading = false, placeholder = 'Describe what you want to build...' }: PromptBoxProps) {
+export function PromptBox({
+  onSubmit,
+  isLoading = false,
+  placeholder = 'Describe what you want to build...',
+}: PromptBoxProps) {
   const [prompt, setPrompt] = useState('')
   const [showTypes, setShowTypes] = useState(false)
   const [selectedType, setSelectedType] = useState<ProjectType>('custom')
@@ -50,12 +54,12 @@ export function PromptBox({ onSubmit, isLoading = false, placeholder = 'Describe
   const handleFileDrop = (e: React.DragEvent) => {
     e.preventDefault()
     const droppedFiles = Array.from(e.dataTransfer.files)
-    setFiles(prev => [...prev, ...droppedFiles])
+    setFiles((prev) => [...prev, ...droppedFiles])
   }
 
   const handleFileSelect = () => fileInputRef.current?.click()
 
-  const removeFile = (index: number) => setFiles(prev => prev.filter((_, i) => i !== index))
+  const removeFile = (index: number) => setFiles((prev) => prev.filter((_, i) => i !== index))
 
   return (
     <div className="w-full max-w-3xl mx-auto">
@@ -66,7 +70,7 @@ export function PromptBox({ onSubmit, isLoading = false, placeholder = 'Describe
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#202020] bg-[#080808] text-xs text-[#A1A1AA] hover:border-[#333] transition-all"
         >
           <Zap size={12} className="text-[#7C6BFF]" />
-          {projectTypes.find(t => t.value === selectedType)?.label || 'Custom'}
+          {projectTypes.find((t) => t.value === selectedType)?.label || 'Custom'}
         </button>
         <AnimatePresence>
           {showTypes && (
@@ -76,20 +80,29 @@ export function PromptBox({ onSubmit, isLoading = false, placeholder = 'Describe
               exit={{ opacity: 0, y: -4 }}
               className="absolute left-0 top-full mt-1 w-56 bg-[#0F0F0F] border border-[#202020] rounded-xl shadow-2xl z-50 max-h-80 overflow-y-auto"
             >
-              {['Frontend', 'Backend', 'Full Application', 'Desktop & Mobile', 'AI & Advanced', 'Other'].map(cat => (
+              {['Frontend', 'Backend', 'Full Application', 'Desktop & Mobile', 'AI & Advanced', 'Other'].map((cat) => (
                 <div key={cat}>
-                  <div className="px-3 py-1.5 text-[10px] font-medium text-[#6B7280] uppercase tracking-wider">{cat}</div>
-                  {projectTypes.filter(t => t.category === cat).map(t => (
-                    <button
-                      key={t.value}
-                      onClick={() => { setSelectedType(t.value); setShowTypes(false) }}
-                      className={`w-full text-left px-3 py-1.5 text-xs transition-colors ${
-                        selectedType === t.value ? 'text-white bg-[#7C6BFF]/10' : 'text-[#A1A1AA] hover:text-white hover:bg-[#151515]'
-                      }`}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
+                  <div className="px-3 py-1.5 text-[10px] font-medium text-[#6B7280] uppercase tracking-wider">
+                    {cat}
+                  </div>
+                  {projectTypes
+                    .filter((t) => t.category === cat)
+                    .map((t) => (
+                      <button
+                        key={t.value}
+                        onClick={() => {
+                          setSelectedType(t.value)
+                          setShowTypes(false)
+                        }}
+                        className={`w-full text-left px-3 py-1.5 text-xs transition-colors ${
+                          selectedType === t.value
+                            ? 'text-white bg-[#7C6BFF]/10'
+                            : 'text-[#A1A1AA] hover:text-white hover:bg-[#151515]'
+                        }`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
                 </div>
               ))}
             </motion.div>
@@ -128,7 +141,7 @@ export function PromptBox({ onSubmit, isLoading = false, placeholder = 'Describe
               type="file"
               multiple
               className="hidden"
-              onChange={(e) => setFiles(prev => [...prev, ...Array.from(e.target.files || [])])}
+              onChange={(e) => setFiles((prev) => [...prev, ...Array.from(e.target.files || [])])}
             />
             <button
               className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#151515] transition-all"
@@ -170,8 +183,17 @@ export function PromptBox({ onSubmit, isLoading = false, placeholder = 'Describe
             className="flex flex-wrap gap-2 mt-2"
           >
             {files.map((file, i) => (
-              <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0F0F0F] border border-[#202020] text-xs text-[#A1A1AA]">
-                {file.type.startsWith('image/') ? <FileImage size={12} /> : file.type.includes('pdf') ? <FileText size={12} /> : <Code size={12} />}
+              <div
+                key={i}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0F0F0F] border border-[#202020] text-xs text-[#A1A1AA]"
+              >
+                {file.type.startsWith('image/') ? (
+                  <FileImage size={12} />
+                ) : file.type.includes('pdf') ? (
+                  <FileText size={12} />
+                ) : (
+                  <Code size={12} />
+                )}
                 <span className="max-w-[120px] truncate">{file.name}</span>
                 <button onClick={() => removeFile(i)} className="text-[#6B7280] hover:text-white ml-1">
                   <X size={12} />

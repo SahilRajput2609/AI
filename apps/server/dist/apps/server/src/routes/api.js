@@ -5,7 +5,7 @@ import { modelProvidersRouter } from './model-providers.js';
 import { agentConfigsRouter } from './agent-configs.js';
 import { filesRouter } from './files.js';
 import { activitiesRouter } from './activities.js';
-import { notificationsRouter } from './notifications.js';
+import { notificationsRouter, setNotificationBroadcast } from './notifications.js';
 import { authRouter } from './auth.js';
 import { oauthRouter } from './oauth.js';
 import { projectsRouter } from './projects.js';
@@ -13,6 +13,8 @@ import { chatRouter, setChatBroadcast } from './chat.js';
 import { versionsRouter } from './versions.js';
 import { deploymentsRouter } from './deployments.js';
 import { templatesRouter } from './templates.js';
+import { settingsRouter } from './settings.js';
+import { usersRouter } from './users.js';
 const agentManager = new AgentManager();
 const owner = agentManager.getOwner();
 const planner = agentManager.getPlanner();
@@ -20,6 +22,7 @@ let broadcastFn = null;
 export function setBroadcast(fn) {
     broadcastFn = fn;
     setChatBroadcast(fn);
+    setNotificationBroadcast(fn);
 }
 export function broadcast(data) {
     if (broadcastFn)
@@ -29,6 +32,8 @@ export const apiRouter = Router();
 // ---- Core routes ----
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/auth/oauth', oauthRouter);
+apiRouter.use('/users', usersRouter);
+apiRouter.use('/settings', settingsRouter);
 apiRouter.use('/model-providers', modelProvidersRouter);
 apiRouter.use('/agent-configs', agentConfigsRouter);
 apiRouter.use('/files', filesRouter);
@@ -38,6 +43,8 @@ apiRouter.use('/notifications', notificationsRouter);
 apiRouter.use('/projects', projectsRouter);
 apiRouter.use('/chat', chatRouter);
 apiRouter.use('/versions', versionsRouter);
+apiRouter.use('/deployments', deploymentsRouter);
+apiRouter.use('/templates', templatesRouter);
 apiRouter.use('/deployments', deploymentsRouter);
 apiRouter.use('/templates', templatesRouter);
 // ---- Agent status routes ----
@@ -57,7 +64,7 @@ apiRouter.get('/agents/:role', (req, res) => {
         role: info.role,
         name: info.name,
         capabilities: info.capabilities,
-        isActive: !!(instance.service),
+        isActive: !!instance.service,
         state: state || {},
     });
 });
@@ -220,7 +227,7 @@ apiRouter.get('/status', (_req, res) => {
     const agents = agentManager.listAgents();
     res.json({
         status: 'running',
-        agents: agents.map(a => a.name),
+        agents: agents.map((a) => a.name),
         agentCount: agents.length,
         uptime: process.uptime(),
     });

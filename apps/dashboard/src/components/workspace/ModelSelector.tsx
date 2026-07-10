@@ -20,25 +20,29 @@ export function ModelSelector({ onClose, onSelect }: ModelSelectorProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    apiClient.getModelProviders().then((providers: any[]) => {
-      const active = providers.filter((p: any) => p.isActive)
-      const items: ModelItem[] = active.flatMap((p: any) =>
-        (p.models || []).map((m: any) => ({
-          name: m.name || m.modelId,
-          provider: p.name || p.provider,
-        }))
-      )
-      if (items.length > 0) setModels(items)
-      else setModels([
-        { name: 'GPT-4o', provider: 'OpenAI' },
-        { name: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
-      ])
-    }).catch(() => {
-      setModels([
-        { name: 'GPT-4o', provider: 'OpenAI' },
-        { name: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
-      ])
-    })
+    apiClient
+      .getModelProviders()
+      .then((providers: any[]) => {
+        const active = providers.filter((p: any) => p.isActive)
+        const items: ModelItem[] = active.flatMap((p: any) =>
+          (p.models || []).map((m: any) => ({
+            name: m.name || m.modelId,
+            provider: p.name || p.provider,
+          })),
+        )
+        if (items.length > 0) setModels(items)
+        else
+          setModels([
+            { name: 'GPT-4o', provider: 'OpenAI' },
+            { name: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
+          ])
+      })
+      .catch(() => {
+        setModels([
+          { name: 'GPT-4o', provider: 'OpenAI' },
+          { name: 'Claude 3.5 Sonnet', provider: 'Anthropic' },
+        ])
+      })
   }, [])
 
   useEffect(() => {
@@ -49,9 +53,9 @@ export function ModelSelector({ onClose, onSelect }: ModelSelectorProps) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [onClose])
 
-  const filtered = models.filter(m =>
-    m.name.toLowerCase().includes(search.toLowerCase()) ||
-    m.provider.toLowerCase().includes(search.toLowerCase())
+  const filtered = models.filter(
+    (m) =>
+      m.name.toLowerCase().includes(search.toLowerCase()) || m.provider.toLowerCase().includes(search.toLowerCase()),
   )
 
   const handleSelect = (name: string) => {
@@ -62,7 +66,10 @@ export function ModelSelector({ onClose, onSelect }: ModelSelectorProps) {
   }
 
   return (
-    <div ref={ref} className="absolute top-full right-0 mt-2 w-[300px] rounded-xl border border-[#202020] bg-[#0F0F0F] shadow-2xl z-50 overflow-hidden">
+    <div
+      ref={ref}
+      className="absolute top-full right-0 mt-2 w-[300px] rounded-xl border border-[#202020] bg-[#0F0F0F] shadow-2xl z-50 overflow-hidden"
+    >
       <div className="flex items-center gap-2 px-3 h-10 border-b border-[#202020]">
         <Search size={14} className="text-[#6E6E6E]" />
         <input
@@ -80,7 +87,9 @@ export function ModelSelector({ onClose, onSelect }: ModelSelectorProps) {
             onClick={() => handleSelect(model.name)}
             className={clsx(
               'w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors cursor-pointer',
-              selected === model.name ? 'bg-[#151515] text-white' : 'text-[#A8A8A8] hover:bg-[#080808] hover:text-white',
+              selected === model.name
+                ? 'bg-[#151515] text-white'
+                : 'text-[#A8A8A8] hover:bg-[#080808] hover:text-white',
             )}
           >
             <div>

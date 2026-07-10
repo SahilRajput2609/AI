@@ -6,7 +6,14 @@ import { getDatabase } from '../database.js'
 export class TaskRepository {
   constructor(private db: Database.Database = getDatabase().getDb()) {}
 
-  create(data: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'progress' | 'tags' | 'attachments' | 'comments'> & { progress?: number; tags?: string[]; attachments?: number; comments?: number }): Task {
+  create(
+    data: Omit<Task, 'id' | 'created_at' | 'updated_at' | 'progress' | 'tags' | 'attachments' | 'comments'> & {
+      progress?: number
+      tags?: string[]
+      attachments?: number
+      comments?: number
+    },
+  ): Task {
     const now = Date.now()
     const task: Task = {
       id: generateId('task'),
@@ -42,7 +49,7 @@ export class TaskRepository {
       task.comments,
       task.created_at,
       task.updated_at,
-      task.completed_at || null
+      task.completed_at || null,
     )
 
     return task
@@ -58,13 +65,13 @@ export class TaskRepository {
   findByProject(projectId: string): Task[] {
     const stmt = this.db.prepare('SELECT * FROM tasks WHERE project_id = ? ORDER BY created_at DESC')
     const rows = stmt.all(projectId) as any[]
-    return rows.map(row => this.mapRowToTask(row))
+    return rows.map((row) => this.mapRowToTask(row))
   }
 
   findByStatus(projectId: string, status: Task['status']): Task[] {
     const stmt = this.db.prepare('SELECT * FROM tasks WHERE project_id = ? AND status = ? ORDER BY created_at DESC')
     const rows = stmt.all(projectId, status) as any[]
-    return rows.map(row => this.mapRowToTask(row))
+    return rows.map((row) => this.mapRowToTask(row))
   }
 
   findAll(filters?: { status?: Task['status']; priority?: string; assignedTo?: string; projectId?: string }): Task[] {
@@ -91,13 +98,13 @@ export class TaskRepository {
     query += ' ORDER BY created_at DESC'
     const stmt = this.db.prepare(query)
     const rows = stmt.all(...params) as any[]
-    return rows.map(row => this.mapRowToTask(row))
+    return rows.map((row) => this.mapRowToTask(row))
   }
 
   findByAgent(agentId: string): Task[] {
     const stmt = this.db.prepare('SELECT * FROM tasks WHERE assigned_agent = ? ORDER BY created_at DESC')
     const rows = stmt.all(agentId) as any[]
-    return rows.map(row => this.mapRowToTask(row))
+    return rows.map((row) => this.mapRowToTask(row))
   }
 
   update(id: string, data: Partial<Omit<Task, 'id' | 'created_at'>>): Task | null {
@@ -134,7 +141,7 @@ export class TaskRepository {
       updated.comments,
       updated.updated_at,
       updated.completed_at || null,
-      id
+      id,
     )
 
     return updated

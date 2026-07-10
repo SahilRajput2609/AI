@@ -39,7 +39,18 @@ describe('ModelProviderRepository', () => {
       baseUrl: 'https://api.openai.com',
       apiKey: 'sk-test',
       isActive: true,
-      models: [{ id: 'gpt-4', name: 'GPT-4', modelId: 'gpt-4', providerId: '', capabilities: ['chat'], maxTokens: 8192, costPer1MTokens: 30, isActive: true }],
+      models: [
+        {
+          id: 'gpt-4',
+          name: 'GPT-4',
+          modelId: 'gpt-4',
+          providerId: '',
+          capabilities: ['chat'],
+          maxTokens: 8192,
+          costPer1MTokens: 30,
+          isActive: true,
+        },
+      ],
     })
 
     expect(config.id).toMatch(/^model-provider_\d+_[a-z0-9]+$/)
@@ -68,10 +79,20 @@ describe('ModelProviderRepository', () => {
 
   it('gets all providers', async () => {
     await repo.createProvider({
-      provider: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com', apiKey: 'sk-1', isActive: true, models: [],
+      provider: 'openai',
+      name: 'OpenAI',
+      baseUrl: 'https://api.openai.com',
+      apiKey: 'sk-1',
+      isActive: true,
+      models: [],
     })
     await repo.createProvider({
-      provider: 'anthropic', name: 'Anthropic', baseUrl: 'https://api.anthropic.com', apiKey: 'sk-2', isActive: false, models: [],
+      provider: 'anthropic',
+      name: 'Anthropic',
+      baseUrl: 'https://api.anthropic.com',
+      apiKey: 'sk-2',
+      isActive: false,
+      models: [],
     })
 
     const all = await repo.getAllProviders()
@@ -80,10 +101,20 @@ describe('ModelProviderRepository', () => {
 
   it('gets active providers', async () => {
     await repo.createProvider({
-      provider: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com', apiKey: 'sk-1', isActive: true, models: [],
+      provider: 'openai',
+      name: 'OpenAI',
+      baseUrl: 'https://api.openai.com',
+      apiKey: 'sk-1',
+      isActive: true,
+      models: [],
     })
     await repo.createProvider({
-      provider: 'anthropic', name: 'Anthropic', baseUrl: 'https://api.anthropic.com', apiKey: 'sk-2', isActive: false, models: [],
+      provider: 'anthropic',
+      name: 'Anthropic',
+      baseUrl: 'https://api.anthropic.com',
+      apiKey: 'sk-2',
+      isActive: false,
+      models: [],
     })
 
     const active = await repo.getActiveProviders()
@@ -93,7 +124,12 @@ describe('ModelProviderRepository', () => {
 
   it('updates a provider', async () => {
     const created = await repo.createProvider({
-      provider: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com', apiKey: 'sk-test', isActive: true, models: [],
+      provider: 'openai',
+      name: 'OpenAI',
+      baseUrl: 'https://api.openai.com',
+      apiKey: 'sk-test',
+      isActive: true,
+      models: [],
     })
 
     const updated = await repo.updateProvider(created.id, { isActive: false, baseUrl: 'https://updated.openai.com' })
@@ -108,7 +144,12 @@ describe('ModelProviderRepository', () => {
 
   it('deletes a provider', async () => {
     const created = await repo.createProvider({
-      provider: 'openai', name: 'Delete Me', baseUrl: 'https://api.openai.com', apiKey: 'sk-test', isActive: true, models: [],
+      provider: 'openai',
+      name: 'Delete Me',
+      baseUrl: 'https://api.openai.com',
+      apiKey: 'sk-test',
+      isActive: true,
+      models: [],
     })
 
     expect(await repo.deleteProvider(created.id)).toBe(true)
@@ -121,7 +162,12 @@ describe('ModelProviderRepository', () => {
 
   it('finds provider by name', async () => {
     const created = await repo.createProvider({
-      provider: 'google', name: 'Google AI', baseUrl: 'https://generativelanguage.googleapis.com', apiKey: 'sk-test-3', isActive: true, models: [],
+      provider: 'google',
+      name: 'Google AI',
+      baseUrl: 'https://generativelanguage.googleapis.com',
+      apiKey: 'sk-test-3',
+      isActive: true,
+      models: [],
     })
 
     const found = await repo.getProviderByName('Google AI')
@@ -131,7 +177,12 @@ describe('ModelProviderRepository', () => {
 
   it('finds provider by type', async () => {
     await repo.createProvider({
-      provider: 'google', name: 'Google AI', baseUrl: 'https://generativelanguage.googleapis.com', apiKey: 'sk-test', isActive: true, models: [],
+      provider: 'google',
+      name: 'Google AI',
+      baseUrl: 'https://generativelanguage.googleapis.com',
+      apiKey: 'sk-test',
+      isActive: true,
+      models: [],
     })
 
     const providers = await repo.getProvidersByType('google')
@@ -140,10 +191,20 @@ describe('ModelProviderRepository', () => {
 
   it('finds provider by status', async () => {
     await repo.createProvider({
-      provider: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com', apiKey: 'sk-1', isActive: true, models: [],
+      provider: 'openai',
+      name: 'OpenAI',
+      baseUrl: 'https://api.openai.com',
+      apiKey: 'sk-1',
+      isActive: true,
+      models: [],
     })
     await repo.createProvider({
-      provider: 'anthropic', name: 'Anthropic', baseUrl: 'https://api.anthropic.com', apiKey: 'sk-2', isActive: false, models: [],
+      provider: 'anthropic',
+      name: 'Anthropic',
+      baseUrl: 'https://api.anthropic.com',
+      apiKey: 'sk-2',
+      isActive: false,
+      models: [],
     })
 
     const active = await repo.findByStatus('active')
@@ -154,7 +215,12 @@ describe('ModelProviderRepository', () => {
 
   it('finds provider by provider name', async () => {
     await repo.createProvider({
-      provider: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com', apiKey: 'sk-test', isActive: true, models: [],
+      provider: 'openai',
+      name: 'OpenAI',
+      baseUrl: 'https://api.openai.com',
+      apiKey: 'sk-test',
+      isActive: true,
+      models: [],
     })
 
     const results = await repo.findByProvider('openai')

@@ -12,24 +12,24 @@ const isDev = process.env.NODE_ENV !== 'production'
 
 const app = express()
 const server = createServer(app)
-const { broadcast } = setupWebSocket(server);
+const { broadcast } = setupWebSocket(server)
 
-app.use(express.json());
+app.use(express.json())
 
-const allowedOrigins = (process.env.CORS_ORIGINS || '*').split(',');
+const allowedOrigins = (process.env.CORS_ORIGINS || '*').split(',')
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
+  const origin = req.headers.origin
   if (allowedOrigins.includes('*') || !origin || allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    res.setHeader('Access-Control-Allow-Origin', origin || '*')
   }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
   if (req.method === 'OPTIONS') {
-    res.sendStatus(204);
-    return;
+    res.sendStatus(204)
+    return
   }
-  next();
-});
+  next()
+})
 
 // broadcast provided by websocket module
 setBroadcast(broadcast)

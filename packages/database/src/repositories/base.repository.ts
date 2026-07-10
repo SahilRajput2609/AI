@@ -37,7 +37,7 @@ export class BaseRepository<T extends { id: string }> {
     const updated = { ...existing, ...data }
     const keys = Object.keys(data)
     const values = Object.values(data)
-    const setClause = keys.map(k => `${k} = ?`).join(', ')
+    const setClause = keys.map((k) => `${k} = ?`).join(', ')
 
     this.db.prepare(`UPDATE ${this.tableName} SET ${setClause} WHERE id = ?`).run(...values, id)
     return updated

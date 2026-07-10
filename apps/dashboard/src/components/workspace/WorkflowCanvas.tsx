@@ -29,19 +29,27 @@ function formatTime(ts: Date | string): string {
 
 function getStatusBadge(status: string) {
   switch (status) {
-    case 'completed': return <Badge variant="success">Completed</Badge>
-    case 'in_progress': return <Badge variant="warning">In Progress</Badge>
-    case 'failed': return <Badge variant="error">Failed</Badge>
-    default: return <Badge>Pending</Badge>
+    case 'completed':
+      return <Badge variant="success">Completed</Badge>
+    case 'in_progress':
+      return <Badge variant="warning">In Progress</Badge>
+    case 'failed':
+      return <Badge variant="error">Failed</Badge>
+    default:
+      return <Badge>Pending</Badge>
   }
 }
 
 function getStatusIcon(status: string) {
   switch (status) {
-    case 'completed': return <CheckCircle size={14} className="text-[#22C55E]" />
-    case 'in_progress': return <Loader2 size={14} className="text-[#FACC15] animate-spin" />
-    case 'failed': return <AlertCircle size={14} className="text-[#EF4444]" />
-    default: return <Clock size={14} className="text-[#6E6E6E]" />
+    case 'completed':
+      return <CheckCircle size={14} className="text-[#22C55E]" />
+    case 'in_progress':
+      return <Loader2 size={14} className="text-[#FACC15] animate-spin" />
+    case 'failed':
+      return <AlertCircle size={14} className="text-[#EF4444]" />
+    default:
+      return <Clock size={14} className="text-[#6E6E6E]" />
   }
 }
 
@@ -54,7 +62,8 @@ export function WorkflowCanvas() {
   const { notifications } = useRealtime()
 
   useEffect(() => {
-    apiClient.getTasks()
+    apiClient
+      .getTasks()
       .then((data: any) => setTasks(data))
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -88,9 +97,7 @@ export function WorkflowCanvas() {
     <div className="min-h-full">
       {/* Hero */}
       <div className="px-6 lg:px-12 pt-12 pb-8 max-w-3xl mx-auto">
-        <h1 className="text-2xl lg:text-3xl font-semibold text-white mb-2">
-          What would you like to build today?
-        </h1>
+        <h1 className="text-2xl lg:text-3xl font-semibold text-white mb-2">What would you like to build today?</h1>
         <p className="text-sm text-[#6E6E6E] mb-8">
           Describe your project, website, application, or idea. Our AI agents will handle the rest.
         </p>
@@ -112,9 +119,7 @@ export function WorkflowCanvas() {
             className="w-full bg-[#080808] border border-[#202020] rounded-xl px-5 py-4 text-sm text-white placeholder-[#6E6E6E] outline-none resize-none transition-all duration-150 focus:border-[#333] focus:ring-1 focus:ring-[#333]"
           />
           <div className="flex items-center justify-between mt-3">
-            <span className="text-xs text-[#6E6E6E]">
-              {prompt.length > 0 && `${prompt.length} characters`}
-            </span>
+            <span className="text-xs text-[#6E6E6E]">{prompt.length > 0 && `${prompt.length} characters`}</span>
             <button
               onClick={handleCreate}
               disabled={!prompt.trim() || creating}
@@ -138,9 +143,7 @@ export function WorkflowCanvas() {
       <div className="px-6 lg:px-12 pb-12 max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-medium text-[#A8A8A8]">Recent Tasks</h2>
-          {tasks.length > 0 && (
-            <span className="text-xs text-[#6E6E6E]">{tasks.length} total</span>
-          )}
+          {tasks.length > 0 && <span className="text-xs text-[#6E6E6E]">{tasks.length} total</span>}
         </div>
 
         {loading ? (
@@ -161,17 +164,13 @@ export function WorkflowCanvas() {
                 key={task.id}
                 className="group flex items-center gap-4 p-4 rounded-lg border border-[#202020] bg-[#0F0F0F] hover:border-[#333] hover:bg-[#151515] transition-all duration-150 cursor-pointer"
               >
-                <div className="flex-shrink-0">
-                  {getStatusIcon(task.status)}
-                </div>
+                <div className="flex-shrink-0">{getStatusIcon(task.status)}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-sm font-medium text-white truncate">{task.title}</h3>
                     {getStatusBadge(task.status)}
                   </div>
-                  {task.description && (
-                    <p className="text-xs text-[#6E6E6E] truncate">{task.description}</p>
-                  )}
+                  {task.description && <p className="text-xs text-[#6E6E6E] truncate">{task.description}</p>}
                   <div className="flex items-center gap-4 mt-2">
                     <span className="text-xs text-[#6E6E6E]">{formatTime(task.createdAt)}</span>
                     {task.progress !== undefined && (
@@ -181,7 +180,10 @@ export function WorkflowCanvas() {
                     )}
                   </div>
                 </div>
-                <ArrowRight size={14} className="text-[#6E6E6E] group-hover:text-[#A8A8A8] transition-colors flex-shrink-0" />
+                <ArrowRight
+                  size={14}
+                  className="text-[#6E6E6E] group-hover:text-[#A8A8A8] transition-colors flex-shrink-0"
+                />
               </div>
             ))}
           </div>

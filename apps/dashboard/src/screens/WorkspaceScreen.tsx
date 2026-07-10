@@ -18,15 +18,25 @@ interface Project {
 }
 
 const AGENT_ICONS: Record<string, string> = {
-  planner: '📋', 'ui-designer': '🎨', 'frontend-dev': '💻',
-  'backend-dev': '⚙️', 'database-engineer': '🗄️', 'code-reviewer': '🔍',
-  'qa-engineer': '🧪', 'devops-engineer': '🚀',
+  planner: '📋',
+  'ui-designer': '🎨',
+  'frontend-dev': '💻',
+  'backend-dev': '⚙️',
+  'database-engineer': '🗄️',
+  'code-reviewer': '🔍',
+  'qa-engineer': '🧪',
+  'devops-engineer': '🚀',
 }
 
 const AGENT_LABELS: Record<string, string> = {
-  planner: 'Planner', 'ui-designer': 'UI Designer', 'frontend-dev': 'Frontend Developer',
-  'backend-dev': 'Backend Developer', 'database-engineer': 'Database Engineer',
-  'code-reviewer': 'Code Reviewer', 'qa-engineer': 'QA Engineer', 'devops-engineer': 'DevOps Engineer',
+  planner: 'Planner',
+  'ui-designer': 'UI Designer',
+  'frontend-dev': 'Frontend Developer',
+  'backend-dev': 'Backend Developer',
+  'database-engineer': 'Database Engineer',
+  'code-reviewer': 'Code Reviewer',
+  'qa-engineer': 'QA Engineer',
+  'devops-engineer': 'DevOps Engineer',
 }
 
 export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string) => void }) {
@@ -37,7 +47,9 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
   const [pipelineRunning, setPipelineRunning] = useState(false)
   const { connected, notifications } = useRealtime()
 
-  useEffect(() => { loadProjects() }, [])
+  useEffect(() => {
+    loadProjects()
+  }, [])
 
   useEffect(() => {
     const lastNotif = notifications[0]
@@ -50,12 +62,10 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
         duration: 'just now',
         logs: [lastNotif.message],
       }
-      setPipelineSteps(prev => [...prev, step].slice(-8))
+      setPipelineSteps((prev) => [...prev, step].slice(-8))
       setPipelineRunning(true)
       setTimeout(() => {
-        setPipelineSteps(prev => prev.map(s =>
-          s.id === step.id ? { ...s, status: 'completed' as const } : s
-        ))
+        setPipelineSteps((prev) => prev.map((s) => (s.id === step.id ? { ...s, status: 'completed' as const } : s)))
         setPipelineRunning(false)
       }, 2000)
     }
@@ -65,7 +75,10 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
     try {
       const data = await api.getProjects()
       setProjects(data)
-    } catch {} finally { setLoading(false) }
+    } catch {
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handlePrompt = async (prompt: string, attachedFiles?: File[]) => {
@@ -78,9 +91,10 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
       try {
         const result: any[] = await api.getTasks()
         const agentRoles = [...new Set(result.map((t: any) => t.assignedRole || t.assigned_agent).filter(Boolean))]
-        agents = agentRoles.length > 0
-          ? agentRoles.map((r: string) => ({ role: r, name: AGENT_LABELS[r] || r }))
-          : Object.entries(AGENT_LABELS).map(([role, name]) => ({ role, name }))
+        agents =
+          agentRoles.length > 0
+            ? agentRoles.map((r: string) => ({ role: r, name: AGENT_LABELS[r] || r }))
+            : Object.entries(AGENT_LABELS).map(([role, name]) => ({ role, name }))
       } catch {
         agents = Object.entries(AGENT_LABELS).map(([role, name]) => ({ role, name }))
       }
@@ -89,7 +103,7 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
         id: `agent-${i}`,
         name: a.name,
         icon: AGENT_ICONS[a.role] || '⚡',
-        status: i === 0 ? 'running' as const : 'pending' as const,
+        status: i === 0 ? ('running' as const) : ('pending' as const),
         logs: i === 0 ? ['Initializing...'] : undefined,
       }))
       setPipelineSteps(steps)
@@ -97,7 +111,7 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
       const project = await api.createProject({
         name: prompt.slice(0, 50),
         description: attachedFiles?.length
-          ? `${prompt}\n\n[Attached ${attachedFiles.length} file(s): ${attachedFiles.map(f => f.name).join(', ')}]`
+          ? `${prompt}\n\n[Attached ${attachedFiles.length} file(s): ${attachedFiles.map((f) => f.name).join(', ')}]`
           : prompt,
         type: 'custom',
       })
@@ -122,49 +136,73 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
 
         // Poll for task progress via API
         for (let i = 0; i < 20; i++) {
-          await new Promise(r => setTimeout(r, 800))
+          await new Promise((r) => setTimeout(r, 800))
           try {
             const tasksList = await api.getTasks()
             const completedTasks = tasksList.filter((t: any) => t.status === 'completed').length
             const runningTasks = tasksList.filter((t: any) => t.status === 'in_progress').length
 
-            setPipelineSteps(prev => prev.map((s, idx) => {
-              if (idx < completedTasks) return { ...s, status: 'completed' as const, duration: `${(Math.random() * 3 + 1).toFixed(1)}s` }
-              if (idx === completedTasks && runningTasks > 0) return { ...s, status: 'running' as const, logs: [`Processing "${prompt.slice(0, 40)}..."`] }
-              return s
-            }))
+            setPipelineSteps((prev) =>
+              prev.map((s, idx) => {
+                if (idx < completedTasks)
+                  return { ...s, status: 'completed' as const, duration: `${(Math.random() * 3 + 1).toFixed(1)}s` }
+                if (idx === completedTasks && runningTasks > 0)
+                  return { ...s, status: 'running' as const, logs: [`Processing "${prompt.slice(0, 40)}..."`] }
+                return s
+              }),
+            )
 
             if (completedTasks >= agents.length) break
           } catch {
             // Fall back to sequential simulation
-            setPipelineSteps(prev => prev.map((s, idx) => {
-              if (idx <= i) return { ...s, status: 'completed' as const, duration: `${(Math.random() * 2 + 0.5).toFixed(1)}s` }
-              return s
-            }))
+            setPipelineSteps((prev) =>
+              prev.map((s, idx) => {
+                if (idx <= i)
+                  return { ...s, status: 'completed' as const, duration: `${(Math.random() * 2 + 0.5).toFixed(1)}s` }
+                return s
+              }),
+            )
           }
         }
       } catch {
         // If orchestrator not available, simulate
         for (let i = 1; i < agents.length; i++) {
-          await new Promise(r => setTimeout(r, 600 + Math.random() * 400))
-          setPipelineSteps(prev => prev.map((s, idx) => {
-            if (idx === i - 1) return { ...s, status: 'completed' as const, duration: `${(Math.random() * 2 + 0.5).toFixed(1)}s` }
-            if (idx === i) return { ...s, status: 'running' as const, logs: [`Processing "${prompt.slice(0, 30)}..."`] }
-            return s
-          }))
+          await new Promise((r) => setTimeout(r, 600 + Math.random() * 400))
+          setPipelineSteps((prev) =>
+            prev.map((s, idx) => {
+              if (idx === i - 1)
+                return { ...s, status: 'completed' as const, duration: `${(Math.random() * 2 + 0.5).toFixed(1)}s` }
+              if (idx === i)
+                return { ...s, status: 'running' as const, logs: [`Processing "${prompt.slice(0, 30)}..."`] }
+              return s
+            }),
+          )
         }
       }
 
-      setPipelineSteps(prev => prev.map(s => ({ ...s, status: 'completed' as const, duration: s.duration || `${(Math.random() * 2 + 0.5).toFixed(1)}s` })))
+      setPipelineSteps((prev) =>
+        prev.map((s) => ({
+          ...s,
+          status: 'completed' as const,
+          duration: s.duration || `${(Math.random() * 2 + 0.5).toFixed(1)}s`,
+        })),
+      )
       setPipelineRunning(false)
       await loadProjects()
       onOpenProject?.(project.id)
-    } catch {} finally { setGenerating(false) }
+    } catch {
+    } finally {
+      setGenerating(false)
+    }
   }
 
   const typeIcons: Record<string, any> = {
-    website: Layout, dashboard: Layout, 'react-app': Code,
-    'node-api': Code, 'ai-agent': Zap, automation: Zap,
+    website: Layout,
+    dashboard: Layout,
+    'react-app': Code,
+    'node-api': Code,
+    'ai-agent': Zap,
+    automation: Zap,
   }
 
   return (
@@ -172,27 +210,21 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
       <div className="max-w-5xl mx-auto px-8 py-10">
         {/* Connection status */}
         <div className="flex items-center justify-end mb-4 gap-2">
-          <span className={clsx(
-            'flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full',
-            connected ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-[#EF4444]/10 text-[#EF4444]',
-          )}>
+          <span
+            className={clsx(
+              'flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full',
+              connected ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-[#EF4444]/10 text-[#EF4444]',
+            )}
+          >
             {connected ? <Wifi size={10} /> : <WifiOff size={10} />}
             {connected ? 'Connected' : 'Disconnected'}
           </span>
         </div>
 
         {/* Hero + Prompt */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
-        >
-          <h1 className="text-2xl font-semibold text-white mb-2">
-            What do you want to build today?
-          </h1>
-          <p className="text-sm text-[#6B7280] mb-8">
-            Describe your project and AI agents will build it for you
-          </p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
+          <h1 className="text-2xl font-semibold text-white mb-2">What do you want to build today?</h1>
+          <p className="text-sm text-[#6B7280] mb-8">Describe your project and AI agents will build it for you</p>
           <PromptBox onSubmit={handlePrompt} isLoading={generating} />
         </motion.div>
 
@@ -207,21 +239,14 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
         </motion.div>
 
         {/* Recent Projects */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-medium text-white flex items-center gap-2">
               <FolderOpen size={15} className="text-[#7C6BFF]" />
               Recent Projects
             </h2>
             {projects.length > 0 && (
-              <button
-                onClick={loadProjects}
-                className="text-xs text-[#6B7280] hover:text-[#A1A1AA] transition-colors"
-              >
+              <button onClick={loadProjects} className="text-xs text-[#6B7280] hover:text-[#A1A1AA] transition-colors">
                 Refresh
               </button>
             )}
@@ -229,56 +254,65 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <button
-              onClick={() => { document.querySelector('textarea')?.focus() }}
+              onClick={() => {
+                document.querySelector('textarea')?.focus()
+              }}
               className="h-28 rounded-xl border border-dashed border-[#202020] bg-[#080808] hover:bg-[#0F0F0F] hover:border-[#333] transition-all flex flex-col items-center justify-center gap-2 text-[#6B7280] hover:text-[#A1A1AA]"
             >
               <Plus size={20} />
               <span className="text-xs">New Project</span>
             </button>
 
-            {loading && [1, 2, 3].map(i => (
-              <div key={i} className="h-28 rounded-xl bg-[#0A0A0A] border border-[#1A1A1A] animate-pulse" />
-            ))}
+            {loading &&
+              [1, 2, 3].map((i) => (
+                <div key={i} className="h-28 rounded-xl bg-[#0A0A0A] border border-[#1A1A1A] animate-pulse" />
+              ))}
 
-            {!loading && projects.slice(0, 5).map((project, i) => {
-              const Icon = typeIcons[project.type || ''] || Code
-              return (
-                <motion.button
-                  key={project.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                  onClick={() => onOpenProject?.(project.id)}
-                  className="h-28 rounded-xl border border-[#202020] bg-[#0F0F0F] hover:bg-[#151515] hover:border-[#333] transition-all text-left p-4 flex flex-col justify-between group"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-[#7C6BFF]/10 flex items-center justify-center">
-                        <Icon size={13} className="text-[#7C6BFF]" />
+            {!loading &&
+              projects.slice(0, 5).map((project, i) => {
+                const Icon = typeIcons[project.type || ''] || Code
+                return (
+                  <motion.button
+                    key={project.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    onClick={() => onOpenProject?.(project.id)}
+                    className="h-28 rounded-xl border border-[#202020] bg-[#0F0F0F] hover:bg-[#151515] hover:border-[#333] transition-all text-left p-4 flex flex-col justify-between group"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-[#7C6BFF]/10 flex items-center justify-center">
+                          <Icon size={13} className="text-[#7C6BFF]" />
+                        </div>
+                        <span className="text-xs font-medium text-white truncate max-w-[120px]">{project.name}</span>
                       </div>
-                      <span className="text-xs font-medium text-white truncate max-w-[120px]">
-                        {project.name}
+                      <ArrowRight
+                        size={14}
+                        className="text-[#6B7280] opacity-0 group-hover:opacity-100 transition-opacity"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-[#6B7280] flex items-center gap-1">
+                        <Clock size={10} />
+                        {formatRelativeTime(project.updated_at)}
+                      </span>
+                      <span
+                        className={clsx(
+                          'text-[10px] px-1.5 py-0.5 rounded-full',
+                          project.status === 'completed'
+                            ? 'bg-[#22C55E]/10 text-[#22C55E]'
+                            : project.status === 'building'
+                              ? 'bg-[#7C6BFF]/10 text-[#7C6BFF]'
+                              : 'bg-[#6B7280]/10 text-[#6B7280]',
+                        )}
+                      >
+                        {project.status || 'draft'}
                       </span>
                     </div>
-                    <ArrowRight size={14} className="text-[#6B7280] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-[#6B7280] flex items-center gap-1">
-                      <Clock size={10} />
-                      {formatRelativeTime(project.updated_at)}
-                    </span>
-                    <span className={clsx(
-                      'text-[10px] px-1.5 py-0.5 rounded-full',
-                      project.status === 'completed' ? 'bg-[#22C55E]/10 text-[#22C55E]'
-                        : project.status === 'building' ? 'bg-[#7C6BFF]/10 text-[#7C6BFF]'
-                        : 'bg-[#6B7280]/10 text-[#6B7280]'
-                    )}>
-                      {project.status || 'draft'}
-                    </span>
-                  </div>
-                </motion.button>
-              )
-            })}
+                  </motion.button>
+                )
+              })}
 
             {!loading && projects.length === 0 && (
               <div className="h-28 rounded-xl border border-dashed border-[#202020] bg-[#080808] flex items-center justify-center col-span-full">

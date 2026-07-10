@@ -34,13 +34,21 @@ describe('FileService', () => {
   it('creates a file', async () => {
     mockFs.writeFile.mockResolvedValue(undefined)
     mockRepo.create.mockResolvedValue({
-      id: 'file-1', name: 'index.ts', type: 'file', path: 'src/index.ts',
-      size: 13, projectId: 'project-1', language: 'typescript',
+      id: 'file-1',
+      name: 'index.ts',
+      type: 'file',
+      path: 'src/index.ts',
+      size: 13,
+      projectId: 'project-1',
+      language: 'typescript',
     })
 
     const result = await service.createFile({
-      name: 'index.ts', path: 'src/index.ts', content: 'console.log("hi")',
-      language: 'typescript', projectId: 'project-1',
+      name: 'index.ts',
+      path: 'src/index.ts',
+      content: 'console.log("hi")',
+      language: 'typescript',
+      projectId: 'project-1',
     })
 
     expect(mockFs.writeFile).toHaveBeenCalledWith('src/index.ts', 'console.log("hi")')
@@ -50,7 +58,12 @@ describe('FileService', () => {
   it('creates a folder', async () => {
     mockFs.createDirectory.mockResolvedValue(undefined)
     mockRepo.create.mockResolvedValue({
-      id: 'folder-1', name: 'src', type: 'folder', path: 'src', size: 0, projectId: 'project-1',
+      id: 'folder-1',
+      name: 'src',
+      type: 'folder',
+      path: 'src',
+      size: 0,
+      projectId: 'project-1',
     })
 
     const result = await service.createFolder({ name: 'src', path: 'src', projectId: 'project-1' })

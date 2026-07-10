@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Test</title>
+    <style>
+      body { background: #000; color: #fff; font-family: monospace; padding: 20px; }
+      #log { max-height: 400px; overflow-y: auto; border: 1px solid #333; padding: 10px; margin-bottom: 20px; }
+      .msg { margin: 5px 0; }
+      .err { color: #ff6b6b; }
+      .ok { color: #51cf66; }
+    </style>
+  </head>
+  <body>
+    <h1>Diagnostic Log</h1>
+    <div id="log"></div>
+    <div id="status"></div>
+    <script>
+      function log(msg, type = 'normal') {
+        const logEl = document.getElementById('log');
+        const msgEl = document.createElement('div');
+        msgEl.className = `msg ${type === 'error' ? 'err' : type === 'ok' ? 'ok' : ''}`;
+        msgEl.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        logEl.appendChild(msgEl);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      window.addEventListener('error', e => {
+        log(`JS Error: ${e.message} at ${e.filename}:${e.lineno}`, 'error');
+      });
+
+      window.addEventListener('unhandledrejection', e => {
+        log(`Promise Error: ${e.reason}`, 'error');
+      });
+
+      log('Page loaded', 'ok');
+      log('Testing Vite client...');
+
+      fetch('/@vite/client').then(r => {
+        log(`Vite client: ${r.status}`, r.ok ? 'ok' : 'error');
+      }).catch(e => log(`Vite client error: ${e}`, 'error'));
+
+      fetch('/src/main.tsx').then(r => {
+        log(`main.tsx: ${r.status}`, r.ok ? 'ok' : 'error');
+      }).catch(e => log(`main.tsx error: ${e}`, 'error'));
+
+      setTimeout(() => {
+        const root = document.getElementById('root');
+        document.getElementById('status').innerHTML = `<p>Root element present: ${root ? 'yes' : 'no'}</p>`;
+      }, 1000);
+    </script>
+  </body>
+</html>

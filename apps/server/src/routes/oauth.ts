@@ -29,7 +29,7 @@ async function fetchGitHubUser(code: string): Promise<OAuthUserInfo> {
     body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, code }),
   })
 
-  const tokenData = await tokenRes.json() as { access_token?: string; error?: string }
+  const tokenData = (await tokenRes.json()) as { access_token?: string; error?: string }
   if (!tokenData.access_token) {
     throw new Error(tokenData.error || 'Failed to exchange GitHub code for access token')
   }
@@ -37,15 +37,15 @@ async function fetchGitHubUser(code: string): Promise<OAuthUserInfo> {
   const userRes = await fetch('https://api.github.com/user', {
     headers: { Authorization: `Bearer ${tokenData.access_token}`, Accept: 'application/json' },
   })
-  const ghUser = await userRes.json() as { id: number; email?: string; login: string; avatar_url?: string }
+  const ghUser = (await userRes.json()) as { id: number; email?: string; login: string; avatar_url?: string }
 
   let email = ghUser.email
   if (!email) {
     const emailsRes = await fetch('https://api.github.com/user/emails', {
       headers: { Authorization: `Bearer ${tokenData.access_token}`, Accept: 'application/json' },
     })
-    const emails = await emailsRes.json() as { email: string; primary: boolean }[]
-    email = emails.find(e => e.primary)?.email ?? emails[0]?.email
+    const emails = (await emailsRes.json()) as { email: string; primary: boolean }[]
+    email = emails.find((e) => e.primary)?.email ?? emails[0]?.email
   }
 
   if (!email) {
@@ -80,7 +80,7 @@ async function fetchGoogleUser(code: string): Promise<OAuthUserInfo> {
     }),
   })
 
-  const tokenData = await tokenRes.json() as { access_token?: string; error?: string }
+  const tokenData = (await tokenRes.json()) as { access_token?: string; error?: string }
   if (!tokenData.access_token) {
     throw new Error(tokenData.error || 'Failed to exchange Google code for access token')
   }
@@ -88,7 +88,7 @@ async function fetchGoogleUser(code: string): Promise<OAuthUserInfo> {
   const userRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
     headers: { Authorization: `Bearer ${tokenData.access_token}` },
   })
-  const gUser = await userRes.json() as { id: string; email: string; name?: string; picture?: string }
+  const gUser = (await userRes.json()) as { id: string; email: string; name?: string; picture?: string }
 
   return {
     id: gUser.id,

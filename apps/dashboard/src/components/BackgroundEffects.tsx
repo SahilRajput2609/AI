@@ -117,10 +117,6 @@ export function BackgroundEffects() {
   }, [])
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: 1 }}
-    />
+    <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 1 }} />
   )
 }

@@ -80,17 +80,19 @@ describe('ProviderFactory', () => {
     })
 
     it('throws for unsupported type', () => {
-      expect(() => ProviderFactory.createClient({
-        id: '',
-        provider: 'unknown' as any,
-        name: 'Unknown',
-        baseUrl: 'https://example.com',
-        apiKey: 'key',
-        isActive: true,
-        models: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })).toThrow('Unsupported provider type')
+      expect(() =>
+        ProviderFactory.createClient({
+          id: '',
+          provider: 'unknown' as any,
+          name: 'Unknown',
+          baseUrl: 'https://example.com',
+          apiKey: 'key',
+          isActive: true,
+          models: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+      ).toThrow('Unsupported provider type')
     })
   })
 

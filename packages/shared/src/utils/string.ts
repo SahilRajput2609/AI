@@ -68,6 +68,6 @@ export const generateId = (prefix = 'id'): string => {
 
 export const extractInitials = (name: string, maxLength = 2): string => {
   const words = name.trim().split(/\s+/)
-  const initials = words.map(word => word.charAt(0).toUpperCase())
+  const initials = words.map((word) => word.charAt(0).toUpperCase())
   return initials.slice(0, maxLength).join('')
 }

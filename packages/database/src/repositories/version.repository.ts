@@ -28,7 +28,7 @@ export class VersionRepository {
       version.snapshot_data,
       version.file_count,
       version.created_by || null,
-      version.created_at
+      version.created_at,
     )
 
     return version

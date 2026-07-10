@@ -46,12 +46,7 @@ export function useTasks(client: APIClient) {
   }, [client])
 
   const createTask = useCallback(
-    async (data: {
-      title: string
-      description?: string
-      priority?: 'low' | 'medium' | 'high'
-      category?: string
-    }) => {
+    async (data: { title: string; description?: string; priority?: 'low' | 'medium' | 'high'; category?: string }) => {
       setLoading(true)
       setError(null)
       try {
@@ -65,7 +60,7 @@ export function useTasks(client: APIClient) {
         setLoading(false)
       }
     },
-    [client]
+    [client],
   )
 
   const reviewTask = useCallback(
@@ -82,7 +77,7 @@ export function useTasks(client: APIClient) {
         setLoading(false)
       }
     },
-    [client, fetchTasks]
+    [client, fetchTasks],
   )
 
   useEffect(() => {
@@ -126,7 +121,7 @@ export function usePlans(client: APIClient) {
         setLoading(false)
       }
     },
-    [client]
+    [client],
   )
 
   useEffect(() => {
@@ -184,7 +179,7 @@ export function useModelProviders(client: APIClient) {
         setLoading(false)
       }
     },
-    [client]
+    [client],
   )
 
   const updateProvider = useCallback(
@@ -202,7 +197,7 @@ export function useModelProviders(client: APIClient) {
         setLoading(false)
       }
     },
-    [client]
+    [client],
   )
 
   const deleteProvider = useCallback(
@@ -219,7 +214,7 @@ export function useModelProviders(client: APIClient) {
         setLoading(false)
       }
     },
-    [client]
+    [client],
   )
 
   const testProvider = useCallback(
@@ -235,7 +230,7 @@ export function useModelProviders(client: APIClient) {
         setLoading(false)
       }
     },
-    [client]
+    [client],
   )
 
   useEffect(() => {

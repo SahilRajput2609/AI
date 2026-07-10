@@ -1,4 +1,4 @@
-import { ModelProvider, ModelProviderConfig, ModelConfig } from '@ai-company/shared'
+import type { ModelProvider, ModelProviderConfig, ModelConfig } from '@ai-company/shared'
 
 export interface ModelProviderEntity {
   id: string
@@ -23,7 +23,7 @@ export class ModelProviderModel {
       isActive: config.isActive,
       models: JSON.stringify(config.models),
       createdAt: config.createdAt,
-      updatedAt: config.updatedAt
+      updatedAt: config.updatedAt,
     }
   }
 
@@ -37,7 +37,7 @@ export class ModelProviderModel {
       isActive: entity.isActive,
       models: JSON.parse(entity.models) as ModelConfig[],
       createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt
+      updatedAt: entity.updatedAt,
     }
   }
 

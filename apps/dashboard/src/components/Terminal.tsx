@@ -1,16 +1,15 @@
-"use client";
+'use client'
 
-import { motion } from "framer-motion";
-import React from "react";
-import { X, Minus, Square } from "lucide-react";
+import { motion } from 'framer-motion'
+import { X, Minus, Square } from 'lucide-react'
 
 export interface TerminalProps {
-  title?: string;
-  lines?: string[];
-  isActive?: boolean;
+  title?: string
+  lines?: string[]
+  isActive?: boolean
 }
 
-export function Terminal({ title = "Terminal", lines = [], isActive = false }: TerminalProps) {
+export function Terminal({ title = 'Terminal', lines = [], isActive = false }: TerminalProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -18,9 +17,7 @@ export function Terminal({ title = "Terminal", lines = [], isActive = false }: T
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       className={`flex flex-col rounded-lg border overflow-hidden shadow-2xl ${
-        isActive
-          ? "border-[#7C6BFF]/50 bg-[#0a0a0a]"
-          : "border-[#202020] bg-[#050505]"
+        isActive ? 'border-[#7C6BFF]/50 bg-[#0a0a0a]' : 'border-[#202020] bg-[#050505]'
       }`}
     >
       {/* Title Bar */}
@@ -66,14 +63,14 @@ export function Terminal({ title = "Terminal", lines = [], isActive = false }: T
               transition={{ delay: i * 0.05 }}
               className="text-[#A1A1AA] whitespace-pre-wrap break-words"
             >
-              {line.startsWith("$") ? (
+              {line.startsWith('$') ? (
                 <>
-                  <span className="text-[#6B7280]">{line.split(" ")[0]}</span>
+                  <span className="text-[#6B7280]">{line.split(' ')[0]}</span>
                   <span className="text-[#7C6BFF]">{line.slice(1)}</span>
                 </>
-              ) : line.startsWith(">") ? (
+              ) : line.startsWith('>') ? (
                 <>
-                  <span className="text-[#EF4444]">{line.split(" ")[0]}</span>
+                  <span className="text-[#EF4444]">{line.split(' ')[0]}</span>
                   <span className="text-white">{line.slice(1)}</span>
                 </>
               ) : (
@@ -94,5 +91,5 @@ export function Terminal({ title = "Terminal", lines = [], isActive = false }: T
         />
       </div>
     </motion.div>
-  );
+  )
 }

@@ -1,5 +1,6 @@
-import { ModelProviderConfig } from '@ai-company/shared'
-import { ModelClient, OpenAIClient, AnthropicClient, GenericClient, MockClient } from './model-client.js'
+import type { ModelProviderConfig } from '@ai-company/shared'
+import type { ModelClient } from './model-client.js'
+import { OpenAIClient, AnthropicClient, GenericClient, MockClient } from './model-client.js'
 
 export class ProviderFactory {
   static createClient(config: ModelProviderConfig): ModelClient {
@@ -10,27 +11,19 @@ export class ProviderFactory {
 
     switch (config.provider) {
       case 'openai':
-        return new OpenAIClient(
-          config.apiKey,
-          config.baseUrl,
-          (config.models ?? [])[0]?.modelId ?? 'gpt-4o'
-        )
-      
+        return new OpenAIClient(config.apiKey, config.baseUrl, (config.models ?? [])[0]?.modelId ?? 'gpt-4o')
+
       case 'anthropic':
         return new AnthropicClient(
           config.apiKey,
           config.baseUrl,
-          (config.models ?? [])[0]?.modelId ?? 'claude-3-5-sonnet-20241022'
+          (config.models ?? [])[0]?.modelId ?? 'claude-3-5-sonnet-20241022',
         )
-      
+
       case 'google':
       case 'custom':
-        return new GenericClient(
-          config.apiKey,
-          config.baseUrl,
-          (config.models ?? [])[0]?.modelId ?? 'model'
-        )
-      
+        return new GenericClient(config.apiKey, config.baseUrl, (config.models ?? [])[0]?.modelId ?? 'model')
+
       default:
         throw new Error(`Unsupported provider type: ${config.provider}`)
     }

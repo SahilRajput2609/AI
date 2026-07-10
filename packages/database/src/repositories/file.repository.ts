@@ -6,7 +6,9 @@ import { getDatabase } from '../database.js'
 export class FileRepository {
   constructor(private db: Database.Database = getDatabase().getDb()) {}
 
-  create(data: Omit<FileMetadata, 'id' | 'created_at' | 'updated_at' | 'modified'> & { modified?: boolean }): FileMetadata {
+  create(
+    data: Omit<FileMetadata, 'id' | 'created_at' | 'updated_at' | 'modified'> & { modified?: boolean },
+  ): FileMetadata {
     const now = Date.now()
     const file: FileMetadata = {
       id: generateId('file'),
@@ -32,7 +34,7 @@ export class FileRepository {
       file.size || null,
       file.modified ? 1 : 0,
       file.created_at,
-      file.updated_at
+      file.updated_at,
     )
 
     return file
@@ -55,7 +57,7 @@ export class FileRepository {
   findByProject(projectId: string): FileMetadata[] {
     const stmt = this.db.prepare('SELECT * FROM files WHERE project_id = ? ORDER BY path ASC')
     const rows = stmt.all(projectId) as any[]
-    return rows.map(row => this.mapRowToFile(row))
+    return rows.map((row) => this.mapRowToFile(row))
   }
 
   findAll(filters?: { projectId?: string; path?: string }): FileMetadata[] {
@@ -74,13 +76,13 @@ export class FileRepository {
     query += ' ORDER BY path ASC'
     const stmt = this.db.prepare(query)
     const rows = stmt.all(...params) as any[]
-    return rows.map(row => this.mapRowToFile(row))
+    return rows.map((row) => this.mapRowToFile(row))
   }
 
   findModified(projectId: string): FileMetadata[] {
     const stmt = this.db.prepare('SELECT * FROM files WHERE project_id = ? AND modified = 1 ORDER BY updated_at DESC')
     const rows = stmt.all(projectId) as any[]
-    return rows.map(row => this.mapRowToFile(row))
+    return rows.map((row) => this.mapRowToFile(row))
   }
 
   update(id: string, data: Partial<Omit<FileMetadata, 'id' | 'created_at'>>): FileMetadata | null {
@@ -107,7 +109,7 @@ export class FileRepository {
       updated.size || null,
       updated.modified ? 1 : 0,
       updated.updated_at,
-      id
+      id,
     )
 
     return updated

@@ -24,13 +24,13 @@ export class NotificationService {
       title: data.title,
       message: data.message,
       isRead: false,
-      metadata: data.metadata || {}
+      metadata: data.metadata || {},
     })
 
     if (this.broadcastFn) {
       this.broadcastFn({
         type: 'notification',
-        data: notification
+        data: notification,
       })
     }
 
@@ -57,10 +57,8 @@ export class NotificationService {
 
   async markAllAsRead(): Promise<void> {
     const notifications = await this.notificationRepo.findAll()
-    const unread = notifications.filter(n => !n.read)
-    await Promise.all(
-      unread.map(n => this.notificationRepo.update(n.id, { read: true, timestamp: new Date() }))
-    )
+    const unread = notifications.filter((n) => !n.read)
+    await Promise.all(unread.map((n) => this.notificationRepo.update(n.id, { read: true, timestamp: new Date() })))
   }
 
   async deleteNotification(id: string): Promise<boolean> {
@@ -69,7 +67,7 @@ export class NotificationService {
 
   async deleteAllRead(): Promise<void> {
     const notifications = await this.notificationRepo.findAll()
-    const read = notifications.filter(n => n.read)
-    await Promise.all(read.map(n => this.notificationRepo.delete(n.id)))
+    const read = notifications.filter((n) => n.read)
+    await Promise.all(read.map((n) => this.notificationRepo.delete(n.id)))
   }
 }

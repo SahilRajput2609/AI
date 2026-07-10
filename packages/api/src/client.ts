@@ -148,10 +148,7 @@ export class APIClient {
   }
 
   // HTTP requests
-  private async request<T>(
-    endpoint: string,
-    options?: APIRequestInit
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options?: APIRequestInit): Promise<T> {
     const url = `${this.baseURL}${endpoint}`
     const { responseType, ...fetchOptions } = options || {}
     const headers = {
@@ -245,7 +242,7 @@ export class APIClient {
       estimatedEffort?: 'low' | 'medium' | 'high'
       assignedRole?: string
       dependencies?: string[]
-    }
+    },
   ): Promise<LocalSubTask> {
     return this.request(`/api/plans/${planId}/subtasks`, {
       method: 'POST',
@@ -275,10 +272,7 @@ export class APIClient {
     })
   }
 
-  async updateModelProvider(
-    id: string,
-    data: UpdateModelProviderInput
-  ): Promise<ModelProviderConfig> {
+  async updateModelProvider(id: string, data: UpdateModelProviderInput): Promise<ModelProviderConfig> {
     return this.request(`/api/model-providers/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -339,7 +333,13 @@ export class APIClient {
     return this.request(`/api/activities?limit=${limit}`)
   }
 
-  async createActivity(data: { projectId?: string; agentId?: string; type: string; title: string; description?: string }): Promise<any> {
+  async createActivity(data: {
+    projectId?: string
+    agentId?: string
+    type: string
+    title: string
+    description?: string
+  }): Promise<any> {
     return this.request('/api/activities', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -474,8 +474,14 @@ export class APIClient {
     })
   }
 
-  async diffVersions(idA: string, idB: string): Promise<{
-    versionA: any; versionB: any; changes: { path: string; type: 'added' | 'removed' | 'modified' | 'unchanged' }[]; summary: { added: number; removed: number; modified: number; unchanged: number; total: number }
+  async diffVersions(
+    idA: string,
+    idB: string,
+  ): Promise<{
+    versionA: any
+    versionB: any
+    changes: { path: string; type: 'added' | 'removed' | 'modified' | 'unchanged' }[]
+    summary: { added: number; removed: number; modified: number; unchanged: number; total: number }
   }> {
     return this.request(`/api/versions/${idA}/diff/${idB}`)
   }
@@ -496,7 +502,9 @@ export class APIClient {
     })
   }
 
-  async getDeploymentLogs(id: string): Promise<{ id: string; project_id: string; status: string; build_logs: string; config: string }> {
+  async getDeploymentLogs(
+    id: string,
+  ): Promise<{ id: string; project_id: string; status: string; build_logs: string; config: string }> {
     return this.request(`/api/deployments/${id}/logs`)
   }
 
@@ -550,7 +558,13 @@ export class APIClient {
     return this.request(`/api/notifications?${params}`)
   }
 
-  async createNotification(data: { title: string; message?: string; type?: string; userId?: string; projectId?: string }): Promise<any> {
+  async createNotification(data: {
+    title: string
+    message?: string
+    type?: string
+    userId?: string
+    projectId?: string
+  }): Promise<any> {
     return this.request('/api/notifications', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -575,10 +589,6 @@ export class APIClient {
   }
 
   // Users API
-  async getCurrentUser(): Promise<any> {
-    return this.request('/api/users/me')
-  }
-
   async getUser(id: string): Promise<any> {
     return this.request(`/api/users/${id}`)
   }
@@ -624,14 +634,20 @@ export class APIClient {
   }
 
   // Auth API
-  async login(email: string, password: string): Promise<{ token: string; user: { id: string; email: string; role: string } }> {
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ token: string; user: { id: string; email: string; role: string } }> {
     return this.request('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     })
   }
 
-  async signup(email: string, password: string): Promise<{ token: string; user: { id: string; email: string; role: string } }> {
+  async signup(
+    email: string,
+    password: string,
+  ): Promise<{ token: string; user: { id: string; email: string; role: string } }> {
     return this.request('/api/auth/signup', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
@@ -643,18 +659,25 @@ export class APIClient {
   }
 
   // OAuth API
-  async getOAuthConfig(): Promise<{ github: { clientId: string | null }; google: { clientId: string | null; redirectUri: string } }> {
+  async getOAuthConfig(): Promise<{
+    github: { clientId: string | null }
+    google: { clientId: string | null; redirectUri: string }
+  }> {
     return this.request('/api/auth/oauth/config')
   }
 
-  async loginWithGithub(code: string): Promise<{ token: string; user: { id: string; email: string; role: string; avatar_url?: string } }> {
+  async loginWithGithub(
+    code: string,
+  ): Promise<{ token: string; user: { id: string; email: string; role: string; avatar_url?: string } }> {
     return this.request('/api/auth/oauth/github', {
       method: 'POST',
       body: JSON.stringify({ code }),
     })
   }
 
-  async loginWithGoogle(code: string): Promise<{ token: string; user: { id: string; email: string; role: string; avatar_url?: string } }> {
+  async loginWithGoogle(
+    code: string,
+  ): Promise<{ token: string; user: { id: string; email: string; role: string; avatar_url?: string } }> {
     return this.request('/api/auth/oauth/google', {
       method: 'POST',
       body: JSON.stringify({ code }),

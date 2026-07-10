@@ -1,13 +1,13 @@
-import { 
-  type ModelProviderConfig, 
-  type CreateModelProviderInput as ModelProviderCreateInput, 
+import {
+  type ModelProviderConfig,
+  type CreateModelProviderInput as ModelProviderCreateInput,
   type UpdateModelProviderInput as ModelProviderUpdateInput,
   type ModelConfig,
   type ModelCapability,
   generateId,
   Logger,
 } from '@ai-company/shared'
-import { ModelProviderRepository } from '@ai-company/database'
+import type { ModelProviderRepository } from '@ai-company/database'
 
 export class ModelProviderService {
   private logger = new Logger('ModelProviderService')
@@ -50,7 +50,7 @@ export class ModelProviderService {
       })
 
       this.logger.info(`Created model provider: ${provider.name} (${provider.provider})`)
-      
+
       if (provider.isActive) {
         await this.testConnection(provider.id)
       }
@@ -134,13 +134,13 @@ export class ModelProviderService {
       }
 
       const decryptedApiKey = this.decryptApiKey(provider.apiKey)
-      
+
       const modelId = (provider.models ?? [])[0]?.modelId ?? ''
       const isValid = await this.validateProviderConnection(
         provider.provider,
         provider.baseUrl,
         decryptedApiKey,
-        modelId
+        modelId,
       )
 
       if (isValid) {
@@ -163,7 +163,7 @@ export class ModelProviderService {
     provider: string,
     baseUrl: string | null,
     apiKey: string,
-    model: string
+    model: string,
   ): Promise<boolean> {
     try {
       let url: string
@@ -189,10 +189,12 @@ export class ModelProviderService {
       const response = await fetch(url, {
         method: provider.toLowerCase() === 'anthropic' ? 'POST' : 'GET',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
-        ...(provider.toLowerCase() === 'anthropic' ? { body: JSON.stringify({ model, max_tokens: 1, messages: [{ role: 'user', content: 'test' }] }) } : {}),
+        ...(provider.toLowerCase() === 'anthropic'
+          ? { body: JSON.stringify({ model, max_tokens: 1, messages: [{ role: 'user', content: 'test' }] }) }
+          : {}),
       })
 
       return response.ok

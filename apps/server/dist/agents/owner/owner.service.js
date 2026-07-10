@@ -18,13 +18,13 @@ export class OwnerService {
         return task;
     }
     submitTask(taskId) {
-        const task = this.state.tasks.find(t => t.id === taskId);
+        const task = this.state.tasks.find((t) => t.id === taskId);
         if (task && task.status === 'draft') {
             task.status = 'submitted';
         }
     }
     markForReview(taskId) {
-        const task = this.state.tasks.find(t => t.id === taskId);
+        const task = this.state.tasks.find((t) => t.id === taskId);
         if (task) {
             task.status = 'in-review';
             if (!this.state.pendingReviews.includes(taskId)) {
@@ -33,10 +33,10 @@ export class OwnerService {
         }
     }
     reviewTask(taskId, decision) {
-        const task = this.state.tasks.find(t => t.id === taskId);
+        const task = this.state.tasks.find((t) => t.id === taskId);
         if (!task)
             return;
-        this.state.pendingReviews = this.state.pendingReviews.filter(id => id !== taskId);
+        this.state.pendingReviews = this.state.pendingReviews.filter((id) => id !== taskId);
         if (decision.approved) {
             task.status = 'completed';
             this.state.completedTasks.push(taskId);
@@ -46,10 +46,10 @@ export class OwnerService {
         }
     }
     getTasksByStatus(status) {
-        return this.state.tasks.filter(t => t.status === status);
+        return this.state.tasks.filter((t) => t.status === status);
     }
     getTask(taskId) {
-        return this.state.tasks.find(t => t.id === taskId);
+        return this.state.tasks.find((t) => t.id === taskId);
     }
     getState() {
         return { ...this.state };

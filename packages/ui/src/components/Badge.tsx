@@ -6,15 +6,9 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: 'sm' | 'md'
 }
 
-export const Badge: React.FC<BadgeProps> = ({ 
-  className, 
-  variant = 'default', 
-  size = 'md',
-  children, 
-  ...props 
-}) => {
+export const Badge: React.FC<BadgeProps> = ({ className, variant = 'default', size = 'md', children, ...props }) => {
   const baseStyles = 'inline-flex items-center gap-1 font-medium rounded-md'
-  
+
   const variants = {
     default: 'bg-slate-700/50 text-slate-300',
     success: 'bg-green-600/20 text-green-400',

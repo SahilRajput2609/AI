@@ -1,5 +1,6 @@
 import { BaseRepository } from './base.repository.js'
 import type Database from 'better-sqlite3'
+import { generateId } from '@ai-company/shared'
 
 export interface UserSettings {
   id: string
@@ -20,16 +21,20 @@ export interface UserSettings {
   updatedAt: number
 }
 
-export class SettingsRepository extends BaseRepository {
-  constructor(db: Database.Database) {
-    super(db, 'user_settings')
+export class SettingsRepository extends BaseRepository<UserSettings> {
+  constructor(db?: Database.Database) {
+    super('user_settings', db)
   }
 
-  create(settings: Omit<UserSettings, 'id' | 'createdAt' | 'updatedAt'>): UserSettings {
+  protected generateId(): string {
+    return generateId('settings')
+  }
+
+  async create(settings: Omit<UserSettings, 'id' | 'createdAt' | 'updatedAt'>): Promise<UserSettings> {
     const id = this.generateId()
     const now = Date.now()
 
-    const stmt = this.db.prepare(`
+    const stmt = (this as any).db.prepare(`
       INSERT INTO user_settings (
         id, user_id, theme, auto_save, default_project_name,
         notify_task_updates, notify_agent_errors, notify_deployment_complete,
@@ -51,26 +56,29 @@ export class SettingsRepository extends BaseRepository {
       JSON.stringify(settings.modelPreferences),
       JSON.stringify(settings.agentPreferences),
       now,
-      now
+      now,
     )
 
-    return this.getById(id)!
+    return (await this.getById(id))!
   }
 
-  getById(id: string): UserSettings | null {
-    const stmt = this.db.prepare('SELECT * FROM user_settings WHERE id = ?')
+  async getById(id: string): Promise<UserSettings | null> {
+    const stmt = (this as any).db.prepare('SELECT * FROM user_settings WHERE id = ?')
     const row = stmt.get(id) as any
     return row ? this.mapRow(row) : null
   }
 
-  getByUserId(userId: string): UserSettings | null {
-    const stmt = this.db.prepare('SELECT * FROM user_settings WHERE user_id = ?')
+  async getByUserId(userId: string): Promise<UserSettings | null> {
+    const stmt = (this as any).db.prepare('SELECT * FROM user_settings WHERE user_id = ?')
     const row = stmt.get(userId) as any
     return row ? this.mapRow(row) : null
   }
 
-  update(id: string, updates: Partial<Omit<UserSettings, 'id' | 'userId' | 'createdAt'>>): UserSettings {
-    const settings = this.getById(id)
+  async update(
+    id: string,
+    updates: Partial<Omit<UserSettings, 'id' | 'userId' | 'createdAt'>>,
+  ): Promise<UserSettings | null> {
+    const settings = await this.getById(id)
     if (!settings) throw new Error('Settings not found')
 
     const now = Date.now()
@@ -118,15 +126,16 @@ export class SettingsRepository extends BaseRepository {
     values.push(now)
     values.push(id)
 
-    const stmt = this.db.prepare(`UPDATE user_settings SET ${fields.join(', ')} WHERE id = ?`)
+    const stmt = (this as any).db.prepare(`UPDATE user_settings SET ${fields.join(', ')} WHERE id = ?`)
     stmt.run(...values)
 
-    return this.getById(id)!
+    return (await this.getById(id))!
   }
 
-  delete(id: string): void {
-    const stmt = this.db.prepare('DELETE FROM user_settings WHERE id = ?')
-    stmt.run(id)
+  async delete(id: string): Promise<boolean> {
+    const stmt = (this as any).db.prepare('DELETE FROM user_settings WHERE id = ?')
+    const result = stmt.run(id) as any
+    return result.changes > 0
   }
 
   private mapRow(row: any): UserSettings {

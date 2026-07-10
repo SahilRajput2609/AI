@@ -26,16 +26,14 @@ export class ChatMessageRepository {
       msg.role,
       msg.content,
       msg.metadata || '{}',
-      msg.created_at
+      msg.created_at,
     )
 
     return msg
   }
 
   findByProjectId(projectId: string): ChatMessage[] {
-    const stmt = this.db.prepare(
-      'SELECT * FROM chat_messages WHERE project_id = ? ORDER BY created_at ASC'
-    )
+    const stmt = this.db.prepare('SELECT * FROM chat_messages WHERE project_id = ? ORDER BY created_at ASC')
     return stmt.all(projectId) as ChatMessage[]
   }
 

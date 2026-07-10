@@ -28,7 +28,14 @@ describe('ModelProviderService', () => {
         baseUrl: 'https://api.openai.com',
         apiKey: 'sk-test',
         models: [
-          { name: 'GPT-4', modelId: 'gpt-4', capabilities: [] as ModelCapability[], maxTokens: 8192, costPer1MTokens: 30, isActive: true },
+          {
+            name: 'GPT-4',
+            modelId: 'gpt-4',
+            capabilities: [] as ModelCapability[],
+            maxTokens: 8192,
+            costPer1MTokens: 30,
+            isActive: true,
+          },
         ],
         isActive: true,
       }
@@ -58,9 +65,14 @@ describe('ModelProviderService', () => {
     })
 
     it('throws on invalid base URL', async () => {
-      await expect(service.createProvider({
-        name: 'Bad', provider: 'openai' as const, baseUrl: 'not-a-url', apiKey: 'key',
-      })).rejects.toThrow('Invalid base URL format')
+      await expect(
+        service.createProvider({
+          name: 'Bad',
+          provider: 'openai' as const,
+          baseUrl: 'not-a-url',
+          apiKey: 'key',
+        }),
+      ).rejects.toThrow('Invalid base URL format')
     })
 
     it('accepts input when baseUrl is not provided (defaults will apply)', async () => {
@@ -71,9 +83,12 @@ describe('ModelProviderService', () => {
         apiKey: 'sk-test',
       }
       mockRepo.createProvider.mockResolvedValue({
-        id: 'prov-1', ...input, isActive: false,
+        id: 'prov-1',
+        ...input,
+        isActive: false,
         models: [],
-        createdAt: new Date(), updatedAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
 
       const result = await service.createProvider(input)
@@ -114,7 +129,12 @@ describe('ModelProviderService', () => {
 
   describe('updateProvider', () => {
     it('updates a provider', async () => {
-      const existing = { id: 'prov-1', name: 'OpenAI', isActive: false, apiKey: Buffer.from('old-key').toString('base64') }
+      const existing = {
+        id: 'prov-1',
+        name: 'OpenAI',
+        isActive: false,
+        apiKey: Buffer.from('old-key').toString('base64'),
+      }
       mockRepo.getProvider.mockResolvedValue(existing)
       mockRepo.updateProvider.mockResolvedValue({ ...existing, isActive: true })
 

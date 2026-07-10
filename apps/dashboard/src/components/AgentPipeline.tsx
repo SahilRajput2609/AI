@@ -16,7 +16,7 @@ interface AgentPipelineProps {
 }
 
 const agentIcons: Record<string, string> = {
-  'Planner': '📋',
+  Planner: '📋',
   'UI Designer': '🎨',
   'Frontend Developer': '💻',
   'Backend Developer': '⚙️',
@@ -50,29 +50,33 @@ export function AgentPipeline({ steps, isRunning }: AgentPipelineProps) {
               step.status === 'running'
                 ? 'bg-[#7C6BFF]/5 border border-[#7C6BFF]/20'
                 : step.status === 'completed'
-                ? 'bg-[#22C55E]/5 border border-[#22C55E]/10'
-                : step.status === 'failed'
-                ? 'bg-[#EF4444]/5 border border-[#EF4444]/10'
-                : 'bg-transparent border border-transparent'
+                  ? 'bg-[#22C55E]/5 border border-[#22C55E]/10'
+                  : step.status === 'failed'
+                    ? 'bg-[#EF4444]/5 border border-[#EF4444]/10'
+                    : 'bg-transparent border border-transparent'
             }`}
           >
             {/* Connector line */}
             {i < steps.length - 1 && (
-              <div className={`absolute left-[22px] top-10 w-[1px] h-[calc(100%+4px)] ${
-                step.status === 'completed' ? 'bg-[#22C55E]/30' : 'bg-[#202020]'
-              }`} />
+              <div
+                className={`absolute left-[22px] top-10 w-[1px] h-[calc(100%+4px)] ${
+                  step.status === 'completed' ? 'bg-[#22C55E]/30' : 'bg-[#202020]'
+                }`}
+              />
             )}
 
             {/* Icon */}
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm flex-shrink-0 ${
-              step.status === 'completed'
-                ? 'bg-[#22C55E]/10'
-                : step.status === 'failed'
-                ? 'bg-[#EF4444]/10'
-                : step.status === 'running'
-                ? 'bg-[#7C6BFF]/10'
-                : 'bg-[#151515]'
-            }`}>
+            <div
+              className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm flex-shrink-0 ${
+                step.status === 'completed'
+                  ? 'bg-[#22C55E]/10'
+                  : step.status === 'failed'
+                    ? 'bg-[#EF4444]/10'
+                    : step.status === 'running'
+                      ? 'bg-[#7C6BFF]/10'
+                      : 'bg-[#151515]'
+              }`}
+            >
               {step.status === 'completed' ? (
                 <CheckCircle size={16} className="text-[#22C55E]" />
               ) : step.status === 'failed' ? (
@@ -87,22 +91,27 @@ export function AgentPipeline({ steps, isRunning }: AgentPipelineProps) {
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <p className={`text-xs font-medium ${
-                  step.status === 'completed' ? 'text-[#22C55E]'
-                    : step.status === 'failed' ? 'text-[#EF4444]'
-                    : step.status === 'running' ? 'text-[#7C6BFF]'
-                    : 'text-[#A1A1AA]'
-                }`}>
+                <p
+                  className={`text-xs font-medium ${
+                    step.status === 'completed'
+                      ? 'text-[#22C55E]'
+                      : step.status === 'failed'
+                        ? 'text-[#EF4444]'
+                        : step.status === 'running'
+                          ? 'text-[#7C6BFF]'
+                          : 'text-[#A1A1AA]'
+                  }`}
+                >
                   {step.name}
                 </p>
-                {step.duration && (
-                  <span className="text-[10px] text-[#6B7280]">{step.duration}</span>
-                )}
+                {step.duration && <span className="text-[10px] text-[#6B7280]">{step.duration}</span>}
               </div>
               {step.logs && step.logs.length > 0 && (
                 <div className="mt-1 space-y-0.5">
                   {step.logs.slice(-3).map((log, j) => (
-                    <p key={j} className="text-[10px] text-[#6B7280] font-mono leading-tight">{log}</p>
+                    <p key={j} className="text-[10px] text-[#6B7280] font-mono leading-tight">
+                      {log}
+                    </p>
                   ))}
                 </div>
               )}

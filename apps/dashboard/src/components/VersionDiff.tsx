@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react'
 import {
-  ArrowLeft, ArrowRight, GitCompare, RotateCcw,
-  Plus, Minus, Edit3, FileCode, CheckCircle,
+  ArrowLeft,
+  ArrowRight,
+  GitCompare,
+  RotateCcw,
+  Plus,
+  Minus,
+  Edit3,
+  FileCode,
+  CheckCircle,
   Loader2,
 } from 'lucide-react'
 import { clsx } from './utils/clsx'
@@ -22,20 +29,29 @@ export function VersionDiff({ projectId, onClose }: VersionDiffProps) {
   const [loading, setLoading] = useState(true)
   const [selectedA, setSelectedA] = useState<string | null>(null)
   const [selectedB, setSelectedB] = useState<string | null>(null)
-  const [diff, setDiff] = useState<{ versionA: any; versionB: any; changes: DiffChange[]; summary: { added: number; removed: number; modified: number; unchanged: number; total: number } } | null>(null)
+  const [diff, setDiff] = useState<{
+    versionA: any
+    versionB: any
+    changes: DiffChange[]
+    summary: { added: number; removed: number; modified: number; unchanged: number; total: number }
+  } | null>(null)
   const [diffLoading, setDiffLoading] = useState(false)
   const [restoring, setRestoring] = useState<string | null>(null)
 
   useEffect(() => {
-    api.getVersions(projectId).then(data => {
-      setVersions(data)
-      if (data.length >= 2) {
-        setSelectedA(data[1].id)
-        setSelectedB(data[0].id)
-      } else if (data.length === 1) {
-        setSelectedA(data[0].id)
-      }
-    }).catch(() => {}).finally(() => setLoading(false))
+    api
+      .getVersions(projectId)
+      .then((data) => {
+        setVersions(data)
+        if (data.length >= 2) {
+          setSelectedA(data[1].id)
+          setSelectedB(data[0].id)
+        } else if (data.length === 1) {
+          setSelectedA(data[0].id)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [projectId])
 
   const handleCompare = async () => {
@@ -44,21 +60,30 @@ export function VersionDiff({ projectId, onClose }: VersionDiffProps) {
     try {
       const result = await api.diffVersions(selectedA, selectedB)
       setDiff(result)
-    } catch {} finally { setDiffLoading(false) }
+    } catch {
+    } finally {
+      setDiffLoading(false)
+    }
   }
 
   const handleRestore = async (versionId: string) => {
     setRestoring(versionId)
     try {
       await api.restoreVersion(versionId)
-    } catch {} finally { setRestoring(null) }
+    } catch {
+    } finally {
+      setRestoring(null)
+    }
   }
 
   return (
     <div className="h-full flex flex-col bg-[#000000]">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[#202020] bg-[#0A0A0A] flex-shrink-0">
-        <button onClick={onClose} className="p-1 rounded text-[#6B7280] hover:text-white hover:bg-[#151515] transition-all">
+        <button
+          onClick={onClose}
+          className="p-1 rounded text-[#6B7280] hover:text-white hover:bg-[#151515] transition-all"
+        >
           <ArrowLeft size={15} />
         </button>
         <GitCompare size={14} className="text-[#7C6BFF]" />
@@ -86,8 +111,10 @@ export function VersionDiff({ projectId, onClose }: VersionDiffProps) {
                 onChange={(e) => setSelectedA(e.target.value)}
                 className="w-full bg-[#080808] border border-[#202020] rounded-lg px-2 py-1.5 text-xs text-white outline-none"
               >
-                {versions.map(v => (
-                  <option key={v.id} value={v.id}>v{v.version_number} - {v.title}</option>
+                {versions.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    v{v.version_number} - {v.title}
+                  </option>
                 ))}
               </select>
             </div>
@@ -99,8 +126,10 @@ export function VersionDiff({ projectId, onClose }: VersionDiffProps) {
                 onChange={(e) => setSelectedB(e.target.value)}
                 className="w-full bg-[#080808] border border-[#202020] rounded-lg px-2 py-1.5 text-xs text-white outline-none"
               >
-                {versions.map(v => (
-                  <option key={v.id} value={v.id}>v{v.version_number} - {v.title}</option>
+                {versions.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    v{v.version_number} - {v.title}
+                  </option>
                 ))}
               </select>
             </div>
@@ -121,11 +150,35 @@ export function VersionDiff({ projectId, onClose }: VersionDiffProps) {
                 {/* Summary cards */}
                 <div className="grid grid-cols-4 gap-2">
                   {[
-                    { label: 'Added', count: diff.summary.added, color: 'text-[#22C55E]', bg: 'bg-[#22C55E]/10', icon: Plus },
-                    { label: 'Removed', count: diff.summary.removed, color: 'text-[#EF4444]', bg: 'bg-[#EF4444]/10', icon: Minus },
-                    { label: 'Modified', count: diff.summary.modified, color: 'text-[#FACC15]', bg: 'bg-[#FACC15]/10', icon: Edit3 },
-                    { label: 'Unchanged', count: diff.summary.unchanged, color: 'text-[#6B7280]', bg: 'bg-[#6B7280]/10', icon: CheckCircle },
-                  ].map(s => (
+                    {
+                      label: 'Added',
+                      count: diff.summary.added,
+                      color: 'text-[#22C55E]',
+                      bg: 'bg-[#22C55E]/10',
+                      icon: Plus,
+                    },
+                    {
+                      label: 'Removed',
+                      count: diff.summary.removed,
+                      color: 'text-[#EF4444]',
+                      bg: 'bg-[#EF4444]/10',
+                      icon: Minus,
+                    },
+                    {
+                      label: 'Modified',
+                      count: diff.summary.modified,
+                      color: 'text-[#FACC15]',
+                      bg: 'bg-[#FACC15]/10',
+                      icon: Edit3,
+                    },
+                    {
+                      label: 'Unchanged',
+                      count: diff.summary.unchanged,
+                      color: 'text-[#6B7280]',
+                      bg: 'bg-[#6B7280]/10',
+                      icon: CheckCircle,
+                    },
+                  ].map((s) => (
                     <div key={s.label} className={`${s.bg} rounded-xl p-3`}>
                       <div className="flex items-center gap-1.5 mb-1">
                         <s.icon size={12} className={s.color} />
@@ -137,24 +190,35 @@ export function VersionDiff({ projectId, onClose }: VersionDiffProps) {
                 </div>
 
                 {/* Changed files list */}
-                {diff.changes.filter(c => c.type !== 'unchanged').length > 0 && (
+                {diff.changes.filter((c) => c.type !== 'unchanged').length > 0 && (
                   <div>
                     <h4 className="text-xs font-medium text-[#A1A1AA] mb-2">Changed Files</h4>
                     <div className="space-y-0.5">
-                      {diff.changes.filter(c => c.type !== 'unchanged').map(change => (
-                        <div key={change.path} className={clsx(
-                          'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs',
-                          change.type === 'added' ? 'bg-[#22C55E]/5 text-[#22C55E]'
-                            : change.type === 'removed' ? 'bg-[#EF4444]/5 text-[#EF4444]'
-                            : 'bg-[#FACC15]/5 text-[#FACC15]',
-                        )}>
-                          {change.type === 'added' ? <Plus size={12} />
-                            : change.type === 'removed' ? <Minus size={12} />
-                            : <Edit3 size={12} />}
-                          <FileCode size={12} className="opacity-50" />
-                          <span className="font-mono">{change.path}</span>
-                        </div>
-                      ))}
+                      {diff.changes
+                        .filter((c) => c.type !== 'unchanged')
+                        .map((change) => (
+                          <div
+                            key={change.path}
+                            className={clsx(
+                              'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs',
+                              change.type === 'added'
+                                ? 'bg-[#22C55E]/5 text-[#22C55E]'
+                                : change.type === 'removed'
+                                  ? 'bg-[#EF4444]/5 text-[#EF4444]'
+                                  : 'bg-[#FACC15]/5 text-[#FACC15]',
+                            )}
+                          >
+                            {change.type === 'added' ? (
+                              <Plus size={12} />
+                            ) : change.type === 'removed' ? (
+                              <Minus size={12} />
+                            ) : (
+                              <Edit3 size={12} />
+                            )}
+                            <FileCode size={12} className="opacity-50" />
+                            <span className="font-mono">{change.path}</span>
+                          </div>
+                        ))}
                     </div>
                   </div>
                 )}

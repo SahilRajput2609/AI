@@ -1,14 +1,37 @@
 import { useState, useEffect } from 'react'
-import { ClipboardList, GitBranch, Code, Search, Crown, Bot, Database, Globe, FileText, TestTube, Bug, Cloud } from 'lucide-react'
+import {
+  ClipboardList,
+  GitBranch,
+  Code,
+  Search,
+  Crown,
+  Bot,
+  Database,
+  Globe,
+  FileText,
+  TestTube,
+  Bug,
+  Cloud,
+} from 'lucide-react'
 import { AgentCard } from './AgentCard'
 import { api as apiClient } from '../../lib/api'
 import { SkeletonCard } from '../ui/Skeleton'
 import type { LucideIcon } from 'lucide-react'
 
 const iconMap: Record<string, LucideIcon> = {
-  owner: Crown, planner: ClipboardList, orchestrator: GitBranch, coder: Code,
-  reviewer: Search, frontend: Code, backend: Bot, api: Globe, database: Database,
-  qa: TestTube, debugger: Bug, devops: Cloud, documentation: FileText,
+  owner: Crown,
+  planner: ClipboardList,
+  orchestrator: GitBranch,
+  coder: Code,
+  reviewer: Search,
+  frontend: Code,
+  backend: Bot,
+  api: Globe,
+  database: Database,
+  qa: TestTube,
+  debugger: Bug,
+  devops: Cloud,
+  documentation: FileText,
 }
 
 export function AgentFlowCanvas() {
@@ -16,12 +39,21 @@ export function AgentFlowCanvas() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    apiClient.getAgents().then(setAgents).catch(() => {}).finally(() => setLoading(false))
-    const interval = setInterval(() => { apiClient.getAgents().then(setAgents).catch(() => {}) }, 5000)
+    apiClient
+      .getAgents()
+      .then(setAgents)
+      .catch(() => {})
+      .finally(() => setLoading(false))
+    const interval = setInterval(() => {
+      apiClient
+        .getAgents()
+        .then(setAgents)
+        .catch(() => {})
+    }, 5000)
     return () => clearInterval(interval)
   }, [])
 
-  const mainCards = agents.filter(a => ['owner', 'planner', 'orchestrator', 'coder', 'reviewer'].includes(a.role))
+  const mainCards = agents.filter((a) => ['owner', 'planner', 'orchestrator', 'coder', 'reviewer'].includes(a.role))
   const displayCards = mainCards.length > 0 ? mainCards : []
 
   if (loading) {
@@ -39,28 +71,46 @@ export function AgentFlowCanvas() {
           {displayCards.length > 0 ? (
             displayCards.slice(0, 5).map((agent, i) => {
               const Icon = iconMap[agent.role]
-              const isRunning = agent.status === 'running'
-              const isOnline = agent.status === 'online'
+              const statusMap: Record<string, 'online' | 'offline' | 'busy' | 'idle' | 'running'> = {
+                running: 'running',
+                online: 'online',
+                idle: 'idle',
+                offline: 'offline',
+                busy: 'busy',
+              }
+              const mappedStatus = statusMap[agent.status] || 'idle'
               return (
                 <div key={agent.id} className={i === 2 ? 'col-span-2' : ''}>
                   <AgentCard
                     title={agent.name || agent.role}
                     subtitle={agent.currentTask || agent.status || 'idle'}
                     icon={Icon}
-                    status={isRunning ? 'running' : isOnline ? 'online' : 'idle'}
+                    status={mappedStatus}
                   />
                 </div>
               )
             })
           ) : (
             <>
-              <AgentCard title="Owner" subtitle="You are in control" icon={Crown} status="online" />
-              <AgentCard title="Planner" subtitle="Waiting for tasks" icon={ClipboardList} status="idle" />
+              <AgentCard title="Owner" subtitle="You are in control" icon={Crown} status="online" id="owner" />
+              <AgentCard
+                title="Planner"
+                subtitle="Waiting for tasks"
+                icon={ClipboardList}
+                status="offline"
+                id="planner"
+              />
               <div className="col-span-2">
-                <AgentCard title="Orchestrator" subtitle="Waiting for dispatch" icon={GitBranch} status="idle" />
+                <AgentCard
+                  title="Orchestrator"
+                  subtitle="Waiting for dispatch"
+                  icon={GitBranch}
+                  status="offline"
+                  id="orchestrator"
+                />
               </div>
-              <AgentCard title="Coder" subtitle="Ready" icon={Code} status="idle" />
-              <AgentCard title="Reviewer" subtitle="Ready" icon={Search} status="idle" />
+              <AgentCard title="Coder" subtitle="Ready" icon={Code} status="offline" id="coder" />
+              <AgentCard title="Reviewer" subtitle="Ready" icon={Search} status="offline" id="reviewer" />
             </>
           )}
         </div>

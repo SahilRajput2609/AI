@@ -33,7 +33,14 @@ describe('NotificationService', () => {
     const broadcastFn = vi.fn()
     service.setBroadcastFunction(broadcastFn)
 
-    const notif = { id: 'notif-1', type: 'warning', title: 'Alert', message: 'Warning!', read: false, timestamp: new Date() }
+    const notif = {
+      id: 'notif-1',
+      type: 'warning',
+      title: 'Alert',
+      message: 'Warning!',
+      read: false,
+      timestamp: new Date(),
+    }
     mockRepo.create.mockResolvedValue(notif)
 
     await service.createNotification({ type: 'warning', title: 'Alert', message: 'Warning!' })
@@ -41,7 +48,14 @@ describe('NotificationService', () => {
   })
 
   it('does not broadcast when no function set', async () => {
-    mockRepo.create.mockResolvedValue({ id: 'notif-1', type: 'info', title: 'Test', message: '', read: false, timestamp: new Date() })
+    mockRepo.create.mockResolvedValue({
+      id: 'notif-1',
+      type: 'info',
+      title: 'Test',
+      message: '',
+      read: false,
+      timestamp: new Date(),
+    })
 
     const result = await service.createNotification({ type: 'info', title: 'Test', message: '' })
     expect(result).toBeTruthy()

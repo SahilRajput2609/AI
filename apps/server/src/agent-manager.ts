@@ -12,23 +12,55 @@ import { QA } from '../../../agents/qa/qa'
 import { Reviewer } from '../../../agents/reviewer/reviewer'
 
 export type AgentRole =
-  | 'owner' | 'planner' | 'orchestrator'
-  | 'api' | 'backend' | 'database' | 'debugger' | 'devops'
-  | 'documentation' | 'frontend' | 'qa' | 'reviewer'
+  | 'owner'
+  | 'planner'
+  | 'orchestrator'
+  | 'api'
+  | 'backend'
+  | 'database'
+  | 'debugger'
+  | 'devops'
+  | 'documentation'
+  | 'frontend'
+  | 'qa'
+  | 'reviewer'
 
 export type AgentAction =
-  | 'createEndpoint' | 'deployEndpoint' | 'listEndpoints'
-  | 'createService' | 'implementService'
-  | 'designSchema' | 'createMigration' | 'optimizeQuery'
-  | 'analyzeError' | 'suggestFix' | 'applyFix'
-  | 'deploy' | 'configureCI' | 'rollback'
-  | 'generateDocs' | 'updateDocs' | 'reviewDocs'
-  | 'createComponent' | 'implementFeature' | 'styleComponent'
-  | 'writeTests' | 'runTests' | 'validateCoverage'
-  | 'reviewCode' | 'approveChanges' | 'requestChanges'
-  | 'createAndSubmitTask' | 'approveTask' | 'rejectTask'
-  | 'createExecutionPlan' | 'addTask' | 'finalizePlan'
-  | 'handleOwnerTask' | 'dispatchTasks' | 'completeAndReview'
+  | 'createEndpoint'
+  | 'deployEndpoint'
+  | 'listEndpoints'
+  | 'createService'
+  | 'implementService'
+  | 'designSchema'
+  | 'createMigration'
+  | 'optimizeQuery'
+  | 'analyzeError'
+  | 'suggestFix'
+  | 'applyFix'
+  | 'deploy'
+  | 'configureCI'
+  | 'rollback'
+  | 'generateDocs'
+  | 'updateDocs'
+  | 'reviewDocs'
+  | 'createComponent'
+  | 'implementFeature'
+  | 'styleComponent'
+  | 'writeTests'
+  | 'runTests'
+  | 'validateCoverage'
+  | 'reviewCode'
+  | 'approveChanges'
+  | 'requestChanges'
+  | 'createAndSubmitTask'
+  | 'approveTask'
+  | 'rejectTask'
+  | 'createExecutionPlan'
+  | 'addTask'
+  | 'finalizePlan'
+  | 'handleOwnerTask'
+  | 'dispatchTasks'
+  | 'completeAndReview'
 
 interface AgentInfo {
   id: string
@@ -57,7 +89,12 @@ export class AgentManager {
     this.register('database', 'Database Agent', ['schema-design', 'migrations', 'query-optimization'], new Database())
     this.register('debugger', 'Debugger', ['error-analysis', 'debugging', 'fix-suggestion'], new Debugger())
     this.register('devops', 'DevOps Agent', ['deployment', 'ci-cd', 'infrastructure'], new DevOps())
-    this.register('documentation', 'Documentation Agent', ['docs-generation', 'readme', 'api-docs'], new Documentation())
+    this.register(
+      'documentation',
+      'Documentation Agent',
+      ['docs-generation', 'readme', 'api-docs'],
+      new Documentation(),
+    )
     this.register('frontend', 'Frontend Agent', ['ui-components', 'styling', 'frontend-logic'], new Frontend())
     this.register('qa', 'QA Agent', ['testing', 'coverage', 'quality'], new QA())
     this.register('reviewer', 'Reviewer', ['code-review', 'quality-check', 'feedback'], new Reviewer())
@@ -87,10 +124,14 @@ export class AgentManager {
     for (const [, info] of this.agents) {
       const instance = info.instance as any
       const state = instance.service?.getState?.()
-      const status = info.role === 'orchestrator' ? 'running'
-        : info.role === 'owner' ? 'online'
-        : state?.activePlanId ? 'running'
-        : 'idle'
+      const status =
+        info.role === 'orchestrator'
+          ? 'running'
+          : info.role === 'owner'
+            ? 'online'
+            : state?.activePlanId
+              ? 'running'
+              : 'idle'
       result.push({ id: info.id, role: info.role, name: info.name, capabilities: info.capabilities, status })
     }
     return result
@@ -100,9 +141,15 @@ export class AgentManager {
     return this.agents.get(role)
   }
 
-  getOwner(): Owner { return this.owner }
-  getPlanner(): Planner { return this.planner }
-  getOrchestrator(): Orchestrator { return this.orchestrator }
+  getOwner(): Owner {
+    return this.owner
+  }
+  getPlanner(): Planner {
+    return this.planner
+  }
+  getOrchestrator(): Orchestrator {
+    return this.orchestrator
+  }
   getOrchestratorService() {
     return (this.orchestrator as any).service
   }
@@ -119,7 +166,7 @@ export class AgentManager {
       qa: 'writeTests',
       reviewer: 'reviewCode',
     }
-    return roleActions[role] || 'completeAndReview' as AgentAction
+    return roleActions[role] || ('completeAndReview' as AgentAction)
   }
 
   dispatch(role: AgentRole, action: AgentAction, payload: Record<string, any>): any {

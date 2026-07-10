@@ -28,7 +28,7 @@ export class ActivityRepository {
       activity.title,
       activity.description || null,
       JSON.stringify(activity.metadata || {}),
-      activity.created_at
+      activity.created_at,
     )
 
     return activity
@@ -49,7 +49,7 @@ export class ActivityRepository {
       LIMIT ?
     `)
     const rows = stmt.all(projectId, limit) as any[]
-    return rows.map(row => this.mapRowToActivity(row))
+    return rows.map((row) => this.mapRowToActivity(row))
   }
 
   findByAgent(agentId: string, limit = 50): Activity[] {
@@ -60,7 +60,7 @@ export class ActivityRepository {
       LIMIT ?
     `)
     const rows = stmt.all(agentId, limit) as any[]
-    return rows.map(row => this.mapRowToActivity(row))
+    return rows.map((row) => this.mapRowToActivity(row))
   }
 
   findByType(projectId: string, type: Activity['type'], limit = 50): Activity[] {
@@ -71,7 +71,7 @@ export class ActivityRepository {
       LIMIT ?
     `)
     const rows = stmt.all(projectId, type, limit) as any[]
-    return rows.map(row => this.mapRowToActivity(row))
+    return rows.map((row) => this.mapRowToActivity(row))
   }
 
   delete(id: string): boolean {

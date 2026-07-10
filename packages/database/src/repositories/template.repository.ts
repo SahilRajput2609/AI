@@ -6,7 +6,9 @@ import { getDatabase } from '../database.js'
 export class TemplateRepository {
   constructor(private db: Database.Database = getDatabase().getDb()) {}
 
-  create(data: Omit<Template, 'id' | 'created_at' | 'updated_at' | 'usage_count' | 'type'> & { type?: string }): Template {
+  create(
+    data: Omit<Template, 'id' | 'created_at' | 'updated_at' | 'usage_count' | 'type'> & { type?: string },
+  ): Template {
     const now = Date.now()
     const template: Template = {
       id: generateId('tpl'),
@@ -23,10 +25,16 @@ export class TemplateRepository {
     `)
 
     stmt.run(
-      template.id, template.name, template.description || null,
-      template.category, template.type, template.config,
-      template.is_built_in ? 1 : 0, template.usage_count,
-      template.created_at, template.updated_at
+      template.id,
+      template.name,
+      template.description || null,
+      template.category,
+      template.type,
+      template.config,
+      template.is_built_in ? 1 : 0,
+      template.usage_count,
+      template.created_at,
+      template.updated_at,
     )
 
     return template
@@ -34,13 +42,13 @@ export class TemplateRepository {
 
   findAll(category?: string): Template[] {
     if (category) {
-      return this.db.prepare(
-        'SELECT * FROM templates WHERE category = ? ORDER BY usage_count DESC, name ASC'
-      ).all(category) as Template[]
+      return this.db
+        .prepare('SELECT * FROM templates WHERE category = ? ORDER BY usage_count DESC, name ASC')
+        .all(category) as Template[]
     }
-    return this.db.prepare(
-      'SELECT * FROM templates ORDER BY is_built_in DESC, usage_count DESC, name ASC'
-    ).all() as Template[]
+    return this.db
+      .prepare('SELECT * FROM templates ORDER BY is_built_in DESC, usage_count DESC, name ASC')
+      .all() as Template[]
   }
 
   findById(id: string): Template | null {
@@ -73,7 +81,7 @@ export class TemplateRepository {
       updated.is_built_in ? 1 : 0,
       updated.usage_count,
       Date.now(),
-      id
+      id,
     )
 
     return updated

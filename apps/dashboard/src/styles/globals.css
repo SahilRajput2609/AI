@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 * {
   margin: 0;
@@ -32,11 +32,11 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #7C6BFF;
+  background: #7c6bff;
 }
 
 ::selection {
-  background-color: #7C6BFF;
+  background-color: #7c6bff;
   color: #ffffff;
 }
 

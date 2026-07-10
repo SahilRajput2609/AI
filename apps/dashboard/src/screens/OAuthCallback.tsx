@@ -25,7 +25,10 @@ export function OAuthCallback() {
     }
 
     if (!code || !state) {
-      window.opener?.postMessage({ type: 'oauth:error', error: 'Missing authorization code or state' }, window.location.origin)
+      window.opener?.postMessage(
+        { type: 'oauth:error', error: 'Missing authorization code or state' },
+        window.location.origin,
+      )
       window.close()
       return
     }
@@ -34,16 +37,13 @@ export function OAuthCallback() {
 
     loginFn(code)
       .then((res) => {
-        window.opener?.postMessage(
-          { type: 'oauth:success', token: res.token, user: res.user },
-          window.location.origin
-        )
+        window.opener?.postMessage({ type: 'oauth:success', token: res.token, user: res.user }, window.location.origin)
         window.close()
       })
       .catch((err: Error) => {
         window.opener?.postMessage(
           { type: 'oauth:error', error: err.message || 'OAuth login failed' },
-          window.location.origin
+          window.location.origin,
         )
         window.close()
       })

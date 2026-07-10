@@ -20,7 +20,7 @@ export function Terminal() {
   useEffect(() => {
     if (logs.length > 0) {
       setDisplayLines((prev) =>
-        [...prev, ...logs.map((l) => ({ prefix: l.prefix, text: l.text, color: l.color }))].slice(-100)
+        [...prev, ...logs.map((l) => ({ prefix: l.prefix, text: l.text, color: l.color }))].slice(-100),
       )
     }
   }, [logs])
@@ -45,9 +45,7 @@ export function Terminal() {
             )}
           >
             {tab}
-            {activeTab === tab && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full" />
-            )}
+            {activeTab === tab && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full" />}
           </button>
         ))}
       </div>
@@ -56,9 +54,7 @@ export function Terminal() {
       <div className="flex-1 p-4 overflow-auto font-mono text-xs leading-relaxed">
         {displayLines.map((line, i) => (
           <div key={i} className="flex">
-            {line.prefix && (
-              <span className={clsx('w-4 flex-shrink-0', line.color)}>{line.prefix}</span>
-            )}
+            {line.prefix && <span className={clsx('w-4 flex-shrink-0', line.color)}>{line.prefix}</span>}
             <span className={clsx(line.color || 'text-[#A8A8A8]')}>{line.text}</span>
           </div>
         ))}

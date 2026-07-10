@@ -3,7 +3,7 @@ import { initialColumns, priorityConfig } from './kanban'
 
 describe('kanban data', () => {
   it('has kanban columns', () => {
-    const ids = initialColumns.map(c => c.id)
+    const ids = initialColumns.map((c) => c.id)
     expect(ids).toContain('pending')
     expect(ids).toContain('in_progress')
     expect(ids).toContain('completed')

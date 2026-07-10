@@ -2,8 +2,18 @@ import { Router } from 'express'
 import { AgentConfigRepository, getDatabase } from '@ai-company/database'
 
 const ALL_ROLES = [
-  'owner', 'planner', 'orchestrator', 'api', 'backend', 'database',
-  'debugger', 'devops', 'documentation', 'frontend', 'qa', 'reviewer',
+  'owner',
+  'planner',
+  'orchestrator',
+  'api',
+  'backend',
+  'database',
+  'debugger',
+  'devops',
+  'documentation',
+  'frontend',
+  'qa',
+  'reviewer',
 ]
 
 export const agentConfigsRouter = Router()
@@ -16,7 +26,7 @@ agentConfigsRouter.get('/', (_req, res) => {
 
 agentConfigsRouter.get('/defaults', (_req, res) => {
   res.json(
-    ALL_ROLES.map(role => ({
+    ALL_ROLES.map((role) => ({
       role,
       name: role.charAt(0).toUpperCase() + role.slice(1),
       api_key: '',
@@ -25,7 +35,7 @@ agentConfigsRouter.get('/defaults', (_req, res) => {
       temperature: 0.7,
       max_tokens: 4096,
       is_active: true,
-    }))
+    })),
   )
 })
 

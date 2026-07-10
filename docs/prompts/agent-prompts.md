@@ -16,6 +16,7 @@ Output: <structured response>
 To customize an agent's prompt, modify the corresponding entry in `configs/prompts/system.json` or use the Agent Configuration screen in the dashboard to set custom parameters.
 
 ## Best Practices
+
 - Keep prompts concise and role-specific
 - Include output format expectations
 - Reference project conventions where applicable

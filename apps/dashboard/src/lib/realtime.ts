@@ -39,11 +39,11 @@ export function useRealtime() {
   const reconnectRef = useRef(0)
 
   const addNotification = useCallback((notif: RealtimeNotification) => {
-    setNotifications(prev => [notif, ...prev].slice(0, 5))
+    setNotifications((prev) => [notif, ...prev].slice(0, 5))
   }, [])
 
   const addLog = useCallback((log: RealtimeLog) => {
-    setLogs(prev => [...prev, log].slice(-100))
+    setLogs((prev) => [...prev, log].slice(-100))
   }, [])
 
   const connect = useCallback(() => {
@@ -70,14 +70,34 @@ export function useRealtime() {
             addNotification({
               id: `notif-${Date.now()}`,
               type: data.type === 'task:failed' ? 'error' : data.type === 'task:completed' ? 'success' : 'info',
-              title: data.type === 'task:created' ? 'Task Created' : data.type === 'task:completed' ? 'Task Completed' : 'Task Failed',
-              message: data.type === 'task:created' ? `New task "${data.task?.title || ''}" created` : data.type === 'task:completed' ? 'Task completed successfully' : 'Task execution failed',
+              title:
+                data.type === 'task:created'
+                  ? 'Task Created'
+                  : data.type === 'task:completed'
+                    ? 'Task Completed'
+                    : 'Task Failed',
+              message:
+                data.type === 'task:created'
+                  ? `New task "${data.task?.title || ''}" created`
+                  : data.type === 'task:completed'
+                    ? 'Task completed successfully'
+                    : 'Task execution failed',
               time: 'just now',
             })
             addLog({
               prefix: data.type === 'task:failed' ? '✗' : '✓',
-              text: data.type === 'task:created' ? `Task created: ${data.task?.title || ''}` : data.type === 'task:completed' ? 'Task completed' : 'Task failed',
-              color: data.type === 'task:failed' ? 'text-accent-error' : data.type === 'task:completed' ? 'text-accent-success' : 'text-text-secondary',
+              text:
+                data.type === 'task:created'
+                  ? `Task created: ${data.task?.title || ''}`
+                  : data.type === 'task:completed'
+                    ? 'Task completed'
+                    : 'Task failed',
+              color:
+                data.type === 'task:failed'
+                  ? 'text-accent-error'
+                  : data.type === 'task:completed'
+                    ? 'text-accent-success'
+                    : 'text-text-secondary',
             })
             break
           case 'plan:created':
@@ -86,12 +106,13 @@ export function useRealtime() {
               id: `notif-${Date.now()}`,
               type: 'info',
               title: 'Plan Updated',
-              message: data.type === 'plan:created' ? 'New execution plan created' : 'Execution plan finalized and dispatched',
+              message:
+                data.type === 'plan:created' ? 'New execution plan created' : 'Execution plan finalized and dispatched',
               time: 'just now',
             })
             break
           case 'chat:message':
-            setChatMessages(prev => [...prev, data.message])
+            setChatMessages((prev) => [...prev, data.message])
             break
           case 'agent:dispatched':
             addLog({
@@ -145,7 +166,7 @@ export function useRealtime() {
     chatMessages,
     lastFileSaved,
     addNotification,
-    removeNotification: (id: string) => setNotifications(prev => prev.filter(n => n.id !== id)),
+    removeNotification: (id: string) => setNotifications((prev) => prev.filter((n) => n.id !== id)),
     clearNotifications: () => setNotifications([]),
     clearLogs: () => setLogs([]),
   }

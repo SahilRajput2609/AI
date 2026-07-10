@@ -8,19 +8,19 @@ const settingsService = new SettingsService(db.getDb())
 export const settingsRouter = Router()
 
 // Get user settings (requires auth)
-settingsRouter.get('/me', requireAuth, (req: AuthRequest, res) => {
+settingsRouter.get('/me', requireAuth, async (req: AuthRequest, res) => {
   const userId = req.user?.id
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' })
     return
   }
 
-  const settings = settingsService.getOrCreateSettings(userId)
+  const settings = await settingsService.getOrCreateSettings(userId)
   res.json(settings)
 })
 
 // Update user settings
-settingsRouter.put('/me', requireAuth, (req: AuthRequest, res) => {
+settingsRouter.put('/me', requireAuth, async (req: AuthRequest, res) => {
   const userId = req.user?.id
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' })
@@ -50,12 +50,12 @@ settingsRouter.put('/me', requireAuth, (req: AuthRequest, res) => {
   if (modelPreferences !== undefined) updates.modelPreferences = modelPreferences
   if (agentPreferences !== undefined) updates.agentPreferences = agentPreferences
 
-  const settings = settingsService.updateSettings(userId, updates)
+  const settings = await settingsService.updateSettings(userId, updates)
   res.json(settings)
 })
 
 // Update specific setting sections
-settingsRouter.put('/me/theme', requireAuth, (req: AuthRequest, res) => {
+settingsRouter.put('/me/theme', requireAuth, async (req: AuthRequest, res) => {
   const userId = req.user?.id
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' })
@@ -68,22 +68,22 @@ settingsRouter.put('/me/theme', requireAuth, (req: AuthRequest, res) => {
     return
   }
 
-  const settings = settingsService.updateTheme(userId, theme)
+  const settings = await settingsService.updateTheme(userId, theme)
   res.json(settings)
 })
 
-settingsRouter.put('/me/notifications', requireAuth, (req: AuthRequest, res) => {
+settingsRouter.put('/me/notifications', requireAuth, async (req: AuthRequest, res) => {
   const userId = req.user?.id
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' })
     return
   }
 
-  const settings = settingsService.updateNotifications(userId, req.body)
+  const settings = await settingsService.updateNotifications(userId, req.body)
   res.json(settings)
 })
 
-settingsRouter.put('/me/shortcuts', requireAuth, (req: AuthRequest, res) => {
+settingsRouter.put('/me/shortcuts', requireAuth, async (req: AuthRequest, res) => {
   const userId = req.user?.id
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' })
@@ -96,17 +96,17 @@ settingsRouter.put('/me/shortcuts', requireAuth, (req: AuthRequest, res) => {
     return
   }
 
-  const settings = settingsService.updateKeyboardShortcuts(userId, shortcuts)
+  const settings = await settingsService.updateKeyboardShortcuts(userId, shortcuts)
   res.json(settings)
 })
 
-settingsRouter.put('/me/models', requireAuth, (req: AuthRequest, res) => {
+settingsRouter.put('/me/models', requireAuth, async (req: AuthRequest, res) => {
   const userId = req.user?.id
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' })
     return
   }
 
-  const settings = settingsService.updateModelPreferences(userId, req.body)
+  const settings = await settingsService.updateModelPreferences(userId, req.body)
   res.json(settings)
 })

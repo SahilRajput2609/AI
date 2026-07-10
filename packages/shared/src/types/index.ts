@@ -1,7 +1,7 @@
 // Core types shared across the entire application
 
 // Agent Types
-export type AgentRole = 
+export type AgentRole =
   | 'owner'
   | 'planner'
   | 'orchestrator'
@@ -76,7 +76,7 @@ export interface Message {
 }
 
 // Activity Timeline Types
-export type ActivityType = 
+export type ActivityType =
   | 'task_created'
   | 'task_assigned'
   | 'task_completed'
@@ -179,7 +179,7 @@ export interface SystemMetrics {
 }
 
 // WebSocket Event Types
-export type WSEventType = 
+export type WSEventType =
   | 'connected'
   | 'agent_status_changed'
   | 'task_updated'

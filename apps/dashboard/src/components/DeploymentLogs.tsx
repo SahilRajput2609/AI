@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react'
-import {
-  ArrowLeft, Terminal, Rocket, Loader2,
-  CheckCircle, XCircle, Clock,
-} from 'lucide-react'
+import { ArrowLeft, Terminal, Rocket, Loader2, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { api } from '../lib/api'
 
 interface DeploymentLogsProps {
@@ -22,7 +19,8 @@ export function DeploymentLogs({ deploymentId, onClose }: DeploymentLogsProps) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.getDeploymentLogs(deploymentId)
+    api
+      .getDeploymentLogs(deploymentId)
       .then(setLogs)
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -35,15 +33,16 @@ export function DeploymentLogs({ deploymentId, onClose }: DeploymentLogsProps) {
     <div className="h-full flex flex-col bg-[#000000]">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[#202020] bg-[#0A0A0A] flex-shrink-0">
-        <button onClick={onClose} className="p-1 rounded text-[#6B7280] hover:text-white hover:bg-[#151515] transition-all">
+        <button
+          onClick={onClose}
+          className="p-1 rounded text-[#6B7280] hover:text-white hover:bg-[#151515] transition-all"
+        >
           <ArrowLeft size={15} />
         </button>
         <Terminal size={14} className="text-[#7C6BFF]" />
         <span className="text-sm font-medium text-white">Deployment Logs</span>
         {logs && (
-          <span className={`text-[10px] px-1.5 py-0.5 rounded-full bg-current/10 ${config.color}`}>
-            {config.label}
-          </span>
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full bg-current/10 ${config.color}`}>{config.label}</span>
         )}
       </div>
 
@@ -65,10 +64,21 @@ export function DeploymentLogs({ deploymentId, onClose }: DeploymentLogsProps) {
                 const isWarn = line.toLowerCase().includes('warn') || line.toLowerCase().includes('warning')
                 const isSuccess = line.toLowerCase().includes('success') || line.toLowerCase().includes('ready')
                 return (
-                  <div key={i} className={
-                    isError ? 'text-[#EF4444]' : isWarn ? 'text-[#FACC15]' : isSuccess ? 'text-[#22C55E]' : 'text-[#A1A1AA]'
-                  }>
-                    <span className="text-[#6B7280]">{String(i + 1).padStart(3, ' ')}</span>{'  '}{line}
+                  <div
+                    key={i}
+                    className={
+                      isError
+                        ? 'text-[#EF4444]'
+                        : isWarn
+                          ? 'text-[#FACC15]'
+                          : isSuccess
+                            ? 'text-[#22C55E]'
+                            : 'text-[#A1A1AA]'
+                    }
+                  >
+                    <span className="text-[#6B7280]">{String(i + 1).padStart(3, ' ')}</span>
+                    {'  '}
+                    {line}
                   </div>
                 )
               })}

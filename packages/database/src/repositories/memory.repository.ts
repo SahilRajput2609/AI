@@ -30,7 +30,7 @@ export class MemoryRepository {
       memory.value,
       JSON.stringify(memory.metadata || {}),
       memory.created_at,
-      memory.updated_at
+      memory.updated_at,
     )
 
     return memory
@@ -62,22 +62,22 @@ export class MemoryRepository {
   findByAgent(agentId: string): Memory[] {
     const stmt = this.db.prepare('SELECT * FROM memory WHERE agent_id = ? ORDER BY updated_at DESC')
     const rows = stmt.all(agentId) as any[]
-    return rows.map(row => this.mapRowToMemory(row))
+    return rows.map((row) => this.mapRowToMemory(row))
   }
 
   findByType(type: Memory['type']): Memory[] {
     const stmt = this.db.prepare('SELECT * FROM memory WHERE type = ? ORDER BY updated_at DESC')
     const rows = stmt.all(type) as any[]
-    return rows.map(row => this.mapRowToMemory(row))
+    return rows.map((row) => this.mapRowToMemory(row))
   }
 
   upsert(data: Omit<Memory, 'id' | 'created_at' | 'updated_at'>): Memory {
     const existing = this.findByKey(data.type, data.key, data.agent_id)
-    
+
     if (existing) {
       return this.update(existing.id, { value: data.value, metadata: data.metadata })!
     }
-    
+
     return this.create(data)
   }
 
@@ -97,12 +97,7 @@ export class MemoryRepository {
       WHERE id = ?
     `)
 
-    stmt.run(
-      updated.value,
-      JSON.stringify(updated.metadata || {}),
-      updated.updated_at,
-      id
-    )
+    stmt.run(updated.value, JSON.stringify(updated.metadata || {}), updated.updated_at, id)
 
     return updated
   }

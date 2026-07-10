@@ -11,7 +11,7 @@ export class DatabaseConnection {
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true })
     }
-    
+
     this.db = new Database(dbPath)
     this.db.pragma('journal_mode = WAL')
     this.initialize()
@@ -209,8 +209,8 @@ export class DatabaseConnection {
     `)
 
     // OAuth migration: add columns if missing (for existing databases)
-    const userCols = this.db.prepare("PRAGMA table_info(users)").all() as { name: string }[]
-    const userColNames = userCols.map(c => c.name)
+    const userCols = this.db.prepare('PRAGMA table_info(users)').all() as { name: string }[]
+    const userColNames = userCols.map((c) => c.name)
     if (!userColNames.includes('oauth_provider')) {
       this.db.exec(`ALTER TABLE users ADD COLUMN oauth_provider TEXT`)
       this.db.exec(`ALTER TABLE users ADD COLUMN oauth_id TEXT`)
@@ -380,8 +380,8 @@ export class DatabaseConnection {
     `)
 
     // Add project_type column to projects if missing
-    const projCols = this.db.prepare("PRAGMA table_info(projects)").all() as { name: string }[]
-    const projColNames = projCols.map(c => c.name)
+    const projCols = this.db.prepare('PRAGMA table_info(projects)').all() as { name: string }[]
+    const projColNames = projCols.map((c) => c.name)
     if (!projColNames.includes('type')) {
       this.db.exec(`ALTER TABLE projects ADD COLUMN type TEXT NOT NULL DEFAULT 'custom'`)
     }

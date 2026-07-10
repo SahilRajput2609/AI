@@ -41,7 +41,7 @@ usersRouter.get('/:id', requireAuth, (req: AuthRequest, res) => {
   }
 
   try {
-    const user = userRepository.findById(targetId)
+    const user = userRepository.findById(targetId as string)
     if (!user) {
       res.status(404).json({ error: 'User not found' })
       return
@@ -66,7 +66,7 @@ usersRouter.delete('/:id', requireAuth, (req: AuthRequest, res) => {
   }
 
   try {
-    userRepository.delete(targetId)
+    userRepository.delete(targetId as string)
     res.json({ status: 'deleted' })
   } catch (error) {
     console.error('Error deleting user:', error)

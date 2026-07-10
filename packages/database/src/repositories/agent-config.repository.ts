@@ -6,7 +6,17 @@ import type { AgentConfig } from '../models/index.js'
 export class AgentConfigRepository {
   constructor(private db: Database.Database = getDatabase().getDb()) {}
 
-  upsert(data: { role: string; name: string; api_key?: string; base_url?: string; model?: string; temperature?: number; max_tokens?: number; is_active?: boolean; metadata?: Record<string, any> }): AgentConfig {
+  upsert(data: {
+    role: string
+    name: string
+    api_key?: string
+    base_url?: string
+    model?: string
+    temperature?: number
+    max_tokens?: number
+    is_active?: boolean
+    metadata?: Record<string, any>
+  }): AgentConfig {
     const existing = this.findByRole(data.role)
     const now = Date.now()
 
@@ -41,7 +51,7 @@ export class AgentConfigRepository {
         updated.is_active ? 1 : 0,
         JSON.stringify(updated.metadata),
         updated.updated_at,
-        updated.role
+        updated.role,
       )
 
       return updated
@@ -79,7 +89,7 @@ export class AgentConfigRepository {
       config.is_active ? 1 : 0,
       JSON.stringify(config.metadata),
       config.created_at,
-      config.updated_at
+      config.updated_at,
     )
 
     return config
@@ -95,7 +105,7 @@ export class AgentConfigRepository {
   findAll(): AgentConfig[] {
     const stmt = this.db.prepare('SELECT * FROM agent_configs ORDER BY role ASC')
     const rows = stmt.all() as any[]
-    return rows.map(row => this.mapRow(row))
+    return rows.map((row) => this.mapRow(row))
   }
 
   delete(role: string): boolean {

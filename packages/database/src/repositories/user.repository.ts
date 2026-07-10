@@ -30,16 +30,14 @@ export class UserRepository {
       user.oauth_id ?? null,
       user.avatar_url ?? null,
       user.created_at,
-      user.updated_at
+      user.updated_at,
     )
 
     return user
   }
 
   findByOAuthProvider(provider: string, oauthId: string): User | null {
-    const stmt = this.db.prepare(
-      'SELECT * FROM users WHERE oauth_provider = ? AND oauth_id = ?'
-    )
+    const stmt = this.db.prepare('SELECT * FROM users WHERE oauth_provider = ? AND oauth_id = ?')
     return (stmt.get(provider, oauthId) as User | undefined) ?? null
   }
 

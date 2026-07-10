@@ -84,7 +84,7 @@ describe('FileRepository', () => {
 
     const modified = repo.findModified('project-1')
     expect(modified.length).toBeGreaterThanOrEqual(1)
-    expect(modified.some(f => f.path === 'modified.ts')).toBe(true)
+    expect(modified.some((f) => f.path === 'modified.ts')).toBe(true)
   })
 
   it('updates a file record', () => {

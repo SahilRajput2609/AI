@@ -11,24 +11,28 @@ describe('Badge', () => {
   it('applies default variant styling', () => {
     const { container } = render(<Badge>Default</Badge>)
     const span = container.querySelector('span')
-    expect(span?.className).toContain('bg-[#151515]')
+    expect(span?.className).toContain('bg-[#2a2a2a]')
+    expect(span?.className).toContain('text-[#A1A1AA]')
   })
 
   it('applies success variant', () => {
     const { container } = render(<Badge variant="success">Success</Badge>)
     const span = container.querySelector('span')
-    expect(span?.className).toContain('bg-[#22C55E]/10')
+    expect(span?.className).toContain('bg-[#10b981]/10')
+    expect(span?.className).toContain('text-[#10b981]')
   })
 
   it('applies error variant', () => {
     const { container } = render(<Badge variant="error">Error</Badge>)
     const span = container.querySelector('span')
-    expect(span?.className).toContain('bg-[#EF4444]/10')
+    expect(span?.className).toContain('bg-[#ef4444]/10')
+    expect(span?.className).toContain('text-[#ef4444]')
   })
 
   it('applies warning variant', () => {
     const { container } = render(<Badge variant="warning">Warning</Badge>)
     const span = container.querySelector('span')
-    expect(span?.className).toContain('bg-[#FACC15]/10')
+    expect(span?.className).toContain('bg-[#f59e0b]/10')
+    expect(span?.className).toContain('text-[#f59e0b]')
   })
 })

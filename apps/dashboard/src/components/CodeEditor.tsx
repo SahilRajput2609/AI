@@ -2,8 +2,17 @@ import { useState, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Editor, { type OnMount } from '@monaco-editor/react'
 import {
-  X, Save, Folder, FileCode, FileJson, FileImage, FileText, File,
-  ChevronRight, ChevronDown, Upload,
+  X,
+  Save,
+  Folder,
+  FileCode,
+  FileJson,
+  FileImage,
+  FileText,
+  File,
+  ChevronRight,
+  ChevronDown,
+  Upload,
 } from 'lucide-react'
 import { clsx } from '../components/utils/clsx'
 import { api } from '../lib/api'
@@ -31,12 +40,34 @@ interface CodeEditorProps {
 function getLanguage(filename: string): string {
   const ext = filename.split('.').pop()?.toLowerCase()
   const map: Record<string, string> = {
-    ts: 'typescript', tsx: 'typescript', js: 'javascript', jsx: 'javascript',
-    json: 'json', html: 'html', css: 'css', scss: 'scss', less: 'less',
-    md: 'markdown', py: 'python', rb: 'ruby', java: 'java', go: 'go',
-    rs: 'rust', cpp: 'cpp', c: 'c', h: 'c', hpp: 'cpp',
-    sql: 'sql', sh: 'shell', bash: 'shell', yml: 'yaml', yaml: 'yaml',
-    xml: 'xml', svg: 'xml', txt: 'plaintext', env: 'plaintext',
+    ts: 'typescript',
+    tsx: 'typescript',
+    js: 'javascript',
+    jsx: 'javascript',
+    json: 'json',
+    html: 'html',
+    css: 'css',
+    scss: 'scss',
+    less: 'less',
+    md: 'markdown',
+    py: 'python',
+    rb: 'ruby',
+    java: 'java',
+    go: 'go',
+    rs: 'rust',
+    cpp: 'cpp',
+    c: 'c',
+    h: 'c',
+    hpp: 'cpp',
+    sql: 'sql',
+    sh: 'shell',
+    bash: 'shell',
+    yml: 'yaml',
+    yaml: 'yaml',
+    xml: 'xml',
+    svg: 'xml',
+    txt: 'plaintext',
+    env: 'plaintext',
   }
   return map[ext || ''] || 'plaintext'
 }
@@ -61,11 +92,13 @@ export function CodeEditor({ projectId, files }: CodeEditorProps) {
         const path = parts.slice(0, i + 1).join('/')
         if (!map[path]) {
           const node: FileNode = {
-            name: parts[i], path,
+            name: parts[i],
+            path,
             type: isLast ? f.type : 'folder',
             children: isLast ? undefined : [],
           }
-          map[path] = node; current.push(node)
+          map[path] = node
+          current.push(node)
         }
         if (!isLast) {
           const parent = map[path]
@@ -79,46 +112,52 @@ export function CodeEditor({ projectId, files }: CodeEditorProps) {
 
   const fileTree = useMemo(() => buildTree(files), [files, buildTree])
 
-  const activeTab = tabs.find(t => t.path === activePath)
+  const activeTab = tabs.find((t) => t.path === activePath)
   const isModified = activeTab && activeTab.content !== activeTab.originalContent
 
   const openFile = async (path: string, name: string) => {
-    const existing = tabs.find(t => t.path === path)
-    if (existing) { setActivePath(path); return }
+    const existing = tabs.find((t) => t.path === path)
+    if (existing) {
+      setActivePath(path)
+      return
+    }
 
     try {
       const res = await api.readProjectFile(projectId, path)
       const tab: EditorTab = {
-        path, name, content: res.content,
-        originalContent: res.content, language: getLanguage(name),
+        path,
+        name,
+        content: res.content,
+        originalContent: res.content,
+        language: getLanguage(name),
       }
-      setTabs(prev => [...prev, tab])
+      setTabs((prev) => [...prev, tab])
       setActivePath(path)
     } catch {}
   }
 
   const closeTab = (path: string, e?: React.MouseEvent) => {
     e?.stopPropagation()
-    setTabs(prev => prev.filter(t => t.path !== path))
+    setTabs((prev) => prev.filter((t) => t.path !== path))
     if (activePath === path) {
-      const remaining = tabs.filter(t => t.path !== path)
+      const remaining = tabs.filter((t) => t.path !== path)
       setActivePath(remaining.length > 0 ? remaining[remaining.length - 1].path : null)
     }
   }
 
   const handleContentChange = (value: string | undefined) => {
     if (!activePath || value === undefined) return
-    setTabs(prev => prev.map(t => t.path === activePath ? { ...t, content: value } : t))
+    setTabs((prev) => prev.map((t) => (t.path === activePath ? { ...t, content: value } : t)))
   }
 
   const handleSave = async () => {
     if (!activePath || !isModified) return
-    setSaving(prev => ({ ...prev, [activePath]: true }))
+    setSaving((prev) => ({ ...prev, [activePath]: true }))
     try {
       await api.writeProjectFile(projectId, activePath, activeTab!.content)
-      setTabs(prev => prev.map(t => t.path === activePath ? { ...t, originalContent: t.content } : t))
+      setTabs((prev) => prev.map((t) => (t.path === activePath ? { ...t, originalContent: t.content } : t)))
     } catch {}
-    setSaving(prev => ({ ...prev, [activePath]: false }))
+    setSaving((prev) => ({ ...prev, [activePath]: false }))
   }
 
   const handleEditorMount: OnMount = (editor, monaco) => {
@@ -174,10 +213,8 @@ export function CodeEditor({ projectId, files }: CodeEditorProps) {
           >
             <div className="p-2">
               <p className="text-[10px] text-[#6B7280] uppercase tracking-wider px-2 mb-2 font-medium">Explorer</p>
-              {fileTree.length === 0 && (
-                <p className="text-[10px] text-[#6B7280] px-2">No files</p>
-              )}
-              {fileTree.map(node => (
+              {fileTree.length === 0 && <p className="text-[10px] text-[#6B7280] px-2">No files</p>}
+              {fileTree.map((node) => (
                 <TreeNode
                   key={node.path}
                   node={node}
@@ -218,7 +255,7 @@ export function CodeEditor({ projectId, files }: CodeEditorProps) {
             >
               {sidebarOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
             </button>
-            {tabs.map(tab => {
+            {tabs.map((tab) => {
               const modified = tab.content !== tab.originalContent
               return (
                 <button
@@ -226,7 +263,9 @@ export function CodeEditor({ projectId, files }: CodeEditorProps) {
                   onClick={() => setActivePath(tab.path)}
                   className={clsx(
                     'flex items-center gap-1.5 px-3 py-2 text-xs border-r border-[#202020] transition-colors flex-shrink-0 max-w-[160px] group',
-                    activePath === tab.path ? 'bg-[#151515] text-white border-b border-b-[#7C6BFF]' : 'text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#0F0F0F]',
+                    activePath === tab.path
+                      ? 'bg-[#151515] text-white border-b border-b-[#7C6BFF]'
+                      : 'text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#0F0F0F]',
                   )}
                 >
                   {modified && <span className="w-1.5 h-1.5 rounded-full bg-[#FACC15] flex-shrink-0" />}
@@ -262,7 +301,11 @@ export function CodeEditor({ projectId, files }: CodeEditorProps) {
                   {saving[activePath] ? (
                     <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
                     </svg>
                   ) : (
                     <Save size={12} />
@@ -318,9 +361,15 @@ export function CodeEditor({ projectId, files }: CodeEditorProps) {
 }
 
 function TreeNode({
-  node, depth = 0, activePath, onSelect, onContextMenu,
+  node,
+  depth = 0,
+  activePath,
+  onSelect,
+  onContextMenu,
 }: {
-  node: FileNode; depth?: number; activePath: string | null
+  node: FileNode
+  depth?: number
+  activePath: string | null
   onSelect: (path: string, name: string) => void
   onContextMenu: (path: string, action: 'rename' | 'delete') => void
 }) {
@@ -345,8 +394,15 @@ function TreeNode({
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
-              {node.children.map(child => (
-                <TreeNode key={child.path} node={child} depth={depth + 1} activePath={activePath} onSelect={onSelect} onContextMenu={onContextMenu} />
+              {node.children.map((child) => (
+                <TreeNode
+                  key={child.path}
+                  node={child}
+                  depth={depth + 1}
+                  activePath={activePath}
+                  onSelect={onSelect}
+                  onContextMenu={onContextMenu}
+                />
               ))}
             </motion.div>
           )}
@@ -357,9 +413,16 @@ function TreeNode({
 
   const icon = (ext: string) => {
     const m: Record<string, any> = {
-      ts: FileCode, tsx: FileCode, js: FileCode, jsx: FileCode,
-      json: FileJson, png: FileImage, jpg: FileImage, svg: FileImage,
-      md: FileText, txt: FileText,
+      ts: FileCode,
+      tsx: FileCode,
+      js: FileCode,
+      jsx: FileCode,
+      json: FileJson,
+      png: FileImage,
+      jpg: FileImage,
+      svg: FileImage,
+      md: FileText,
+      txt: FileText,
     }
     const Icon = m[ext] || File
     return <Icon size={13} />
@@ -372,9 +435,7 @@ function TreeNode({
       onClick={() => onSelect(node.path, node.name)}
       className={clsx(
         'w-full flex items-center gap-1.5 px-2 py-1 rounded-md text-xs transition-colors',
-        activePath === node.path
-          ? 'bg-[#7C6BFF]/10 text-white'
-          : 'text-[#A1A1AA] hover:text-white hover:bg-[#151515]',
+        activePath === node.path ? 'bg-[#7C6BFF]/10 text-white' : 'text-[#A1A1AA] hover:text-white hover:bg-[#151515]',
       )}
       style={{ paddingLeft: `${8 + (depth + 1) * 16}px` }}
     >

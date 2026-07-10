@@ -1,4 +1,4 @@
-import { ModelProvider } from './index.js'
+import type { ModelProvider } from './index.js'
 
 export type { ModelProvider }
 
@@ -21,13 +21,7 @@ export interface Model {
   updatedAt?: Date
 }
 
-export type ModelCapability = 
-  | 'chat'
-  | 'code'
-  | 'reasoning'
-  | 'analysis'
-  | 'multimodal'
-  | 'function-calling'
+export type ModelCapability = 'chat' | 'code' | 'reasoning' | 'analysis' | 'multimodal' | 'function-calling'
 
 export interface ModelProviderConfig {
   id: string

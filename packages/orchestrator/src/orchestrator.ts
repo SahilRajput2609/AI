@@ -67,10 +67,7 @@ export class Orchestrator extends EventEmitter {
 
   // Process the task queue
   private async processQueue(): Promise<void> {
-    while (
-      this.taskQueue.length > 0 &&
-      this.runningTasks.size < this.config.maxConcurrentTasks
-    ) {
+    while (this.taskQueue.length > 0 && this.runningTasks.size < this.config.maxConcurrentTasks) {
       const taskId = this.taskQueue.shift()
       if (!taskId) break
 

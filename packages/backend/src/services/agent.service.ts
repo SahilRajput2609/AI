@@ -42,10 +42,7 @@ export class AgentService {
     return this.agentRepo.delete(id)
   }
 
-  async listAgents(filters?: {
-    role?: string
-    status?: AgentStatus
-  }): Promise<Agent[]> {
+  async listAgents(filters?: { role?: string; status?: AgentStatus }): Promise<Agent[]> {
     if (filters?.role) {
       const agent = await this.agentRepo.findByRole(filters.role)
       return agent ? [agent] : []
@@ -54,8 +51,8 @@ export class AgentService {
   }
 
   async updateAgentStatus(id: string, status: Agent['status'], currentTaskId?: string): Promise<Agent | null> {
-    return this.agentRepo.update(id, { 
-      status, 
+    return this.agentRepo.update(id, {
+      status,
       current_task_id: currentTaskId,
     })
   }

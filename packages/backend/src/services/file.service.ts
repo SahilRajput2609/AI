@@ -32,11 +32,7 @@ export class FileService {
     return file
   }
 
-  async createFolder(data: {
-    name: string
-    path: string
-    projectId: string
-  }): Promise<FileNode> {
+  async createFolder(data: { name: string; path: string; projectId: string }): Promise<FileNode> {
     // Create actual directory
     await createDirectory(data.path)
 
@@ -71,7 +67,7 @@ export class FileService {
     // Update metadata
     return this.fileRepo.update(id, {
       size: Buffer.byteLength(content, 'utf8'),
-      updated_at: Date.now()
+      updated_at: Date.now(),
     })
   }
 
