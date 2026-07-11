@@ -93,88 +93,58 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-[#000000] overflow-hidden">
-      <Header
-        onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
-        onCommandOpen={() => setCommandOpen(true)}
-        onNavigate={handleNavigate}
-        onLogout={handleLogout}
-      />
-
-      <div className="flex flex-1 overflow-hidden">
-        {/* Mobile overlay */}
-        {mobileMenuOpen && (
-          <div className="fixed inset-0 bg-black/60 z-30 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
-        )}
-
-        {/* Sidebar */}
-        <div
-          className={`
-          ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0
-          fixed lg:relative inset-y-0 left-0 z-40 lg:z-auto h-full
-          transition-transform duration-200
-        `}
-        >
-          <Sidebar
-            activeScreen={screen}
-            onNavigate={handleNavigate}
-            onLogout={handleLogout}
-            collapsed={sidebarCollapsed}
-            onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-          />
+    <div className="h-screen flex flex-col bg-black text-white overflow-hidden">
+      <div className="bg-gray-900 p-4 border-b border-gray-800 sticky top-0 z-50">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">🤖 AI-Company Dashboard</h1>
+          <div className="flex gap-2">
+            <button onClick={() => handleNavigate('workspace')} className={`px-3 py-2 rounded text-sm font-medium transition ${screen === 'workspace' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}>Workspace</button>
+            <button onClick={() => handleNavigate('agent-ide')} className={`px-3 py-2 rounded text-sm font-medium transition ${screen === 'agent-ide' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}>Agent IDE</button>
+            <button onClick={() => handleNavigate('kanban')} className={`px-3 py-2 rounded text-sm font-medium transition ${screen === 'kanban' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}>Kanban</button>
+            <button onClick={() => handleNavigate('timeline')} className={`px-3 py-2 rounded text-sm font-medium transition ${screen === 'timeline' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}>Timeline</button>
+            <button onClick={() => handleNavigate('files')} className={`px-3 py-2 rounded text-sm font-medium transition ${screen === 'files' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}>Files</button>
+            <button onClick={() => handleNavigate('settings')} className={`px-3 py-2 rounded text-sm font-medium transition ${screen === 'settings' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}>Settings</button>
+            <button onClick={() => handleNavigate('agents')} className={`px-3 py-2 rounded text-sm font-medium transition ${screen === 'agents' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}>Agents</button>
+            <button onClick={handleLogout} className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-sm font-medium transition">Logout</button>
+          </div>
         </div>
-
-        {/* Main content */}
-        <main className="flex-1 overflow-hidden flex flex-col">
-          <ErrorBoundary>
-            <PageTransition key={projectId ? `project-${projectId}` : screen}>
-              <div className="flex-1 flex overflow-hidden h-full">
-              {projectId ? (
-                <ProjectScreen projectId={projectId} onBack={() => setProjectId(null)} />
-              ) : screen === 'workspace' ? (
-                <WorkspaceScreen
-                  onOpenProject={(id) => {
-                    setProjectId(id)
-                    setScreen('workspace')
-                  }}
-                />
-              ) : screen === 'kanban' ? (
-                <KanbanScreen />
-              ) : screen === 'files' ? (
-                <FilesScreen />
-              ) : screen === 'timeline' ? (
-                <TimelineScreen />
-              ) : screen === 'settings' ? (
-                <SettingsScreen />
-              ) : screen === 'agent-ide' ? (
-                <AgentIdeScreen />
-              ) : screen === 'agents' ? (
-                <AgentsConfigScreen />
-              ) : (
-                <WorkspaceScreen
-                  onOpenProject={(id) => {
-                    setProjectId(id)
-                    setScreen('workspace')
-                  }}
-                />
-              )}
-              </div>
-            </PageTransition>
-          </ErrorBoundary>
-        </main>
       </div>
 
-      <NotificationToast />
-      <CommandPalette
-        open={commandOpen}
-        onClose={() => setCommandOpen(false)}
-        onNavigate={handleNavigate}
-        onOpenProject={(id) => {
-          setProjectId(id)
-          setScreen('workspace')
-        }}
-      />
+      <div className="flex-1 overflow-auto">
+        <ErrorBoundary>
+          <div className="p-6">
+            {projectId ? (
+              <ProjectScreen projectId={projectId} onBack={() => setProjectId(null)} />
+            ) : screen === 'workspace' ? (
+              <WorkspaceScreen
+                onOpenProject={(id) => {
+                  setProjectId(id)
+                  setScreen('workspace')
+                }}
+              />
+            ) : screen === 'kanban' ? (
+              <KanbanScreen />
+            ) : screen === 'files' ? (
+              <FilesScreen />
+            ) : screen === 'timeline' ? (
+              <TimelineScreen />
+            ) : screen === 'settings' ? (
+              <SettingsScreen />
+            ) : screen === 'agent-ide' ? (
+              <AgentIdeScreen />
+            ) : screen === 'agents' ? (
+              <AgentsConfigScreen />
+            ) : (
+              <WorkspaceScreen
+                onOpenProject={(id) => {
+                  setProjectId(id)
+                  setScreen('workspace')
+                }}
+              />
+            )}
+          </div>
+        </ErrorBoundary>
+      </div>
     </div>
   )
 }
