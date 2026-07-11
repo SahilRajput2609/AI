@@ -3,6 +3,7 @@ import { asyncHandler, validate } from '@ai-company/backend'
 import type { AgentRole } from '../agent-manager.js'
 import { AgentManager } from '../agent-manager.js'
 import { modelProvidersRouter } from './model-providers.js'
+import { modelsRouter } from './models.js'
 import { agentConfigsRouter } from './agent-configs.js'
 import { filesRouter } from './files.js'
 import { activitiesRouter } from './activities.js'
@@ -40,7 +41,9 @@ apiRouter.use('/auth', authRouter)
 apiRouter.use('/auth/oauth', oauthRouter)
 apiRouter.use('/users', usersRouter)
 apiRouter.use('/settings', settingsRouter)
-apiRouter.use('/model-providers', modelProvidersRouter)
+// Model routes - order matters: specific paths before general
+apiRouter.use('/models/providers', modelProvidersRouter)
+apiRouter.use('/models', modelsRouter)
 apiRouter.use('/agent-configs', agentConfigsRouter)
 apiRouter.use('/files', filesRouter)
 apiRouter.use('/activities', activitiesRouter)

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { getDatabase, UserRepository } from '@ai-company/database'
-import { requireAuth, type AuthRequest } from '@ai-company/backend'
+import { authMiddleware, requireAuth, type AuthRequest } from '@ai-company/backend'
 
 const db = getDatabase()
 const userRepository = new UserRepository(db.getDb())
@@ -8,7 +8,7 @@ const userRepository = new UserRepository(db.getDb())
 export const usersRouter = Router()
 
 // Get current user profile
-usersRouter.get('/me', requireAuth, (req: AuthRequest, res) => {
+usersRouter.get('/me', authMiddleware, requireAuth, (req: AuthRequest, res) => {
   const userId = req.user?.id
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' })
@@ -31,7 +31,7 @@ usersRouter.get('/me', requireAuth, (req: AuthRequest, res) => {
 })
 
 // Get user by ID (admin only or own profile)
-usersRouter.get('/:id', requireAuth, (req: AuthRequest, res) => {
+usersRouter.get('/:id', authMiddleware, requireAuth, (req: AuthRequest, res) => {
   const userId = req.user?.id
   const targetId = req.params.id
 
@@ -56,7 +56,7 @@ usersRouter.get('/:id', requireAuth, (req: AuthRequest, res) => {
 })
 
 // Delete user (admin only or self)
-usersRouter.delete('/:id', requireAuth, (req: AuthRequest, res) => {
+usersRouter.delete('/:id', authMiddleware, requireAuth, (req: AuthRequest, res) => {
   const userId = req.user?.id
   const targetId = req.params.id
 
