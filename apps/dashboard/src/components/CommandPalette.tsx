@@ -188,8 +188,8 @@ export function CommandPalette({ open, onClose, onNavigate, onOpenProject }: Com
             initial={{ opacity: 0, scale: 0.98, y: -4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: -4 }}
-            transition={{ duration: 0.15 }}
-            className="relative w-full max-w-lg rounded-xl border border-[#202020] bg-[#0F0F0F] shadow-2xl overflow-hidden"
+            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+            className="relative w-full max-w-lg rounded-xl glass shadow-[0_24px_64px_-12px_rgba(0,0,0,0.7),0_8px_32px_-8px_rgba(124,107,255,0.2)] overflow-hidden"
           >
             <div className="flex items-center gap-3 px-4 h-12 border-b border-[#202020]">
               <Search size={16} className="text-[#6E6E6E] flex-shrink-0" />
@@ -228,63 +228,88 @@ export function CommandPalette({ open, onClose, onNavigate, onOpenProject }: Com
                       {section.items.map((item: any, i: number) => {
                         const idx = getGlobalIndex(sIdx, i)
                         const isSelected = idx === selectedIndex
-                        const baseClass = `w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors cursor-pointer ${
-                          isSelected ? 'bg-[#151515] text-white' : 'text-[#A8A8A8] hover:bg-[#080808] hover:text-white'
+                        const baseClass = `relative w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors cursor-pointer ${
+                          isSelected ? 'text-white' : 'text-[#A8A8A8] hover:bg-[#080808] hover:text-white'
                         }`
+                        const activeBg = isSelected && (
+                          <motion.span
+                            layoutId="palette-active"
+                            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                            className="absolute inset-x-1 inset-y-0 rounded-lg bg-[#0F0F0F] border border-[#7C6BFF]/15 shadow-[inset_2px_0_0_#7C6BFF]"
+                          />
+                        )
 
                         if (section.label === 'Projects') {
                           return (
-                            <button
+                            <motion.button
                               key={item.id}
+                              initial={{ opacity: 0, x: -6 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.04 * i, type: 'spring', stiffness: 350, damping: 28 }}
                               onClick={() => {
                                 onOpenProject?.(item.id)
                                 onClose()
                               }}
                               className={baseClass}
                             >
-                              <FolderOpen size={15} className="flex-shrink-0 text-[#7C6BFF]" />
-                              <div className="flex-1 min-w-0 text-left">
+                              {activeBg}
+                              <FolderOpen size={15} className="relative z-10 flex-shrink-0 text-[#7C6BFF]" />
+                              <div className="relative z-10 flex-1 min-w-0 text-left">
                                 <span className="block truncate">{item.name}</span>
                                 {item.type && <span className="text-[10px] text-[#6B7280]">{item.type}</span>}
                               </div>
-                              <ArrowRight size={13} className="flex-shrink-0 text-[#6E6E6E]" />
-                            </button>
+                              <ArrowRight size={13} className="relative z-10 flex-shrink-0 text-[#6E6E6E]" />
+                            </motion.button>
                           )
                         }
 
                         if (section.label === 'Actions') {
                           return (
-                            <button
+                            <motion.button
                               key={item.id}
+                              initial={{ opacity: 0, x: -6 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.04 * i, type: 'spring', stiffness: 350, damping: 28 }}
                               onClick={() => {
                                 handleAction(item.id)
                                 onClose()
                               }}
                               className={baseClass}
                             >
-                              <item.icon size={15} className="flex-shrink-0" />
-                              <span className="flex-1 text-left">{item.label}</span>
+                              {activeBg}
+                              <item.icon
+                                size={15}
+                                className={`relative z-10 flex-shrink-0 ${isSelected ? 'text-[#7C6BFF]' : ''}`}
+                              />
+                              <span className="relative z-10 flex-1 text-left">{item.label}</span>
                               {item.shortcut && (
-                                <kbd className="text-[10px] font-mono bg-[#080808] border border-[#202020] rounded px-1.5 py-0.5 text-[#6E6E6E]">
+                                <kbd className="relative z-10 text-[10px] font-mono bg-[#080808] border border-[#202020] rounded px-1.5 py-0.5 text-[#6E6E6E]">
                                   {item.shortcut}
                                 </kbd>
                               )}
-                            </button>
+                            </motion.button>
                           )
                         }
 
                         return (
-                          <button
+                          <motion.button
                             key={item.id}
+                            initial={{ opacity: 0, x: -6 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.04 * i, type: 'spring', stiffness: 350, damping: 28 }}
                             onClick={() => {
                               onNavigate(item.screen)
                               onClose()
                             }}
                             className={baseClass}
                           >
-                            <item.icon size={15} className="flex-shrink-0" />
-                            <span>{item.label}</span>
-                          </button>
+                            {activeBg}
+                            <item.icon
+                              size={15}
+                              className={`relative z-10 flex-shrink-0 ${isSelected ? 'text-[#7C6BFF]' : ''}`}
+                            />
+                            <span className="relative z-10">{item.label}</span>
+                          </motion.button>
                         )
                       })}
                     </div>

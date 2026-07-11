@@ -112,7 +112,11 @@ export function AgentsConfigScreen() {
   }
 
   if (loading) {
-    return <div className="flex-1 flex items-center justify-center text-[#6E6E6E] text-sm">Loading...</div>
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="w-64 h-4 rounded-lg shimmer-surface" />
+      </div>
+    )
   }
 
   return (
@@ -126,8 +130,8 @@ export function AgentsConfigScreen() {
             onClick={() => setSelectedRole(config.role)}
             className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer w-full text-left ${
               selectedRole === config.role
-                ? 'bg-[#151515] text-white font-medium'
-                : 'text-[#6E6E6E] hover:text-[#A8A8A8] hover:bg-[#080808]'
+                ? 'bg-[#0F0F0F] text-white font-medium border border-[#7C6BFF]/15 shadow-[inset_2px_0_0_#7C6BFF]'
+                : 'border border-transparent text-[#6E6E6E] hover:text-[#A8A8A8] hover:bg-[#080808]'
             }`}
           >
             <div className={`w-2 h-2 rounded-full flex-shrink-0 ${config.is_active ? 'bg-[#22C55E]' : 'bg-[#333]'}`} />
@@ -143,7 +147,7 @@ export function AgentsConfigScreen() {
           <div className="max-w-2xl">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <Bot size={20} className="text-[#A8A8A8]" />
+                <Bot size={20} className="text-[#7C6BFF]" />
                 <h2 className="text-lg font-semibold text-white">{ROLE_LABELS[selectedConfig.role]}</h2>
               </div>
               <div className="flex items-center gap-3">
@@ -160,7 +164,7 @@ export function AgentsConfigScreen() {
                 <button
                   onClick={() => saveConfig(selectedConfig.role)}
                   disabled={saving || !dirtyRoles.has(selectedConfig.role)}
-                  className="h-9 px-4 rounded-lg bg-white text-black text-sm font-medium flex items-center gap-2 hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  className="h-9 px-4 rounded-lg bg-white text-black text-sm font-medium flex items-center gap-2 hover:bg-[#ececff] shadow-[0_4px_16px_-4px_rgba(124,107,255,0.35)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 >
                   <Save size={14} /> Save
                 </button>
@@ -175,7 +179,7 @@ export function AgentsConfigScreen() {
                     type="text"
                     value={selectedConfig.name}
                     onChange={(e) => updateField(selectedConfig.role, 'name', e.target.value)}
-                    className="w-full h-9 bg-[#080808] border border-[#202020] rounded-lg px-3 text-sm text-white outline-none focus:border-[#333] transition-colors"
+                    className="w-full h-9 bg-[#080808] border border-[#202020] rounded-lg px-3 text-sm text-white outline-none focus:border-[#7C6BFF]/40 transition-colors"
                   />
                 </div>
                 <div>
@@ -196,12 +200,13 @@ export function AgentsConfigScreen() {
                     type={showApiKey ? 'text' : 'password'}
                     value={selectedConfig.api_key}
                     onChange={(e) => updateField(selectedConfig.role, 'api_key', e.target.value)}
-                    className="w-full h-9 bg-[#080808] border border-[#202020] rounded-lg px-3 pr-10 text-sm text-white outline-none focus:border-[#333] font-mono"
+                    className="w-full h-9 bg-[#080808] border border-[#202020] rounded-lg px-3 pr-10 text-sm text-white outline-none focus:border-[#7C6BFF]/40 transition-colors font-mono"
                     placeholder="sk-..."
                   />
                   <button
                     onClick={() => setShowApiKey(!showApiKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6E6E6E] hover:text-white"
+                    aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6E6E6E] hover:text-white transition-colors"
                   >
                     {showApiKey ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
@@ -214,7 +219,7 @@ export function AgentsConfigScreen() {
                   type="text"
                   value={selectedConfig.base_url}
                   onChange={(e) => updateField(selectedConfig.role, 'base_url', e.target.value)}
-                  className="w-full h-9 bg-[#080808] border border-[#202020] rounded-lg px-3 text-sm text-white outline-none focus:border-[#333] font-mono"
+                  className="w-full h-9 bg-[#080808] border border-[#202020] rounded-lg px-3 text-sm text-white outline-none focus:border-[#7C6BFF]/40 transition-colors font-mono"
                   placeholder="https://api.openai.com/v1"
                 />
               </div>
@@ -225,7 +230,7 @@ export function AgentsConfigScreen() {
                   type="text"
                   value={selectedConfig.model}
                   onChange={(e) => updateField(selectedConfig.role, 'model', e.target.value)}
-                  className="w-full h-9 bg-[#080808] border border-[#202020] rounded-lg px-3 text-sm text-white outline-none focus:border-[#333] font-mono"
+                  className="w-full h-9 bg-[#080808] border border-[#202020] rounded-lg px-3 text-sm text-white outline-none focus:border-[#7C6BFF]/40 transition-colors font-mono"
                   placeholder="gpt-4o"
                 />
               </div>
@@ -242,7 +247,7 @@ export function AgentsConfigScreen() {
                     step="0.1"
                     value={selectedConfig.temperature}
                     onChange={(e) => updateField(selectedConfig.role, 'temperature', parseFloat(e.target.value))}
-                    className="w-full accent-white"
+                    className="w-full accent-[#7C6BFF]"
                   />
                 </div>
                 <div>
@@ -251,7 +256,7 @@ export function AgentsConfigScreen() {
                     type="number"
                     value={selectedConfig.max_tokens}
                     onChange={(e) => updateField(selectedConfig.role, 'max_tokens', parseInt(e.target.value) || 0)}
-                    className="w-full h-9 bg-[#080808] border border-[#202020] rounded-lg px-3 text-sm text-white outline-none focus:border-[#333] font-mono"
+                    className="w-full h-9 bg-[#080808] border border-[#202020] rounded-lg px-3 text-sm text-white outline-none focus:border-[#7C6BFF]/40 transition-colors font-mono"
                   />
                 </div>
               </div>

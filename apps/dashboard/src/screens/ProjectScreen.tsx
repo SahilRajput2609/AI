@@ -118,7 +118,8 @@ export function ProjectScreen({ projectId, onBack }: ProjectScreenProps) {
       <div className="flex items-center gap-3 px-6 py-3 border-b border-[#202020] bg-[#0A0A0A] flex-shrink-0">
         <button
           onClick={onBack}
-          className="p-1.5 rounded-lg text-[#6B7280] hover:text-white hover:bg-[#151515] transition-all"
+          aria-label="Back to projects"
+          className="p-1.5 rounded-lg text-[#6B7280] hover:text-white hover:bg-[#151515] transition-colors"
         >
           <ArrowLeft size={16} />
         </button>
@@ -132,7 +133,7 @@ export function ProjectScreen({ projectId, onBack }: ProjectScreenProps) {
         <div className="flex items-center gap-2">
           <span
             className={clsx(
-              'text-[10px] px-2 py-0.5 rounded-full font-medium',
+              'flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full font-medium',
               project.status === 'completed'
                 ? 'bg-[#22C55E]/10 text-[#22C55E]'
                 : project.status === 'building'
@@ -140,6 +141,13 @@ export function ProjectScreen({ projectId, onBack }: ProjectScreenProps) {
                   : 'bg-[#6B7280]/10 text-[#6B7280]',
             )}
           >
+            {project.status === 'building' && (
+              <motion.span
+                animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-1.5 h-1.5 rounded-full bg-[#7C6BFF]"
+              />
+            )}
             {project.status || 'draft'}
           </span>
         </div>
@@ -147,22 +155,30 @@ export function ProjectScreen({ projectId, onBack }: ProjectScreenProps) {
 
       {/* Tabs */}
       <div className="flex items-center gap-0.5 px-4 border-b border-[#202020] bg-[#0A0A0A] flex-shrink-0 overflow-x-auto">
-        {tabs.map((t) => {
+        {tabs.map((t, i) => {
           const isActive = tab === t.id
           return (
-            <button
+            <motion.button
               key={t.id}
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.04 * i, type: 'spring', stiffness: 350, damping: 28 }}
               onClick={() => setTab(t.id)}
               className={clsx(
-                'flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium border-b-2 transition-all flex-shrink-0',
-                isActive
-                  ? 'text-white border-[#7C6BFF]'
-                  : 'text-[#6B7280] border-transparent hover:text-[#A1A1AA] hover:border-[#333]',
+                'relative flex items-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-colors flex-shrink-0',
+                isActive ? 'text-white' : 'text-[#6B7280] hover:text-[#A1A1AA]',
               )}
             >
-              <t.icon size={14} />
-              {t.label}
-            </button>
+              {isActive && (
+                <motion.span
+                  layoutId="project-tab-active"
+                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                  className="absolute inset-x-1 top-1.5 bottom-1.5 rounded-lg bg-[#0F0F0F] border border-[#7C6BFF]/15"
+                />
+              )}
+              <t.icon size={14} className={clsx('relative z-10', isActive && 'text-[#7C6BFF]')} />
+              <span className="relative z-10">{t.label}</span>
+            </motion.button>
           )
         })}
       </div>
@@ -172,10 +188,10 @@ export function ProjectScreen({ projectId, onBack }: ProjectScreenProps) {
         <AnimatePresence mode="wait">
           <motion.div
             key={tab}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.12 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
             className="h-full"
           >
             {tab === 'overview' && <OverviewTab project={project} />}
@@ -238,14 +254,20 @@ function OverviewTab({ project }: { project: any }) {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {statCards.map((s) => (
-          <div key={s.label} className="bg-[#0F0F0F] border border-[#202020] rounded-xl p-4">
+        {statCards.map((s, i) => (
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 * i, type: 'spring', stiffness: 320, damping: 26 }}
+            className="bg-[#0F0F0F] border border-[#202020] rounded-xl p-4 hover:border-[#7C6BFF]/30 transition-colors"
+          >
             <div className="flex items-center justify-between mb-2">
               <s.icon size={14} className="text-[#6B7280]" />
             </div>
             <p className="text-lg font-semibold text-white">{s.value}</p>
             <p className="text-[11px] text-[#6B7280]">{s.label}</p>
-          </div>
+          </motion.div>
         ))}
       </div>
 
@@ -310,7 +332,7 @@ function PreviewTab({ projectId }: { projectId: string }) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setRefreshKey((k) => k + 1)}
-            className="px-2 py-1 rounded-md text-[10px] text-[#6B7280] hover:text-white hover:bg-[#151515] transition-all"
+            className="px-2 py-1 rounded-md text-[10px] text-[#6B7280] hover:text-white hover:bg-[#151515] transition-colors"
           >
             Refresh
           </button>
@@ -461,7 +483,7 @@ function FilesTab({ projectId }: { projectId: string }) {
         {loading ? (
           <div className="space-y-1 px-2">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-6 bg-[#151515] rounded animate-pulse" />
+              <div key={i} className="h-6 rounded shimmer-surface" />
             ))}
           </div>
         ) : (
@@ -577,35 +599,42 @@ function ChatTab({ projectId }: { projectId: string }) {
           </div>
         ) : (
           messages.map((msg) => (
-            <div key={msg.id} className={clsx('flex gap-3', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
+            <motion.div
+              key={msg.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+              className={clsx('flex gap-3', msg.role === 'user' ? 'justify-end' : 'justify-start')}
+            >
               <div
                 className={clsx(
                   'max-w-[75%] px-3 py-2 rounded-2xl text-xs leading-relaxed',
                   msg.role === 'user'
                     ? 'bg-[#7C6BFF] text-white rounded-br-md'
-                    : 'bg-[#151515] text-[#D4D4D8] rounded-bl-md border border-[#202020]',
+                    : 'bg-[#151515] text-[#D4D4D8] rounded-bl-md border border-[#7C6BFF]/15',
                 )}
               >
                 {msg.content}
               </div>
-            </div>
+            </motion.div>
           ))
         )}
         <div ref={bottomRef} />
       </div>
       <div className="flex-shrink-0 border-t border-[#202020] p-3 bg-[#0A0A0A]">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 rounded-xl border border-[#202020] bg-[#0F0F0F] px-2 py-1 focus-within:border-[#7C6BFF]/50 transition-colors">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
             placeholder="Ask the AI to help with this project..."
-            className="flex-1 bg-[#0F0F0F] border border-[#202020] rounded-xl px-3 py-2 text-xs text-white placeholder-[#6B7280] outline-none focus:border-[#7C6BFF]/40 transition-all"
+            className="flex-1 bg-transparent px-1 py-1.5 text-xs text-white placeholder-[#6B7280] outline-none"
           />
           <button
             onClick={handleSend}
             disabled={!input.trim() || sending}
-            className="p-2 rounded-xl bg-[#7C6BFF] text-white hover:bg-[#6A5BEF] disabled:opacity-30 transition-all"
+            aria-label="Send message"
+            className="p-2 rounded-lg bg-[#7C6BFF] text-white hover:bg-[#6A5BEF] disabled:opacity-30 transition-colors"
           >
             {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
           </button>
@@ -672,7 +701,7 @@ function VersionsTab({ projectId }: { projectId: string }) {
           {versions.length >= 2 && (
             <button
               onClick={() => setShowDiff(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#202020] text-[#A1A1AA] text-xs font-medium hover:text-white hover:bg-[#151515] transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#202020] text-[#A1A1AA] text-xs font-medium hover:text-white hover:bg-[#151515] hover:border-[#7C6BFF]/30 transition-colors"
             >
               <GitCompare size={12} />
               Compare
@@ -681,7 +710,7 @@ function VersionsTab({ projectId }: { projectId: string }) {
           <button
             onClick={handleCreate}
             disabled={creating}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#7C6BFF] text-white text-xs font-medium hover:bg-[#6A5BEF] disabled:opacity-50 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#7C6BFF] text-white text-xs font-medium hover:bg-[#6A5BEF] hover:shadow-[0_8px_32px_-8px_rgba(124,107,255,0.2)] disabled:opacity-50 transition-colors"
           >
             {creating ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
             Snapshot
@@ -691,7 +720,7 @@ function VersionsTab({ projectId }: { projectId: string }) {
       {loading ? (
         <div className="space-y-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 bg-[#151515] rounded-xl animate-pulse" />
+            <div key={i} className="h-16 rounded-xl shimmer-surface" />
           ))}
         </div>
       ) : versions.length === 0 ? (
@@ -702,10 +731,13 @@ function VersionsTab({ projectId }: { projectId: string }) {
         </div>
       ) : (
         <div className="space-y-2">
-          {versions.map((v) => (
-            <div
+          {versions.map((v, i) => (
+            <motion.div
               key={v.id}
-              className="flex items-center justify-between bg-[#0F0F0F] border border-[#202020] rounded-xl p-4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 * i, type: 'spring', stiffness: 320, damping: 26 }}
+              className="flex items-center justify-between bg-[#0F0F0F] border border-[#202020] rounded-xl p-4 hover:border-[#7C6BFF]/30 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-[#7C6BFF]/10 flex items-center justify-center">
@@ -728,20 +760,22 @@ function VersionsTab({ projectId }: { projectId: string }) {
                 <button
                   onClick={() => handleRestore(v.id)}
                   disabled={restoring === v.id}
-                  className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#22C55E] hover:bg-[#22C55E]/5 transition-all"
+                  className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#22C55E] hover:bg-[#22C55E]/5 transition-colors"
                   title="Restore this version"
+                  aria-label="Restore this version"
                 >
                   {restoring === v.id ? <Loader2 size={13} className="animate-spin" /> : <RotateCcw size={13} />}
                 </button>
                 <button
                   onClick={() => handleDelete(v.id)}
-                  className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#EF4444] hover:bg-[#EF4444]/5 transition-all"
+                  className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#EF4444] hover:bg-[#EF4444]/5 transition-colors"
                   title="Delete version"
+                  aria-label="Delete version"
                 >
                   <Trash2 size={13} />
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}
@@ -811,7 +845,7 @@ function DeployTab({ projectId }: { projectId: string }) {
           <select
             value={platform}
             onChange={(e) => setPlatform(e.target.value)}
-            className="bg-[#080808] border border-[#202020] rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#7C6BFF]/40"
+            className="bg-[#080808] border border-[#202020] rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#7C6BFF]/50 transition-colors"
           >
             <option value="vercel">Vercel</option>
             <option value="netlify">Netlify</option>
@@ -820,7 +854,7 @@ function DeployTab({ projectId }: { projectId: string }) {
           <button
             onClick={handleDeploy}
             disabled={deploying}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 disabled:opacity-50 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-black text-xs font-medium hover:bg-[#ececff] hover:shadow-[0_8px_32px_-8px_rgba(124,107,255,0.2)] disabled:opacity-50 transition-colors"
           >
             {deploying ? <Loader2 size={12} className="animate-spin" /> : <Rocket size={12} />}
             {deploying ? 'Deploying...' : 'Deploy'}
@@ -833,7 +867,7 @@ function DeployTab({ projectId }: { projectId: string }) {
       {loading ? (
         <div className="space-y-2">
           {[1, 2].map((i) => (
-            <div key={i} className="h-16 bg-[#151515] rounded-xl animate-pulse" />
+            <div key={i} className="h-16 rounded-xl shimmer-surface" />
           ))}
         </div>
       ) : deployments.length === 0 ? (
@@ -847,10 +881,16 @@ function DeployTab({ projectId }: { projectId: string }) {
             <div key={d.id}>
               <button
                 onClick={() => setExpandedLogs(expandedLogs === d.id ? null : d.id)}
-                className="w-full flex items-center justify-between bg-[#0F0F0F] border border-[#202020] rounded-xl p-3 hover:border-[#333] transition-all text-left"
+                className="w-full flex items-center justify-between bg-[#0F0F0F] border border-[#202020] rounded-xl p-3 hover:border-[#7C6BFF]/30 transition-colors text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div
+                  <motion.div
+                    animate={
+                      d.status === 'building' || d.status === 'pending'
+                        ? { scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }
+                        : {}
+                    }
+                    transition={{ duration: 2, repeat: Infinity }}
                     className={clsx(
                       'w-2 h-2 rounded-full',
                       d.status === 'ready'
@@ -887,8 +927,9 @@ function DeployTab({ projectId }: { projectId: string }) {
                       href={d.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-1 rounded text-[#6B7280] hover:text-white"
+                      className="p-1 rounded text-[#6B7280] hover:text-white transition-colors"
                       onClick={(e) => e.stopPropagation()}
+                      aria-label="Open deployment"
                     >
                       <ExternalLink size={12} />
                     </a>
@@ -1003,7 +1044,7 @@ function SettingsTab({ project, onRefresh, onBack }: { project: any; onRefresh: 
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[#080808] border border-[#202020] rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#7C6BFF]/40"
+              className="w-full bg-[#080808] border border-[#202020] rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#7C6BFF]/50 transition-colors"
             />
           </div>
           <div>
@@ -1012,13 +1053,13 @@ function SettingsTab({ project, onRefresh, onBack }: { project: any; onRefresh: 
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full bg-[#080808] border border-[#202020] rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#7C6BFF]/40 resize-none"
+              className="w-full bg-[#080808] border border-[#202020] rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#7C6BFF]/50 transition-colors resize-none"
             />
           </div>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-4 py-2 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 disabled:opacity-50 transition-all"
+            className="px-4 py-2 rounded-lg bg-white text-black text-xs font-medium hover:bg-[#ececff] hover:shadow-[0_8px_32px_-8px_rgba(124,107,255,0.2)] disabled:opacity-50 transition-colors"
           >
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
@@ -1031,7 +1072,7 @@ function SettingsTab({ project, onRefresh, onBack }: { project: any; onRefresh: 
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="px-4 py-2 rounded-lg bg-[#EF4444]/10 text-[#EF4444] text-xs font-medium hover:bg-[#EF4444]/20 disabled:opacity-50 transition-all"
+          className="px-4 py-2 rounded-lg bg-[#EF4444]/10 text-[#EF4444] text-xs font-medium hover:bg-[#EF4444]/20 disabled:opacity-50 transition-colors"
         >
           {deleting ? 'Deleting...' : 'Delete Project'}
         </button>

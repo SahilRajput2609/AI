@@ -12,7 +12,7 @@ interface KanbanColumnProps {
 export function KanbanColumn({ column, onDragStart, onDragOver, onDrop, isDragOver }: KanbanColumnProps) {
   return (
     <div
-      className={`flex-shrink-0 rounded-lg p-4 transition-colors duration-150 min-w-[280px] ${isDragOver ? 'bg-[#080808]' : 'bg-transparent'}`}
+      className={`flex-shrink-0 rounded-lg p-4 transition-colors duration-150 min-w-[280px] ${isDragOver ? 'bg-[#7C6BFF]/5' : 'bg-transparent'}`}
       onDragOver={(e) => onDragOver(e, column.id)}
       onDrop={(e) => onDrop(e, column.id)}
     >
@@ -24,7 +24,7 @@ export function KanbanColumn({ column, onDragStart, onDragOver, onDrop, isDragOv
         </span>
       </div>
 
-      <div className="space-y-0">
+      <div className="space-y-3">
         {column.cards.map((card) => (
           <KanbanCard key={card.id} card={card} onDragStart={onDragStart} columnId={column.id} />
         ))}

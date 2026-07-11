@@ -29,6 +29,20 @@ export interface FileSavedEvent {
   path: string
 }
 
+let notifCounter = 0
+function nextNotifId(): string {
+  notifCounter += 1
+  return `notif-${Date.now()}-${notifCounter}`
+}
+
+export function getWsUrl(): string {
+  const isDev = window.location.port === '5173'
+  const serverPort = isDev ? '3001' : window.location.port
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
+  const portSuffix = serverPort ? `:${serverPort}` : ''
+  return `${wsProtocol}://${window.location.hostname}${portSuffix}/ws`
+}
+
 export function useRealtime() {
   const [connected, setConnected] = useState(false)
   const [notifications, setNotifications] = useState<RealtimeNotification[]>([])
@@ -36,7 +50,9 @@ export function useRealtime() {
   const [chatMessages, setChatMessages] = useState<any[]>([])
   const [lastFileSaved, setLastFileSaved] = useState<FileSavedEvent | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
-  const reconnectRef = useRef(0)
+  const reconnectAttempts = useRef(0)
+  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const disposed = useRef(false)
 
   const addNotification = useCallback((notif: RealtimeNotification) => {
     setNotifications((prev) => [notif, ...prev].slice(0, 5))
@@ -47,14 +63,29 @@ export function useRealtime() {
   }, [])
 
   const connect = useCallback(() => {
-    const serverPort = window.location.port === '5173' ? '3001' : window.location.port
-    const wsUrl = `ws://${window.location.hostname}:${serverPort}/ws`
-    const ws = new WebSocket(wsUrl)
+    if (disposed.current) return
+
+    let ws: WebSocket
+    try {
+      ws = new WebSocket(getWsUrl())
+    } catch {
+      scheduleReconnect()
+      return
+    }
     wsRef.current = ws
+
+    function scheduleReconnect() {
+      if (disposed.current) return
+      reconnectAttempts.current++
+      // Exponential backoff capped at 30s; keep retrying indefinitely
+      const delay = Math.min(1500 * Math.pow(2, reconnectAttempts.current - 1), 30000)
+      if (reconnectTimer.current) clearTimeout(reconnectTimer.current)
+      reconnectTimer.current = setTimeout(connect, delay)
+    }
 
     ws.onopen = () => {
       setConnected(true)
-      reconnectRef.current = 0
+      reconnectAttempts.current = 0
     }
 
     ws.onmessage = (event) => {
@@ -68,7 +99,7 @@ export function useRealtime() {
           case 'task:completed':
           case 'task:failed':
             addNotification({
-              id: `notif-${Date.now()}`,
+              id: nextNotifId(),
               type: data.type === 'task:failed' ? 'error' : data.type === 'task:completed' ? 'success' : 'info',
               title:
                 data.type === 'task:created'
@@ -103,7 +134,7 @@ export function useRealtime() {
           case 'plan:created':
           case 'plan:finalized':
             addNotification({
-              id: `notif-${Date.now()}`,
+              id: nextNotifId(),
               type: 'info',
               title: 'Plan Updated',
               message:
@@ -139,10 +170,7 @@ export function useRealtime() {
 
     ws.onclose = () => {
       setConnected(false)
-      if (reconnectRef.current < 5) {
-        reconnectRef.current++
-        setTimeout(connect, Math.min(3000 * Math.pow(2, reconnectRef.current - 1), 30000))
-      }
+      scheduleReconnect()
     }
 
     ws.onerror = () => {
@@ -151,9 +179,31 @@ export function useRealtime() {
   }, [addNotification, addLog])
 
   useEffect(() => {
+    disposed.current = false
     connect()
+
+    // Reconnect promptly when the network returns or the tab becomes visible
+    const handleOnline = () => {
+      if (!disposed.current && wsRef.current?.readyState !== WebSocket.OPEN) {
+        reconnectAttempts.current = 0
+        connect()
+      }
+    }
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') handleOnline()
+    }
+    window.addEventListener('online', handleOnline)
+    document.addEventListener('visibilitychange', handleVisibility)
+
     return () => {
+      disposed.current = true
+      window.removeEventListener('online', handleOnline)
+      document.removeEventListener('visibilitychange', handleVisibility)
+      if (reconnectTimer.current) clearTimeout(reconnectTimer.current)
       if (wsRef.current) {
+        // Detach handlers so close doesn't trigger a reconnect
+        wsRef.current.onclose = null
+        wsRef.current.onerror = null
         wsRef.current.close()
       }
     }

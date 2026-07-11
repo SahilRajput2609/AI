@@ -5,7 +5,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 import { SkeletonTable } from '../components/ui/Skeleton'
 
 const TYPE_ICONS: Record<string, { icon: typeof Bot; color: string }> = {
-  agent: { icon: Bot, color: 'text-white' },
+  agent: { icon: Bot, color: 'text-[#7C6BFF]' },
   system: { icon: Terminal, color: 'text-[#FACC15]' },
   git: { icon: GitBranch, color: 'text-[#22C55E]' },
   user: { icon: Code, color: 'text-[#A8A8A8]' },
@@ -73,7 +73,9 @@ export function TimelineScreen() {
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                  f === filter ? 'bg-[#151515] text-white' : 'text-[#6E6E6E] hover:text-[#A8A8A8] hover:bg-[#080808]'
+                  f === filter
+                    ? 'bg-[#0F0F0F] text-white border border-[#7C6BFF]/15'
+                    : 'border border-transparent text-[#6E6E6E] hover:text-[#A8A8A8] hover:bg-[#080808]'
                 }`}
               >
                 {f}
@@ -95,7 +97,7 @@ export function TimelineScreen() {
                 const Icon = typeConfig.icon
                 return (
                   <div key={entry.id || i} className="relative flex gap-4 pb-6">
-                    <div className="relative z-10 w-10 h-10 rounded-lg bg-[#0F0F0F] border border-[#202020] flex items-center justify-center flex-shrink-0">
+                    <div className="relative z-10 w-10 h-10 rounded-lg bg-[#0F0F0F] border border-[#202020] hover:border-[#7C6BFF]/30 transition-colors flex items-center justify-center flex-shrink-0">
                       <Icon className={typeConfig.color} size={16} />
                     </div>
                     <div className="flex-1 pt-1">

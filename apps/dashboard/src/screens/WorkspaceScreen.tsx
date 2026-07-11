@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, FolderOpen, Clock, ArrowRight, Code, Layout, Zap, Wifi, WifiOff } from 'lucide-react'
+import { Plus, FolderOpen, Clock, ArrowRight, Code, Layout, Zap, Wifi, WifiOff, AlertTriangle, RotateCcw } from 'lucide-react'
 import { PromptBox } from '../components/PromptBox'
 import { AgentPipeline, type AgentStep } from '../components/AgentPipeline'
 import { api } from '../lib/api'
@@ -42,6 +42,7 @@ const AGENT_LABELS: Record<string, string> = {
 export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string) => void }) {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [generating, setGenerating] = useState(false)
   const [pipelineSteps, setPipelineSteps] = useState<AgentStep[]>([])
   const [pipelineRunning, setPipelineRunning] = useState(false)
@@ -72,10 +73,12 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
   }, [notifications])
 
   const loadProjects = async () => {
+    setLoadError(null)
     try {
       const data = await api.getProjects()
       setProjects(data)
-    } catch {
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : 'Could not reach the server')
     } finally {
       setLoading(false)
     }
@@ -190,7 +193,10 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
       setPipelineRunning(false)
       await loadProjects()
       onOpenProject?.(project.id)
-    } catch {
+    } catch (err) {
+      setPipelineRunning(false)
+      setPipelineSteps((prev) => prev.map((s) => (s.status === 'running' ? { ...s, status: 'failed' as const } : s)))
+      setLoadError(err instanceof Error ? err.message : 'Project generation failed')
     } finally {
       setGenerating(false)
     }
@@ -210,20 +216,55 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
       <div className="max-w-5xl mx-auto px-8 py-10">
         {/* Connection status */}
         <div className="flex items-center justify-end mb-4 gap-2">
-          <span
+          <motion.span
+            layout
             className={clsx(
-              'flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full',
-              connected ? 'bg-[#22C55E]/10 text-[#22C55E]' : 'bg-[#EF4444]/10 text-[#EF4444]',
+              'flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full border',
+              connected
+                ? 'bg-[#22C55E]/10 text-[#22C55E] border-[#22C55E]/20'
+                : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20',
             )}
           >
+            <motion.span
+              animate={connected ? { scale: [1, 1.4, 1], opacity: [1, 0.6, 1] } : {}}
+              transition={{ duration: 2, repeat: Infinity }}
+              className={clsx('w-1.5 h-1.5 rounded-full', connected ? 'bg-[#22C55E]' : 'bg-[#EF4444]')}
+            />
             {connected ? <Wifi size={10} /> : <WifiOff size={10} />}
-            {connected ? 'Connected' : 'Disconnected'}
-          </span>
+            {connected ? 'Live' : 'Reconnecting…'}
+          </motion.span>
         </div>
 
+        {/* Error banner */}
+        {loadError && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 mb-6 px-4 py-3 rounded-xl border border-[#EF4444]/25 bg-[#EF4444]/8 text-[#EF4444]"
+          >
+            <AlertTriangle size={15} className="flex-shrink-0" />
+            <p className="text-xs flex-1">{loadError}</p>
+            <button
+              onClick={() => {
+                setLoading(true)
+                loadProjects()
+              }}
+              className="flex items-center gap-1 text-xs font-medium hover:opacity-70 transition-opacity"
+            >
+              <RotateCcw size={11} />
+              Retry
+            </button>
+          </motion.div>
+        )}
+
         {/* Hero + Prompt */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
-          <h1 className="text-2xl font-semibold text-white mb-2">What do you want to build today?</h1>
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+          className="text-center mb-10"
+        >
+          <h1 className="text-3xl font-bold tracking-tight text-gradient mb-2">What do you want to build today?</h1>
           <p className="text-sm text-[#6B7280] mb-8">Describe your project and AI agents will build it for you</p>
           <PromptBox onSubmit={handlePrompt} isLoading={generating} />
         </motion.div>
@@ -265,7 +306,7 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
 
             {loading &&
               [1, 2, 3].map((i) => (
-                <div key={i} className="h-28 rounded-xl bg-[#0A0A0A] border border-[#1A1A1A] animate-pulse" />
+                <div key={i} className="h-28 rounded-xl border border-[#1A1A1A] shimmer-surface" />
               ))}
 
             {!loading &&
@@ -274,11 +315,13 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
                 return (
                   <motion.button
                     key={project.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
+                    initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ delay: i * 0.06, type: 'spring', stiffness: 320, damping: 26 }}
+                    whileHover={{ y: -3 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => onOpenProject?.(project.id)}
-                    className="h-28 rounded-xl border border-[#202020] bg-[#0F0F0F] hover:bg-[#151515] hover:border-[#333] transition-all text-left p-4 flex flex-col justify-between group"
+                    className="h-28 rounded-xl border border-[#202020] bg-[#0F0F0F] hover:bg-[#151515] hover:border-[#7C6BFF]/30 hover:shadow-[0_8px_32px_-8px_rgba(124,107,255,0.2)] transition-colors text-left p-4 flex flex-col justify-between group"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
@@ -289,7 +332,7 @@ export function WorkspaceScreen({ onOpenProject }: { onOpenProject?: (id: string
                       </div>
                       <ArrowRight
                         size={14}
-                        className="text-[#6B7280] opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="text-[#7C6BFF] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200"
                       />
                     </div>
                     <div className="flex items-center justify-between">

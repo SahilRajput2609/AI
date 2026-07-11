@@ -158,7 +158,8 @@ export function KanbanScreen() {
                   setSearchQuery('')
                   setShowSearch(false)
                 }}
-                className="text-[#6E6E6E] hover:text-white"
+                aria-label="Clear search"
+                className="text-[#6E6E6E] hover:text-white transition-colors"
               >
                 <X size={12} />
               </button>
@@ -166,7 +167,7 @@ export function KanbanScreen() {
           ) : (
             <button
               onClick={() => setShowSearch(true)}
-              className="flex items-center gap-2 h-8 px-3 rounded-lg border border-[#202020] bg-transparent text-[#A8A8A8] text-xs hover:bg-[#080808] hover:border-[#333] transition-all"
+              className="flex items-center gap-2 h-8 px-3 rounded-lg border border-[#202020] bg-transparent text-[#A8A8A8] text-xs hover:bg-[#080808] hover:border-[#7C6BFF]/30 transition-colors"
             >
               <Search size={14} /> Search
             </button>
@@ -175,10 +176,10 @@ export function KanbanScreen() {
             <button
               onClick={() => setFilterPriority(filterPriority ? null : 'high')}
               className={clsx(
-                'flex items-center gap-2 h-8 px-3 rounded-lg border text-xs transition-all',
+                'flex items-center gap-2 h-8 px-3 rounded-lg border text-xs transition-colors',
                 filterPriority
                   ? 'border-[#7C6BFF] bg-[#7C6BFF]/10 text-[#7C6BFF]'
-                  : 'border-[#202020] bg-transparent text-[#A8A8A8] hover:bg-[#080808] hover:border-[#333]',
+                  : 'border-[#202020] bg-transparent text-[#A8A8A8] hover:bg-[#080808] hover:border-[#7C6BFF]/30',
               )}
             >
               <Filter size={14} /> {filterPriority ? `Priority: ${filterPriority}` : 'Filter'}
@@ -186,7 +187,7 @@ export function KanbanScreen() {
           </div>
           <button
             onClick={() => setShowNewTask(true)}
-            className="flex items-center gap-2 h-8 px-3 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 transition-all"
+            className="flex items-center gap-2 h-8 px-3 rounded-lg bg-white text-black text-xs font-medium hover:bg-[#ececff] shadow-[0_4px_16px_-4px_rgba(124,107,255,0.35)] transition-colors"
           >
             <Plus size={14} /> New Task
           </button>
@@ -195,11 +196,15 @@ export function KanbanScreen() {
 
       {/* New Task Modal */}
       {showNewTask && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-[#0F0F0F] border border-[#202020] rounded-xl p-5 w-96 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="glass rounded-xl p-5 w-96 shadow-[0_8px_32px_-8px_rgba(124,107,255,0.2)]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-medium text-white">New Task</h3>
-              <button onClick={() => setShowNewTask(false)} className="text-[#6E6E6E] hover:text-white">
+              <button
+                onClick={() => setShowNewTask(false)}
+                aria-label="Close"
+                className="text-[#6E6E6E] hover:text-white transition-colors"
+              >
                 <X size={14} />
               </button>
             </div>
@@ -222,14 +227,14 @@ export function KanbanScreen() {
               <div className="flex gap-2 justify-end pt-2">
                 <button
                   onClick={() => setShowNewTask(false)}
-                  className="px-3 py-1.5 rounded-lg text-xs text-[#A8A8A8] hover:text-white hover:bg-[#151515] transition-all"
+                  className="px-3 py-1.5 rounded-lg text-xs text-[#A8A8A8] hover:text-white hover:bg-[#151515] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreateTask}
                   disabled={!newTaskTitle.trim()}
-                  className="px-4 py-1.5 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 disabled:opacity-30 transition-all"
+                  className="px-4 py-1.5 rounded-lg bg-white text-black text-xs font-medium hover:bg-[#ececff] shadow-[0_4px_16px_-4px_rgba(124,107,255,0.35)] disabled:opacity-30 transition-colors"
                 >
                   Create
                 </button>

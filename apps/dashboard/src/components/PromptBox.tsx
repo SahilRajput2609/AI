@@ -67,7 +67,7 @@ export function PromptBox({
       <div ref={typeRef} className="relative mb-3">
         <button
           onClick={() => setShowTypes(!showTypes)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#202020] bg-[#080808] text-xs text-[#A1A1AA] hover:border-[#333] transition-all"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#202020] bg-[#080808] text-xs text-[#A1A1AA] hover:border-[#7C6BFF]/30 transition-colors"
         >
           <Zap size={12} className="text-[#7C6BFF]" />
           {projectTypes.find((t) => t.value === selectedType)?.label || 'Custom'}
@@ -78,7 +78,8 @@ export function PromptBox({
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="absolute left-0 top-full mt-1 w-56 bg-[#0F0F0F] border border-[#202020] rounded-xl shadow-2xl z-50 max-h-80 overflow-y-auto"
+              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              className="absolute left-0 top-full mt-1 w-56 glass rounded-xl shadow-2xl z-50 max-h-80 overflow-y-auto"
             >
               {['Frontend', 'Backend', 'Full Application', 'Desktop & Mobile', 'AI & Advanced', 'Other'].map((cat) => (
                 <div key={cat}>
@@ -114,7 +115,7 @@ export function PromptBox({
       <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleFileDrop}
-        className="relative bg-[#0F0F0F] border border-[#202020] rounded-2xl focus-within:border-[#7C6BFF]/40 focus-within:ring-1 focus-within:ring-[#7C6BFF]/20 transition-all duration-200"
+        className="relative bg-[#0F0F0F] border border-[#202020] rounded-2xl hover:border-[#7C6BFF]/30 focus-within:border-[#7C6BFF]/50 focus-within:ring-1 focus-within:ring-[#7C6BFF]/20 focus-within:shadow-[0_8px_32px_-8px_rgba(124,107,255,0.2)] transition-all duration-200"
       >
         <textarea
           ref={textareaRef}
@@ -131,8 +132,9 @@ export function PromptBox({
           <div className="flex items-center gap-1">
             <button
               onClick={handleFileSelect}
-              className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#151515] transition-all"
+              className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#151515] transition-colors"
               title="Attach files"
+              aria-label="Attach files"
             >
               <Paperclip size={15} />
             </button>
@@ -144,8 +146,9 @@ export function PromptBox({
               onChange={(e) => setFiles((prev) => [...prev, ...Array.from(e.target.files || [])])}
             />
             <button
-              className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#151515] transition-all"
+              className="p-1.5 rounded-lg text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#151515] transition-colors"
               title="Use camera"
+              aria-label="Use camera"
             >
               <Sparkles size={15} />
             </button>
@@ -156,7 +159,7 @@ export function PromptBox({
             <button
               onClick={handleSubmit}
               disabled={!prompt.trim() || isLoading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black text-xs font-medium hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black text-xs font-medium shadow-[0_1px_0_rgba(255,255,255,0.4)_inset,0_4px_16px_-4px_rgba(124,107,255,0.35)] hover:bg-[#ececff] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
@@ -180,6 +183,7 @@ export function PromptBox({
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
             className="flex flex-wrap gap-2 mt-2"
           >
             {files.map((file, i) => (
@@ -195,7 +199,11 @@ export function PromptBox({
                   <Code size={12} />
                 )}
                 <span className="max-w-[120px] truncate">{file.name}</span>
-                <button onClick={() => removeFile(i)} className="text-[#6B7280] hover:text-white ml-1">
+                <button
+                  onClick={() => removeFile(i)}
+                  className="text-[#6B7280] hover:text-white ml-1 transition-colors"
+                  aria-label="Remove file"
+                >
                   <X size={12} />
                 </button>
               </div>
@@ -206,14 +214,17 @@ export function PromptBox({
 
       {/* Suggestion chips */}
       <div className="flex flex-wrap gap-2 mt-4">
-        {suggestionChips.slice(0, 4).map((chip) => (
-          <button
+        {suggestionChips.slice(0, 4).map((chip, i) => (
+          <motion.button
             key={chip}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.04 * i, type: 'spring', stiffness: 350, damping: 28 }}
             onClick={() => setPrompt(chip)}
-            className="px-3 py-1.5 rounded-lg border border-[#202020] bg-[#080808] text-xs text-[#6B7280] hover:text-[#A1A1AA] hover:border-[#333] hover:bg-[#0F0F0F] transition-all"
+            className="px-3 py-1.5 rounded-lg border border-[#202020] bg-[#080808] text-xs text-[#6B7280] hover:text-[#A1A1AA] hover:border-[#7C6BFF]/30 hover:bg-[#0F0F0F] transition-colors"
           >
             {chip}
-          </button>
+          </motion.button>
         ))}
       </div>
     </div>

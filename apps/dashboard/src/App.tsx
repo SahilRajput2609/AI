@@ -5,6 +5,7 @@ import { Sidebar } from './components/workspace/Sidebar'
 import { NotificationToast } from './components/workspace/NotificationToast'
 import { PageTransition } from './components/PageTransition'
 import { CommandPalette } from './components/CommandPalette'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { LoginScreen } from './screens/LoginScreen'
 import { OAuthCallback } from './screens/OAuthCallback'
 import { api } from './lib/api'
@@ -121,8 +122,9 @@ export default function App() {
 
         {/* Main content */}
         <main className="flex-1 overflow-hidden flex flex-col">
-          <PageTransition key={projectId ? `project-${projectId}` : screen}>
-            <div className="flex-1 flex overflow-hidden h-full">
+          <ErrorBoundary>
+            <PageTransition key={projectId ? `project-${projectId}` : screen}>
+              <div className="flex-1 flex overflow-hidden h-full">
               {projectId ? (
                 <ProjectScreen projectId={projectId} onBack={() => setProjectId(null)} />
               ) : screen === 'workspace' ? (
@@ -152,8 +154,9 @@ export default function App() {
                   }}
                 />
               )}
-            </div>
-          </PageTransition>
+              </div>
+            </PageTransition>
+          </ErrorBoundary>
         </main>
       </div>
 

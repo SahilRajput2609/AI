@@ -56,6 +56,7 @@ export function ChatPanel() {
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className="flex flex-col h-full bg-[#050505] border-l border-[#202020] rounded-lg overflow-hidden"
     >
       {/* Header */}
@@ -73,7 +74,7 @@ export function ChatPanel() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ delay: i * 0.05 }}
+              transition={{ delay: i * 0.05, type: 'spring', stiffness: 350, damping: 28 }}
               className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {message.role === 'assistant' && (
@@ -86,7 +87,7 @@ export function ChatPanel() {
                 className={`max-w-xs px-4 py-2 rounded-lg text-sm leading-relaxed ${
                   message.role === 'user'
                     ? 'bg-[#7C6BFF] text-white rounded-br-none'
-                    : 'bg-[#111] text-[#A1A1AA] border border-[#202020] rounded-bl-none'
+                    : 'bg-[#111] text-[#A1A1AA] border border-[#7C6BFF]/15 rounded-bl-none'
                 }`}
               >
                 {message.content}
@@ -118,6 +119,8 @@ export function ChatPanel() {
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 26 }}
+            aria-label="Attach file"
             className="p-2 text-[#6B7280] hover:text-[#7C6BFF] transition-colors"
           >
             <Paperclip size={18} />
@@ -127,13 +130,15 @@ export function ChatPanel() {
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
             placeholder="Type a message..."
-            className="flex-1 bg-[#111] border border-[#202020] rounded-lg px-3 py-2 text-sm text-white placeholder-[#6B7280] outline-none focus:border-[#7C6BFF]/50"
+            className="flex-1 bg-[#111] border border-[#202020] rounded-lg px-3 py-2 text-sm text-white placeholder-[#6B7280] outline-none focus:border-[#7C6BFF]/50 transition-colors"
           />
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 26 }}
             onClick={handleSend}
             disabled={isLoading || !input.trim()}
+            aria-label="Send message"
             className="p-2 text-[#7C6BFF] hover:bg-[#7C6BFF]/10 rounded-lg transition-colors disabled:opacity-50"
           >
             <Send size={18} />

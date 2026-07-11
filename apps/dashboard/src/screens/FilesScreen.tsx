@@ -20,20 +20,20 @@ function TreeNode({ node, depth = 0 }: { node: TreeNodeData; depth?: number }) {
   return (
     <div>
       <div
-        className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer hover:bg-[#080808] transition-colors"
+        className="group flex items-center gap-2 px-3 py-1.5 rounded-md text-sm cursor-pointer hover:bg-[#0A0A0A] transition-colors"
         style={{ paddingLeft: 12 + depth * 16 }}
         onClick={() => isFolder && setOpen(!open)}
       >
         {isFolder ? (
           open ? (
-            <FolderOpen size={14} className="text-[#A8A8A8]" />
+            <FolderOpen size={14} className="text-[#7C6BFF]" />
           ) : (
             <Folder size={14} className="text-[#6E6E6E]" />
           )
         ) : (
           <FileText size={14} className="text-[#6E6E6E]" />
         )}
-        <span className="text-[#A8A8A8]">{node.name}</span>
+        <span className="text-[#A8A8A8] group-hover:text-white transition-colors">{node.name}</span>
       </div>
       {isFolder && open && node.children && (
         <div>

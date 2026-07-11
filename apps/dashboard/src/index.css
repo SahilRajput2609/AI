@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 @import 'tailwindcss';
 
 @theme {
@@ -11,7 +11,8 @@
   --color-text: #ffffff;
   --color-text-secondary: #a8a8a8;
   --color-text-muted: #6e6e6e;
-  --color-accent: #ffffff;
+  --color-accent: #7c6bff;
+  --color-accent-soft: rgba(124, 107, 255, 0.12);
   --color-success: #22c55e;
   --color-warning: #facc15;
   --color-error: #ef4444;
@@ -27,6 +28,9 @@
   --animate-fade-in: fade-in 200ms ease-out;
   --animate-slide-up: slide-up 200ms ease-out;
   --animate-scale-in: scale-in 150ms ease-out;
+  --animate-shimmer: shimmer 1.8s linear infinite;
+  --animate-glow-pulse: glow-pulse 2.4s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
 }
 
 html {
@@ -69,7 +73,7 @@ body {
 }
 
 ::selection {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(124, 107, 255, 0.35);
 }
 
 input,
@@ -78,6 +82,64 @@ select,
 button {
   font-family: inherit;
 }
+
+/* Visible keyboard focus without mouse-focus noise */
+:focus-visible {
+  outline: 2px solid rgba(124, 107, 255, 0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---- Utility classes ---- */
+
+.glass {
+  background: rgba(10, 10, 12, 0.72);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glow-accent {
+  box-shadow:
+    0 0 0 1px rgba(124, 107, 255, 0.25),
+    0 4px 24px -4px rgba(124, 107, 255, 0.25);
+}
+
+.text-gradient {
+  background: linear-gradient(120deg, #ffffff 30%, #b4a9ff 60%, #7c6bff 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.shimmer-surface {
+  background: linear-gradient(100deg, #131313 40%, #1e1e22 50%, #131313 60%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+
+.gradient-border {
+  position: relative;
+  background: var(--color-card);
+  background-clip: padding-box;
+  border: 1px solid transparent;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(140deg, rgba(124, 107, 255, 0.5), rgba(124, 107, 255, 0.05) 40%, rgba(255, 255, 255, 0.06));
+}
+
+/* ---- Keyframes ---- */
 
 @keyframes fade-in {
   from {
@@ -112,15 +174,50 @@ button {
 
 @keyframes shimmer {
   0% {
-    background-position: -200% 0;
+    background-position: 200% 0;
   }
   100% {
-    background-position: 200% 0;
+    background-position: -200% 0;
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 107, 255, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 24px 2px rgba(124, 107, 255, 0.35);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
   }
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

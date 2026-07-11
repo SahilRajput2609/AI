@@ -58,7 +58,7 @@ export function AgentIdeScreen() {
         </div>
         <div className="p-4 flex-1 overflow-y-auto space-y-4">
           {/* Prompt */}
-          <div className="rounded-lg border border-[#202020] bg-[#080808] p-3">
+          <div className="rounded-lg border border-[#202020] bg-[#080808] p-3 focus-within:border-[#7C6BFF]/40 transition-colors">
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
@@ -71,7 +71,7 @@ export function AgentIdeScreen() {
               <button
                 onClick={startDeployment}
                 disabled={isRunning || !prompt}
-                className="h-8 px-3 bg-white text-black text-xs font-medium rounded-lg flex items-center gap-1.5 hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                className="h-8 px-3 bg-white text-black text-xs font-medium rounded-lg flex items-center gap-1.5 hover:bg-[#ececff] shadow-[0_4px_16px_-4px_rgba(124,107,255,0.35)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
                 <Play size={12} /> Deploy
               </button>
@@ -83,20 +83,20 @@ export function AgentIdeScreen() {
             <button
               onClick={() => setTab('terminal')}
               className={clsx(
-                'flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-xs transition-all',
+                'flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-xs transition-colors',
                 tab === 'terminal' ? 'bg-[#151515] text-white' : 'text-[#6B7280] hover:text-[#A1A1AA]',
               )}
             >
-              <TerminalIcon size={13} /> Terminal
+              <TerminalIcon size={13} className={tab === 'terminal' ? 'text-[#7C6BFF]' : undefined} /> Terminal
             </button>
             <button
               onClick={() => setTab('output')}
               className={clsx(
-                'flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-xs transition-all',
+                'flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-xs transition-colors',
                 tab === 'output' ? 'bg-[#151515] text-white' : 'text-[#6B7280] hover:text-[#A1A1AA]',
               )}
             >
-              <ListTodo size={13} /> Output
+              <ListTodo size={13} className={tab === 'output' ? 'text-[#7C6BFF]' : undefined} /> Output
             </button>
           </div>
 
@@ -104,13 +104,13 @@ export function AgentIdeScreen() {
           {agents.length > 0 && (
             <div>
               <p className="text-xs text-[#6E6E6E] mb-2 uppercase tracking-wider font-medium flex items-center gap-1">
-                <Bot size={12} /> Agents
+                <Bot size={12} className="text-[#7C6BFF]" /> Agents
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {agents.map((a: any) => (
                   <span
                     key={a.id || a.role}
-                    className="text-[11px] text-[#A8A8A8] bg-[#0F0F0F] border border-[#202020] px-2 py-1 rounded-md"
+                    className="text-[11px] text-[#A8A8A8] bg-[#0F0F0F] border border-[#202020] hover:border-[#7C6BFF]/30 transition-colors px-2 py-1 rounded-md"
                   >
                     {a.name || a.role}
                   </span>

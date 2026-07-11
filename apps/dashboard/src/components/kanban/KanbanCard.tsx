@@ -39,12 +39,12 @@ export function KanbanCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.2 }}
-      whileHover={{ scale: 1.02, y: -4 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+      whileHover={{ y: -3 }}
       whileTap={{ scale: 0.98 }}
       draggable
       onDragStart={(e: any) => onDragStart?.(e as React.DragEvent, cardId, columnId)}
-      className="group relative bg-[#090909] border border-[#202020] rounded-lg p-4 cursor-grab active:cursor-grabbing hover:border-[#7C6BFF]/30 shadow-sm hover:shadow-lg hover:shadow-[#7C6BFF]/10 transition-all duration-200"
+      className="group relative bg-[#0F0F0F] border border-[#202020] rounded-lg p-4 cursor-grab active:cursor-grabbing hover:bg-[#151515] hover:border-[#7C6BFF]/30 hover:shadow-[0_8px_32px_-8px_rgba(124,107,255,0.2)] transition-colors"
     >
       {/* Drag Handle */}
       <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -61,7 +61,8 @@ export function KanbanCard({
       {/* Delete Button */}
       <button
         onClick={() => onDelete?.(cardId)}
-        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-[#1a1a1a] rounded text-[#6B7280] hover:text-[#EF4444]"
+        aria-label="Delete task"
+        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity p-1 hover:bg-[#1a1a1a] rounded text-[#6B7280] hover:text-[#EF4444]"
       >
         <Trash2 size={14} />
       </button>

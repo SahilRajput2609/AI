@@ -32,36 +32,51 @@ export function Sidebar({
 }: SidebarProps) {
   return (
     <motion.aside
-      initial={{ x: -10, opacity: 0 }}
+      initial={{ x: -16, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.2 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className={`
-        bg-[#050505] border-r border-[#1A1A1A] flex flex-col h-full transition-all duration-200
+        bg-[#050505] border-r border-[#1A1A1A] flex flex-col h-full transition-all duration-300 ease-out
         ${collapsed ? 'w-14' : 'w-56'}
       `}
     >
       {/* Navigation */}
       <nav className="flex-1 py-3 px-2 space-y-0.5">
-        {navItems.map((item) => {
+        {navItems.map((item, i) => {
           const isActive = activeScreen === item.screen
           return (
-            <button
+            <motion.button
               key={item.screen}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.04 * i, type: 'spring', stiffness: 350, damping: 28 }}
               onClick={() => onNavigate(item.screen)}
+              title={collapsed ? item.label : undefined}
               className={`
-                w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all group text-left
-                ${isActive ? 'bg-[#0F0F0F] text-white' : 'text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#0A0A0A]'}
+                relative w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group text-left
+                ${isActive ? 'text-white' : 'text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#0A0A0A]'}
               `}
             >
+              {isActive && (
+                <motion.span
+                  layoutId="sidebar-active"
+                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                  className="absolute inset-0 rounded-lg bg-[#0F0F0F] border border-[#7C6BFF]/15 shadow-[inset_2px_0_0_#7C6BFF]"
+                />
+              )}
               <item.icon
                 size={16}
-                className={`flex-shrink-0 ${isActive ? 'text-[#7C6BFF]' : 'group-hover:text-[#A1A1AA]'} transition-colors`}
+                className={`relative z-10 flex-shrink-0 ${isActive ? 'text-[#7C6BFF]' : 'group-hover:text-[#A1A1AA]'} transition-colors`}
               />
-              {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
+              {!collapsed && <span className="relative z-10 text-sm font-medium truncate">{item.label}</span>}
               {isActive && !collapsed && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#7C6BFF] flex-shrink-0" />
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="relative z-10 ml-auto w-1.5 h-1.5 rounded-full bg-[#7C6BFF] flex-shrink-0 shadow-[0_0_8px_rgba(124,107,255,0.8)]"
+                />
               )}
-            </button>
+            </motion.button>
           )
         })}
       </nav>
@@ -70,25 +85,34 @@ export function Sidebar({
       <div className="px-2 py-3 border-t border-[#1A1A1A] space-y-0.5">
         <button
           onClick={() => onNavigate('settings')}
+          title={collapsed ? 'Settings' : undefined}
           className={`
-            w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all group text-left
+            relative w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group text-left
             ${
               activeScreen === 'settings'
-                ? 'bg-[#0F0F0F] text-white'
+                ? 'text-white'
                 : 'text-[#6B7280] hover:text-[#A1A1AA] hover:bg-[#0A0A0A]'
             }
           `}
         >
+          {activeScreen === 'settings' && (
+            <motion.span
+              layoutId="sidebar-active"
+              transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+              className="absolute inset-0 rounded-lg bg-[#0F0F0F] border border-[#7C6BFF]/15 shadow-[inset_2px_0_0_#7C6BFF]"
+            />
+          )}
           <Settings
             size={16}
-            className={`flex-shrink-0 ${activeScreen === 'settings' ? 'text-[#7C6BFF]' : 'group-hover:text-[#A1A1AA]'} transition-colors`}
+            className={`relative z-10 flex-shrink-0 ${activeScreen === 'settings' ? 'text-[#7C6BFF]' : 'group-hover:text-[#A1A1AA]'} transition-colors`}
           />
-          {!collapsed && <span className="text-sm font-medium">Settings</span>}
+          {!collapsed && <span className="relative z-10 text-sm font-medium">Settings</span>}
         </button>
 
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[#6B7280] hover:text-[#EF4444] hover:bg-[#EF4444]/5 transition-all group text-left"
+          title={collapsed ? 'Logout' : undefined}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[#6B7280] hover:text-[#EF4444] hover:bg-[#EF4444]/5 transition-colors group text-left"
         >
           <LogOut size={16} className="flex-shrink-0 transition-colors" />
           {!collapsed && <span className="text-sm font-medium">Logout</span>}
@@ -97,7 +121,8 @@ export function Sidebar({
         {/* Collapse toggle */}
         <button
           onClick={onToggleCollapse}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[#444] hover:text-[#666] transition-all"
+          title={collapsed ? 'Expand' : 'Collapse'}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[#444] hover:text-[#666] transition-colors"
         >
           {collapsed ? (
             <ChevronRight size={14} className="flex-shrink-0 mx-auto" />
