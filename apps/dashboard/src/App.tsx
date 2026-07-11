@@ -40,6 +40,11 @@ export default function App() {
     if (token) {
       api.setToken(token)
       setLoggedIn(true)
+    } else {
+      // Auto-login in dev mode
+      localStorage.setItem('ai_company_token', 'dev-token-' + Date.now())
+      api.setToken('dev-token-' + Date.now())
+      setLoggedIn(true)
     }
     setIsInitializing(false)
   }, [])
